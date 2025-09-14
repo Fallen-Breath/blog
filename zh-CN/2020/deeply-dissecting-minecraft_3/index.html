@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="计划刻的实现原理以及相关性质的应用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深度剖析Minecraft #3 计划刻">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="计划刻的实现原理以及相关性质的应用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/single0.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/single1.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/single2.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/multi0.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/multi0.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/multi1.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/multi2.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/emp-tower.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/emp-detector.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/cactus-broken.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/force-growth.png">
+<meta property="article:published_time" content="2020-09-16T15:40:29.000Z">
+<meta property="article:modified_time" content="2021-02-02T03:01:00.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="深度剖析MC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/single0.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/","path":"zh-CN/2020/deeply-dissecting-minecraft_3/","title":"深度剖析Minecraft #3 计划刻"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>深度剖析Minecraft #3 计划刻 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-%E8%AE%A1%E5%88%92%E5%88%BB"><span class="nav-text">3 计划刻</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-%E4%BB%80%E4%B9%88%E6%98%AF%E8%AE%A1%E5%88%92%E5%88%BB"><span class="nav-text">3.1 什么是计划刻</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-%E8%AE%A1%E5%88%92%E5%88%BB%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-text">3.2 计划刻的实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-1-%E8%AE%A1%E5%88%92%E5%88%BB%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F"><span class="nav-text">3.2.1 计划刻管理系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-2-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6"><span class="nav-text">3.2.2 计划刻事件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-2-2-1-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E9%97%B4%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-text">3.2.2.1 计划刻事件间的比较</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-3-%E8%AE%A1%E5%88%92%E5%88%BB%E9%98%B6%E6%AE%B5"><span class="nav-text">3.2.3 计划刻阶段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-4-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%B7%BB%E5%8A%A0"><span class="nav-text">3.2.4 计划刻事件的添加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-5-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%A0%E9%99%A4"><span class="nav-text">3.2.5 计划刻事件的删除</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="nav-text">3.3 计划刻事件执行顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-1-%E5%8D%95%E4%B8%AA%E5%85%83%E4%BB%B6"><span class="nav-text">3.3.1 单个元件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-2-%E5%A4%9A%E5%85%83%E4%BB%B6%E7%BB%84%E5%90%88"><span class="nav-text">3.3.2 多元件组合</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-text">3.4 计划刻元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-%E6%97%B6%E5%BA%8F%E6%8F%8F%E8%BF%B0"><span class="nav-text">3.5 时序描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-6-%E8%AE%A1%E5%88%92%E5%88%BB%E6%80%A7%E8%B4%A8%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">3.6 计划刻性质的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-1-%E8%AE%A1%E5%88%92%E5%88%BB%E6%BB%9E%E5%90%8E-EMP"><span class="nav-text">3.6.1 计划刻滞后&#x2F;EMP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-2-%E9%9A%8F%E6%9C%BA%E5%88%BB%E4%BC%AA%E9%80%A0"><span class="nav-text">3.6.2 随机刻伪造</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="深度剖析Minecraft #3 计划刻 | fallen's attic">
+      <meta itemprop="description" content="计划刻的实现原理以及相关性质的应用">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深度剖析Minecraft #3 计划刻
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-09-16 23:40:29" itemprop="dateCreated datePublished" datetime="2020-09-16T23:40:29+08:00">2020-09-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2021-02-02 11:01:00" itemprop="dateModified" datetime="2021-02-02T11:01:00+08:00">2021-02-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+            <div class="post-description">计划刻的实现原理以及相关性质的应用</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="3-计划刻"><a class="header-anchor" href="#3-计划刻"></a>3 计划刻</h1>
+<h2 id="3-1-什么是计划刻"><a class="header-anchor" href="#3-1-什么是计划刻"></a>3.1 什么是计划刻</h2>
+<p>计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述</p>
+<p>在 Minecraft 中，许多方块对变化的响应并不是瞬时，而是延迟一定时间后方才开始执行的，如下面几个常见的例子：</p>
+<ul>
+<li>中继器响应信号输入</li>
+<li>沙子检测下方方块以准备下落</li>
+<li>流体进行流动</li>
+<li>悬空脚手架的逐个掉落</li>
+</ul>
+<span id="more"></span>
+<p>对于这一类具有共性的延迟执行的事件，Minecraft 使用计划刻这一概念进行统一的管理，每一个纬度的计划刻管理系统都是相互<strong>独立</strong>的</p>
+<p>1.13 前，方块和流体共用一个计划刻管理系统进行储存，1.13 及以后，方块和流体为独立的计划刻管理系统</p>
+<h2 id="3-2-计划刻的实现原理"><a class="header-anchor" href="#3-2-计划刻的实现原理"></a>3.2 计划刻的实现原理</h2>
+<h3 id="3-2-1-计划刻管理系统"><a class="header-anchor" href="#3-2-1-计划刻管理系统"></a>3.2.1 计划刻管理系统</h3>
+<p>一个计划刻管理系统，是一个包含了一套完善的与计划刻相关的状态、容器的对象，类名如下</p>
+<blockquote>
+<p>net.minecraft.world.ServerTickList (1.13.2 mcp)</p>
+<p>net.minecraft.server.world.ServerTickScheduler (1.15.2 yarn)</p>
+</blockquote>
+<p>其中，有三个储存着计划刻事件的容器是我们所关注的：</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>属性名</th>
+<th>类型</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>计划刻队列</td>
+<td>pendingTickListEntriesTreeSet</td>
+<td>TreeSet</td>
+<td>可视作一个优先队列，用于有序地储存计划刻事件</td>
+</tr>
+<tr>
+<td>计划刻队列附属哈希表</td>
+<td>pendingTickListEntriesHashSet</td>
+<td>HashSet</td>
+<td>用于快速判断计划刻事件是否在计划刻队列中</td>
+</tr>
+<tr>
+<td>即将执行事件列表</td>
+<td>pendingTickListEntriesThisTick</td>
+<td>ArrayList</td>
+<td>储存着即将在某个游戏刻执行的计划刻事件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-2-2-计划刻事件"><a class="header-anchor" href="#3-2-2-计划刻事件"></a>3.2.2 计划刻事件</h3>
+<p>对于一个计划刻事件（<code>net.minecraft.world.NextTickListEntry</code>）来说，它具有以下属性</p>
+<ul>
+<li>事件 id，一个递增的不重复整数</li>
+<li>目标方块/流体类型</li>
+<li>方块/流体的方块坐标</li>
+<li>事件计划执行的游戏刻</li>
+<li>事件优先级</li>
+</ul>
+<p>事件优先级一共有 7 种可能的取值，从 -3 至 +3，如下所示</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">EXTREMELY_HIGH(-<span class="number">3</span>),</span><br><span class="line">VERY_HIGH(-<span class="number">2</span>),</span><br><span class="line">HIGH(-<span class="number">1</span>),</span><br><span class="line">NORMAL(<span class="number">0</span>),</span><br><span class="line">LOW(<span class="number">1</span>),</span><br><span class="line">VERY_LOW(<span class="number">2</span>),</span><br><span class="line">EXTREMELY_LOW(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+<p>由其中可看出，每个计划刻事件所储存的属性其实并不是十分详细，不少事件的具体细节是没有储存起来的，如：</p>
+<ul>
+<li>计划刻事件仅储存了方块的种类，未储存方块状态</li>
+<li>计划刻事件未储存该事件将要执行什么动作，也即在该事件真正执行前游戏是不知道这个事件具体会引发什么动作的</li>
+</ul>
+<h4 id="3-2-2-1-计划刻事件间的比较"><a class="header-anchor" href="#3-2-2-1-计划刻事件间的比较"></a>3.2.2.1 计划刻事件间的比较</h4>
+<p>两个计划刻事件是相同的（<code>equals</code> 方法），当且<strong>仅</strong>当这两个事件的以下属性相同</p>
+<ul>
+<li>目标方块/流体类型</li>
+<li>方块/流体的方块坐标</li>
+</ul>
+<p>这将用在判断事件是否存在于 <code>即将执行的事件列表</code>（一个 <code>ArrayList</code>）中</p>
+<hr>
+<p>在判断事件的大小关系时（<code>compareTo</code> 方法），按照以下关键字依次比较：</p>
+<ol>
+<li>执行时刻，较小者优先</li>
+<li>事件优先级</li>
+<li>事件 id，较小者优先</li>
+</ol>
+<p>这将用在计划刻队列（一个 <code>TreeSet</code>）的实现中</p>
+<h3 id="3-2-3-计划刻阶段"><a class="header-anchor" href="#3-2-3-计划刻阶段"></a>3.2.3 计划刻阶段</h3>
+<p>每游戏刻中，计划刻阶段的执行入口是 <code>net.minecraft.world.WorldServer#tickPending</code>。其中，先处理方块的计划刻阶段，再处理流体相关的计划刻阶段</p>
+<p>在计划刻阶段里，游戏将按照事件优先级从高到底的顺序执行将在此游戏刻中执行的计划刻事件。若优先级相同，则比较事件的id，id较小的先执行</p>
+<p>具体实现是比较朴素的。Minecraft 使用了一个 TreeSet（使用红黑树实现的二叉平衡树）作为该纬度所有计划刻事件的容器</p>
+<p>因为在代码中，不存在直接删改该容器某个具体元素的用法，仅存在插入元素及取出最小元素这两个操作，因此即便这个容器不是明面上的一个队列， 它仍可被视为一个队列，或者更准确的，优先队列。这也是计划刻队列这一词的来由</p>
+<p>TreeSet 的时间复杂度是 O(nlogn)，这意味着实际上计划刻元件的卡顿并非线性增加的，不过在实际情况下由于 logn 变化极小，仍可以大致认为卡顿是线性增加的</p>
+<p>下面以方块的计划刻阶段为例，核心流程如下：</p>
+<ol>
+<li>检索应在该游戏刻执行的事件
+<ol>
+<li>取出计划刻队列中位于最前的事件（比较方法见上方所列的优先级）</li>
+<li>若当前的游戏时间小于该事件的执行时刻，或者本计划刻阶段已取出了 65536 个计划刻事件 <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>，则退出循环，跳出循环。超过上限的事件将会延迟到下一游戏刻尝试执行</li>
+<li>将该事件<strong>移出计划刻队列</strong>，暂存入一个即将执行的事件列表</li>
+</ol>
+</li>
+</ol>
+<p>第一步执行完后，游戏已经确认下来了这个游戏刻中将执行哪些计划刻事件。注意到这些事件已经被移出了计划刻队列，因此一个新的相同的计划刻事件现在是可以添加成功了（计划刻事件添加的判据见 <a href="#3-2-4-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%B7%BB%E5%8A%A0">3.2.4 计划刻事件的添加</a>）</p>
+<p>随后，游戏开始执行这些计划刻事件：</p>
+<ol start="2">
+<li>
+<p>处理即将执行的事件列表</p>
+<ul>
+<li>
+<p>对于列表中每个计划刻事件，若事件的方块的坐标所在区块处于加载状态，则：</p>
+<ol>
+<li>判断世界中此坐标的方块是否仍与该事件的方块类型相同，如果相同，则调用该方块的 <code>tick</code>方法</li>
+</ol>
+</li>
+<li>
+<p>若坐标所在的区块未加载，则：</p>
+<ol>
+<li>
+<p>添加一个计划刻事件，属性为：</p>
+<ul>
+<li>坐标：该事件的坐标</li>
+<li>方块：该事件的方块</li>
+<li>延迟：0</li>
+<li>优先级：0</li>
+</ul>
+<p>不过此计划刻事件不会添加成功，因为此事件的坐标所在区块未被加载。至于为何要实现此逻辑，仍有待考究</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>计划刻阶段结束</p>
+</li>
+</ol>
+<p>为了让表述更流畅，上述描述并非与源代码 100% 对应的分析，但是其效果是等价的。具体代码可见：</p>
+<p><code>net.minecraft.world.ServerTickList#tick (1.13.2 mcp) </code></p>
+<p><code>net.minecraft.server.world.ServerTickScheduler#tick (1.15.2 yarn)</code></p>
+<h3 id="3-2-4-计划刻事件的添加"><a class="header-anchor" href="#3-2-4-计划刻事件的添加"></a>3.2.4 计划刻事件的添加</h3>
+<p>若要添加一个计划刻事件，需要传入以下的参数：</p>
+<ul>
+<li>方块/流体的坐标</li>
+<li>方块/流体的类型</li>
+<li>执行延迟</li>
+<li>事件优先级。若未指定则为默认值 0</li>
+</ul>
+<p>随后，游戏会依次执行下述步骤判断此次添加是否合法：</p>
+<ol>
+<li>若添加的是方块计划刻事件，则该事件方块不可为空气；若添加的是流体计划刻事件，则流体不可为空</li>
+<li>事件所在坐标的区块处于已加载状态</li>
+<li><strong>计划刻队列中不存在相同的事件</strong></li>
+</ol>
+<p>最后，一个新的计划刻事件将会创建并加入至计划刻队列中 <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>，其方块/流体的类型与坐标即为所给值，而执行时刻则从给出的执行延迟计算得到，为 <code>执行延迟 + 该纬度当前的游戏时间</code></p>
+<h3 id="3-2-5-计划刻事件的删除"><a class="header-anchor" href="#3-2-5-计划刻事件的删除"></a>3.2.5 计划刻事件的删除</h3>
+<p>计划刻事件在添加入计划刻队列后，是不会直接被游戏删除的，即便原方块/流体已经被改变。游戏中唯一类似删除计划刻事件的地方，是由于事件所处的区块被卸载，从而导致执行该事件的时候被游戏移除队列且不再加入队列不过放心，在区块卸载保存的时候，计划刻队列是会保存至磁盘的，因此不需要担心计划刻元件的动作被丢失了</p>
+<p>计划刻事件的不易被删除特性，在某些情况下是可以利用的</p>
+<h2 id="3-3-计划刻事件执行顺序"><a class="header-anchor" href="#3-3-计划刻事件执行顺序"></a>3.3 计划刻事件执行顺序</h2>
+<h3 id="3-3-1-单个元件"><a class="header-anchor" href="#3-3-1-单个元件"></a>3.3.1 单个元件</h3>
+<blockquote>
+<p>事件间比较大小的关键字依次为：</p>
+<ol>
+<li>执行时刻，较小者优先</li>
+<li>事件优先级</li>
+<li>事件 id，较小者优先</li>
+</ol>
+</blockquote>
+<p>按照这三个关键字，我们可以很轻易地判断两个计划刻事件间的执行先后。前两个关键字很容易获得，但是第三个关键字并为直接给出，因此不能在前两个关键字相同的情况下，并不能直观地判断孰先孰后</p>
+<p>观察 <code>事件 id</code> 的定义，这是一个递增的不重复的整数，因此，先创建的计划刻事件一定会有较小的 <code>事件 id</code> ，也就是在执行时刻与事件优先级相同的情况下，先创建的事件会优先于后创建的事件执行</p>
+<p>也就是<strong>先进先出</strong>！</p>
+<p>下面是一些例子：</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/single0.png" alt="single0"></p>
+<p>执行时刻，A 先于 B，因此 A 先执行</p>
+<hr>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/single1.png" alt="single1"></p>
+<p>执行时刻：A 与 B 相同</p>
+<p>优先级：A 大于B</p>
+<p>因此 A 先执行</p>
+<hr>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/single2.png" alt="single2"></p>
+<p>执行时刻：相同</p>
+<p>优先级：相同</p>
+<p>创建顺序（事件 id）：A 先于 B</p>
+<p>因此 A 先执行</p>
+<h3 id="3-3-2-多元件组合"><a class="header-anchor" href="#3-3-2-多元件组合"></a>3.3.2 多元件组合</h3>
+<p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器/序列谁先输出信号，是一个老生常谈的问题，比如下图</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/multi0.png" alt="multi0"></p>
+<p>由于总延迟是相同的，并且最末端的元件具有相同的优先级，我们不能简单地观察最末端的元件来判断执行顺序，我们需要结合其余元件进行考虑，得出最末端元件创建事件的顺序间的先后关系，从而得到执行顺序</p>
+<p>由于在这些判断顺序的实例中，第 n 个元件的计划刻事件创建事件往往是与第 n - 1 个元件的点亮时刻是相同的，因此可以用低 n -1 个元件的点亮时刻来替代第 n 个元件的创建事件时刻</p>
+<p>令拉杆拉下的时刻为 gt0。由于序列 A 的第一个中继器是在 gt2 点亮，而序列 B 的第一个中继器是在 gt 8 点亮，晚于序列 A 的第一个中继器，因此序列 A 的第二个也就是末端的中继器先于序列 B 的末端中继器激活</p>
+<p>如果还有更多的元件呢，那我们继续比较下去！</p>
+<ul>
+<li>若次末端的元件点亮时刻与优先级均相同，则判断倒数第三个元件的点亮先后顺序</li>
+<li>若倒数第三个元件的元件点亮时刻与优先级均相同，则判断倒数第四个元件的点亮先后顺序</li>
+<li>……</li>
+</ul>
+<p>也就是，<strong>从尾到头依次比较元件的点亮顺序，直到比较出结果</strong></p>
+<p>若比较的两个序列的元件是同一个元件，这时比较更新顺序即可。如一个拉杆向两侧引出 1 挡中继器，这是就需要根据方块更新的顺序来判断哪一侧的中继器先被更新</p>
+<p>下面是一些例子：</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/multi0.png" alt="multi0"></p>
+<p>末端的中继器的优先级及点亮时间均相同，比较前端的中继器点亮时间：A 先，因此 A 序列比 B 序列先输出</p>
+<hr>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/multi1.png" alt="multi1"></p>
+<p>A, B 与 C, D, E 的比较与上图相同，对于 A, B，第一个元件点亮的优先级是 A 的中继器更高，因此 A 比 B 先输出。总输出顺序为 A, B, C, D, E</p>
+<hr>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/multi2.png" alt="multi2"></p>
+<p>根据最末端元件的优先级可立即得到 A, B, C 比 D, E 先输出。A 的中继器最先得到输入信号，因此 A 最先输出。剩余序列比较方法同上，比较第一个元件的优先级即可得出总输出顺序为 A, B, C, D, E</p>
+<h2 id="3-4-计划刻元件"><a class="header-anchor" href="#3-4-计划刻元件"></a>3.4 计划刻元件</h2>
+<p>见《<a href="/zh-CN/2020/deeply-dissecting-minecraft_3.4/" title="深度剖析Minecraft #3.4 计划刻元件">深度剖析Minecraft #3.4 计划刻元件</a>》</p>
+<h2 id="3-5-时序描述"><a class="header-anchor" href="#3-5-时序描述"></a>3.5 时序描述</h2>
+<p>在分析计划刻相关的时序的时候，计划刻事件的优先级以及计划刻事件的目标常常是我们关心的因素</p>
+<p>对于一个优先级为 <code>x</code> ，目标为 <code>y</code> 的计划刻事件，下面使用记号 <code>TileTick.priority=x,target=y</code>，或者简称 <strong><code>TT.x.y</code></strong> 来表示该事件执行时所处在的游戏阶段。在不关心优先级或者目标的场合中，<code>.x</code> <code>.y</code> 是可以视情况选择省略的。在大多数情况下，时序精度划分至计划刻阶段或者计划刻优先级，就已经足够了。</p>
+<p>例如，对于单个红石中继器的点亮事件，其发生的游戏阶段为 <code>TT.-1</code></p>
+<p>当然，也可使用计划刻的旧称 <code>NTE</code> 来替换上述的 <code>TT</code> 以得到在特定情境下得到与已有理论体系更好的衔接</p>
+<h2 id="3-6-计划刻性质的应用"><a class="header-anchor" href="#3-6-计划刻性质的应用"></a>3.6 计划刻性质的应用</h2>
+<h3 id="3-6-1-计划刻滞后-EMP"><a class="header-anchor" href="#3-6-1-计划刻滞后-EMP"></a>3.6.1 计划刻滞后/EMP</h3>
+<blockquote>
+<p>More like a redstone EMP</p>
+<p>—— Casper2002 @ <a target="_blank" rel="noopener" href="https://youtu.be/1GWaZ5vEd3A">https://youtu.be/1GWaZ5vEd3A</a></p>
+</blockquote>
+<p>在分析计划刻阶段的流程时，细心的读者可能已经注意到了，每游戏刻可执行的计划刻事件数量有个 65536 的上限，超过上限的事件将会延迟到下一游戏刻尝试执行，这一点似乎是可以加以利用的</p>
+<p>如果我们认为的在某一游戏刻中添加了巨量的延迟相同的计划刻事件，使其数量超过了 65536，则可在游戏中制造一些正常情况下不可能发生的事情：某些计划刻事件被延后执行了。这可以用于无线红石信号传输、无限遥控飞行器，也可以用恶意破坏红石电路。该机制的作用范围是整个维度</p>
+<p>下面以该机制发现者 Xcom6000 的《<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16t411s7qi">原版生存无线红石</a>》为例，分析下其时序</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/emp-tower.png" alt="emp-tower"></p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/emp-detector.png" alt="emp-detector"></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td>TT.-2</td>
+<td>中继器熄灭，大量充能铁轨熄灭，更新 n, n &gt; 65536 个沙子方块。巨量的沙子方块添加了位于 gt 2 的计划刻事件</td>
+</tr>
+<tr>
+<td style="text-align:left">0</td>
+<td>TT.0</td>
+<td>某一侧两个侦测器分别检测到对脸的侦测器的变化，添加位于 gt 2 的计划刻事件。这个事件可能是用于熄灭侦测器，也有可能是用于点亮侦测器，不过这并不影响</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td>TT.0</td>
+<td>计划刻队列由 n 个沙子的事件以及 2 个侦测器的事件组成，其长度 &gt; 65536。游戏仅执行了前 65536 个计划刻事件吗，其余的 n - 65536 个计划刻事件，及侦测器的计划刻事件被推迟到下一个游戏刻执行</td>
+</tr>
+<tr>
+<td style="text-align:left">3</td>
+<td>TT.0</td>
+<td>其余的 n - 65536 个计划刻事件及侦测器的计划刻事件依次执行。<strong>我们获得了延迟了 3gt 才执行的侦测器</strong>。装置两侧的 4gt 对脸侦测器时钟从异步 1gt 变为同步或是异步 2gt</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td></td>
+<td>无线红石检测装置检测到执行到了时序，输出信号</td>
+</tr>
+</tbody>
+</table>
+<p>不过，这一类装置<strong>仅可滞后计划刻事件的执行，不能让计划刻事件消失</strong></p>
+<h3 id="3-6-2-随机刻伪造"><a class="header-anchor" href="#3-6-2-随机刻伪造"></a>3.6.2 随机刻伪造</h3>
+<p>也不知道是历史遗留问题还是代码的复用问题，在游戏中，每个方块被随机刻选中时所调用的默认方法是其执行计划刻事件时所调用的方法 <code>net.minecraft.block.Block#tick</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">randomTick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">this</span>.tick(state, worldIn, pos, random);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那些既可以响应随机刻，又可以响应计划刻的方块，在执行 <code>tick</code> 方法的时候，是怎么确认它该执行哪一部分的逻辑呢？Mojang 给出的答案是，在 <code>tick</code> 方法内即时判断</p>
+<p>以仙人掌为例。作为一种作物，仙人掌会在被随机刻选中时执行一次生长；作为一种对环境有依赖的植物，在发现其状态不适合生长时（沙子消失/水平毗邻 4 格方块存在可阻挡仙人掌生长的方块），会添加一个延迟为 1 的计划刻事件，用于变为空气并掉落物品，也用于使高耸入云的仙人掌柱能自底向上逐个破坏而减轻服务器的瞬时压力</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/cactus-broken.png" alt="仙人掌柱被破坏"></p>
+<p>仙人掌 <code>tick</code> 方法内的逻辑如下所示（<code>net.minecraft.block.BlockCactus#tick</code>）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (!state.isValidPosition(worldIn, pos))  <span class="comment">// 判断仙人掌所处位置是否合法</span></span><br><span class="line">    &#123;</span><br><span class="line">        worldIn.destroyBlock(pos, <span class="literal">true</span>);  <span class="comment">// 破坏该仙人掌方块</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* 执行仙人掌生长逻辑 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>粗略一看，这个实现好像并没有问题，因为状态不合法而添加的计划刻事件在执行 <code>tick</code> 方法时就会在第一行的 if 判断中进入到破坏仙人掌方块分支</p>
+<p>不过仔细一想，并非如此。仙人掌在添加计划刻事件时所处位置不合法，<strong>并不意味</strong>着仙人掌在执行计划刻事件的时候所处位置仍不合法！如果我们通过某种手段，在仙人掌添加了用于破坏自身的计划刻事件后，在计划刻事件执行前，恢复仙人掌的生长环境，让仙人掌所处位置恢复到合法的适宜仙人掌生长的状态，则这个计划刻执行的时候将会执行随机刻的逻辑。这，就是随机刻伪造，也就算作物的强制催熟</p>
+<p>下面是一个仙人掌强制催熟装置的示意图。指向仙人掌的活塞每 0t 伸出一次，即可让仙人掌使用计划刻事件伪造一次随机刻事件，使其生长阶段 +1</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3/force-growth.png" alt="强制催熟"></p>
+<p>时序分析如下：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>BE.0 <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup></td>
+<td>指向仙人掌的活塞开始伸出，活塞前方发出方块更新，更新到仙人掌方块。仙人掌检查自身状态，发现水平毗邻的方块存在一个活塞头，会阻挡生长，于是添加一个延迟为 1 的计划刻事件用于破坏自身</td>
+</tr>
+<tr>
+<td>0</td>
+<td>BE.2 <sup class="footnote-ref"><a href="#fn3" id="fnref3:1">[3:1]</a></sup></td>
+<td>指向仙人掌的活塞开始收回，活塞前方方块变为空气。<strong>此时仙人掌所处位置状态变为合法</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td>TT</td>
+<td>仙人掌执行其 <code>tick</code> 方法，判断所处位置是否合法，结果是合法，则执行随机刻相关的逻辑，生长阶段 +1</td>
+</tr>
+</tbody>
+</table>
+<p>这就是强制催熟仙人掌的时序分析。由于仙人掌的计划刻延迟为 1gt，我们最快每秒可进行 $20 / 1 = 20$ 次强制催熟，也就是在忽略随机刻作用的前提下，需要 16 次生长才可增高的仙人掌一小时即可长高 $3600 * 20 / 16 = 4500$ 次，效率远超传统的自然生长仙人掌农田</p>
+<p>随机刻伪造在1.16中被修复，各种对随机刻有响应的方块执行随机刻相关逻辑的代码被移至了 <code>randomTick</code> 方法中</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>在实际的代码实现中，65536 这个限制是在循环开始前就应用了 <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件 <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>BE.x 表示方块事件阶段中，深度 = x 的方块事件执行时的阶段，将在第四章方块事件中作进一步的解释 <a href="#fnref3" class="footnote-backref">↩︎</a> <a href="#fnref3:1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/" title="深度剖析Minecraft #3 计划刻">https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90MC/" rel="tag"># 深度剖析MC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2020/deeply-dissecting-minecraft_2/" rel="prev" title="深度剖析Minecraft #2 方块更新">
+                  <i class="fa fa-angle-left"></i> 深度剖析Minecraft #2 方块更新
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2020/discussion-about-13-blockupdate-types/" rel="next" title="对1.13后两种不同方块更新类型译名的探讨">
+                  对1.13后两种不同方块更新类型译名的探讨 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2020/deeply-dissecting-minecraft_3/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2020/deeply-dissecting-minecraft_3/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"11a0a1ec89cd8388c1179f5502bffb95"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

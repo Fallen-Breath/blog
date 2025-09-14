@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="背景 BuyVM &#x2F; frantech 家 VPS 的一大特点就是送一个 &#x2F;48 段的 IPv6 的子网。这个 &#x2F;48 子网不是开箱即用的，需要一些配置才能用起来  下文介绍在 Ubuntu 系统环境下，使用 netplan 配置 BuyVM IPv6 的方法。 最终效果是：应用程序可任意使用此 &#x2F;48 子网里的 IP 来访问互联网，无需任何额外配置 注意：此方案可能只对 BuyVM 有效，不一定">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BuyVM VPS &#x2F;48 IPv6 子网配置">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="背景 BuyVM &#x2F; frantech 家 VPS 的一大特点就是送一个 &#x2F;48 段的 IPv6 的子网。这个 &#x2F;48 子网不是开箱即用的，需要一些配置才能用起来  下文介绍在 Ubuntu 系统环境下，使用 netplan 配置 BuyVM IPv6 的方法。 最终效果是：应用程序可任意使用此 &#x2F;48 子网里的 IP 来访问互联网，无需任何额外配置 注意：此方案可能只对 BuyVM 有效，不一定">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/buyvm.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/assign_single_ipv6_pre.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/assign_single_ipv6_configure.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/assign_single_ipv6_save.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/configure_ipv6_pool_pre.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/configure_ipv6_pool_configure.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/configure_ipv6_pool_save.png">
+<meta property="article:published_time" content="2025-05-06T09:26:00.000Z">
+<meta property="article:modified_time" content="2025-05-24T16:25:32.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="VPS">
+<meta property="article:tag" content="BuyVM">
+<meta property="article:tag" content="IPv6">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/buyvm.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/","path":"zh-CN/2025/buyvm-ipv6-pool-init/","title":"BuyVM VPS /48 IPv6 子网配置"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>BuyVM VPS /48 IPv6 子网配置 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83"><span class="nav-text">环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E7%8A%B6%E6%80%81"><span class="nav-text">初始状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Stallion-%E9%9D%A2%E6%9D%BF%E6%93%8D%E4%BD%9C"><span class="nav-text">Stallion 面板操作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%B8%BB-IPv6-%E5%9C%B0%E5%9D%80"><span class="nav-text">添加主 IPv6 地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE-IPv6-%E5%AD%90%E7%BD%91"><span class="nav-text">配置 IPv6 子网</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VPS-%E9%85%8D%E7%BD%AE"><span class="nav-text">VPS 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#netplan"><span class="nav-text">netplan</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sysctl"><span class="nav-text">sysctl</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%8C%E6%95%B4%E6%B5%81%E7%A8%8B%E7%9A%84%E7%A4%BA%E4%BE%8B%E8%BE%93%E5%87%BA"><span class="nav-text">完整流程的示例输出</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Aeza"><span class="nav-text">Aeza</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8"><span class="nav-text">通用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ubuntu"><span class="nav-text">Ubuntu</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RHEL9"><span class="nav-text">RHEL9</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#netcup-HE-Tunnel-Broker"><span class="nav-text">netcup + HE Tunnel Broker</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Ubuntu-2"><span class="nav-text">Ubuntu</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RHEL"><span class="nav-text">RHEL</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="BuyVM VPS /48 IPv6 子网配置 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BuyVM VPS /48 IPv6 子网配置
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-05-06 17:26:00" itemprop="dateCreated datePublished" datetime="2025-05-06T17:26:00+08:00">2025-05-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-05-25 00:25:32" itemprop="dateModified" datetime="2025-05-25T00:25:32+08:00">2025-05-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/VPS/" itemprop="url" rel="index"><span itemprop="name">VPS</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.5k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="背景"><a class="header-anchor" href="#背景"></a>背景</h1>
+<p><a target="_blank" rel="noopener" href="https://my.frantech.ca/cart.php">BuyVM / frantech</a> 家 VPS 的一大特点就是送一个 /48 段的 IPv6 的子网。这个 /48 子网不是开箱即用的，需要一些配置才能用起来</p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/buyvm.png" alt="buyvm"></p>
+<p>下文介绍在 Ubuntu 系统环境下，使用 netplan 配置 BuyVM IPv6 的方法。
+最终效果是：应用程序可任意使用此 /48 子网里的 IP 来访问互联网，无需任何额外配置</p>
+<p>注意：此方案可能只对 BuyVM 有效，不一定适用于其他家的 VPS</p>
+<span id="more"></span>
+<h1 id="环境"><a class="header-anchor" href="#环境"></a>环境</h1>
+<ul>
+<li>一台 Las Vegas 的 BuyVM 机子，配置无所谓，都有 /48 IPv6  子网</li>
+<li>系统是 Ubuntu 24.04</li>
+</ul>
+<p>应该适用于 Ubuntu &gt;= 18 的，使用 <a target="_blank" rel="noopener" href="https://netplan.io/">netplan</a> 来管理网络环境的 Ubuntu 发行版</p>
+<p>要重装系统的话，可以去 <a target="_blank" rel="noopener" href="https://manage.buyvm.net/">Stallion</a> 面板里重装</p>
+<h1 id="初始状态"><a class="header-anchor" href="#初始状态"></a>初始状态</h1>
+<p>VPS 刚开始是未分配 IPv6 地址，也没有配置 IPv6 子网的。因此 VPS 无法访问 IPv6 地址的服务，只能访问 IPv4 的服务</p>
+<p>可通过下面命令来验证这点：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">root@localhost:~<span class="comment"># ifconfig eth0</span></span><br><span class="line">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 1.2.3.4  netmask 255.255.255.0  broadcast 1.2.3.255</span><br><span class="line">        inet6 fe80::216:bff:fe73:2998  prefixlen 64  scopeid 0x20&lt;<span class="built_in">link</span>&gt;</span><br><span class="line">        ether 00:16:0b:73:29:98  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 1418533  bytes 295931477 (295.9 MB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 1408074  bytes 152883531 (152.8 MB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line">root@localhost:~<span class="comment"># curl ipv6.ip.sb</span></span><br><span class="line">curl: (7) Failed to connect to ipv6.ip.sb port 80 after 1 ms: Couldn<span class="string">&#x27;t connect to server</span></span><br></pre></td></tr></table></figure>
+<p>如果默认网卡不是 eth0 的话，可以直接输入 <code>ifconfig</code> 来列出全部网卡。默认网卡可能会是 <code>eth1</code>, <code>ens18</code> 等</p>
+<p>如果显示 <code>ifconfig</code> 命令不存在，可以 apt 装一下：<code>sudo apt install -y net-tools</code></p>
+<h1 id="Stallion-面板操作"><a class="header-anchor" href="#Stallion-面板操作"></a>Stallion 面板操作</h1>
+<p>首先，需要去 BuyVM 的 <a target="_blank" rel="noopener" href="https://manage.buyvm.net/">Stallion</a> 面板那，进行一些 VPS 的网络配置</p>
+<h2 id="添加主-IPv6-地址"><a class="header-anchor" href="#添加主-IPv6-地址"></a>添加主 IPv6 地址</h2>
+<p>去 Stallion 面板的 VPS 管理界面，Networking - IPv6 栏，添加一个主 IPv6 地址。</p>
+<p>这个 IPv6 地址将会是 VPS 访问 IPv6 服务时，默认用的 IPv6 地址，并非是那个 /48 IPv6 子网</p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/assign_single_ipv6_pre.png" alt="IPv6"></p>
+<p>点 “Assign IPv6 Address” 分配一个，后 4 段就写 0 0 0 1 就好，比较简单，用起来也方便</p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/assign_single_ipv6_configure.png" alt="配置"></p>
+<p>然后启用，保存</p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/assign_single_ipv6_save.png" alt="保持"></p>
+<p>不妨假设这个分配的 IPv6 地址是 <code>2605:6400:aaaa:bbbb::1</code>，后面要用到</p>
+<p>理论上这个时候，去 VPS 上配置下 netplan，就能用这个主 IPv6 地址来访问 IPv6 服务了。
+不过不急着现在就去配，可以在搞好了 /48 IPv6  子网后一步到位</p>
+<h2 id="配置-IPv6-子网"><a class="header-anchor" href="#配置-IPv6-子网"></a>配置 IPv6 子网</h2>
+<p>在 Stallion 面板里，前往往 Networking - Routed Subnets 栏，能看到有一个 /48 的子网。这个子网就是那个 /48 IPv6  子网了</p>
+<p>不妨设此子网为 <code>2605:6400:cccc::/48</code>。下面配置开始配置此子网的路由</p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/configure_ipv6_pool_pre.png" alt="Routed Subnets"></p>
+<p>Nexthop IP address 的下拉栏里应该能看到刚才新增的那个 <code>2605:6400:aaaa:bbbb::1</code></p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/configure_ipv6_pool_configure.png" alt="配置"></p>
+<p>Delegated Nameserver #1、Delegated Nameserver #2 这俩都可以不填</p>
+<p>然后点 Save、Save Changes 一路保存。这个 Subnet 状态变成 ENABLED 就代表 OK 了</p>
+<p><img data-src="/zh-CN/2025/buyvm-ipv6-pool-init/configure_ipv6_pool_save.png" alt="保存"></p>
+<p>至此，BuyVM 的 Stallion 后台的操作已完成</p>
+<h1 id="VPS-配置"><a class="header-anchor" href="#VPS-配置"></a>VPS 配置</h1>
+<p>下面操作需 SSH 连上 VPS 来进行</p>
+<h2 id="netplan"><a class="header-anchor" href="#netplan"></a>netplan</h2>
+<p>先改 netplan，配置好那个主 IPv6 地址，以及 IPv6 池</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用任意编辑器打开此文件</span></span><br><span class="line">sudo vim /etc/netplan/01-netcfg.yaml</span><br></pre></td></tr></table></figure>
+<p>如果 <code>/etc/netplan/01-netcfg.yaml</code> 文件不存在的话，可以去 <code>/etc/netplan</code> 找找有没有其他的。至少 BuyVM 后台重装的 Ubuntu 24 是有这个配置的</p>
+<p>这个配置文件的内容参考如下</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="comment"># &quot;eth0&quot; 是默认网卡名字，可以 ifconfig 看。一些可能的取值：eth0、ens3</span></span><br><span class="line">    <span class="attr">eth0:</span></span><br><span class="line">      <span class="attr">addresses:</span></span><br><span class="line">        <span class="comment"># 配置 eth0 网卡绑定的地址</span></span><br><span class="line">        <span class="comment">#   `1.2.3.4`                是 VPS 的 IPv4 地址。BuyVM 的 IPv4 都在 /24 的子网里，因此有 /24 后缀</span></span><br><span class="line">        <span class="comment">#   `2605:6400:aaaa:bbbb::1` 是 VPS 的 IPv6 地址。BuyVM 的 IPv6 都在 /48 的子网里，因此有 /48 后缀</span></span><br><span class="line">        <span class="comment"># 注意这里的 IPv6 地址并非 VPS 独享的那个 /48 IPv6  子网，而是上面说的“主 IPv6”</span></span><br><span class="line">        <span class="comment"># 参考 BuyVM 官网 wiki：</span></span><br><span class="line">        <span class="comment">#   https://wiki.buyvm.net/doku.php/kvm#ipv4</span></span><br><span class="line">        <span class="comment">#   https://wiki.buyvm.net/doku.php/kvm#ipv6</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&#x27;1.2.3.4/24&#x27;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&#x27;2605:6400:aaaa:bbbb::1/48&#x27;</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span></span><br><span class="line">          <span class="comment"># 这里用 Google 和 Cloudflare 的 IPv4 / IPv6 DNS 服务器。你想用其他的当然也行</span></span><br><span class="line">          <span class="comment">#   https://developers.google.com/speed/public-dns/docs/using</span></span><br><span class="line">          <span class="comment">#   https://developers.cloudflare.com/1.1.1.1/ip-addresses/</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">1.1</span><span class="number">.1</span><span class="number">.1</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">2001</span><span class="string">:4860:4860::8888</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">2606</span><span class="string">:4700:4700::1111</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="comment"># 默认的 IPv4 出口。填写 IPv4 网关地址</span></span><br><span class="line">        <span class="comment"># IPv4 网关是把 VPS 的 IPv4 地址最后一节改成 1。比如 1.2.3.4 就把最后的 4 改成 1</span></span><br><span class="line">        <span class="comment"># 参考 BuyVM 官网 wiki：https://wiki.buyvm.net/doku.php/kvm#ipv4</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span>  </span><br><span class="line">          <span class="attr">via:</span> <span class="string">&#x27;1.2.3.1&#x27;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 默认的 IPv6 出口。填写 IPv6 网关地址</span></span><br><span class="line">        <span class="comment"># BuyVM 每个地域的 IPv6 网关都是固定的，可以去 wiki 看：https://wiki.buyvm.net/doku.php/kvm#ipv6</span></span><br><span class="line">        <span class="comment"># 比如 Las Vegas 的 IPv6 网关地址是 2605:6400:20::1</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">          <span class="attr">via:</span> <span class="string">&#x27;2605:6400:20::1&#x27;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># /48 IPv6 子网配置</span></span><br><span class="line">        <span class="comment"># 将这个 IPv6 子网分配给 eth0 网卡</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">&#x27;2605:6400:cccc::/48&#x27;</span></span><br><span class="line">          <span class="attr">scope:</span> <span class="string">link</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">local</span></span><br></pre></td></tr></table></figure>
+<p>无注释版本</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">eth0:</span></span><br><span class="line">      <span class="attr">addresses:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&#x27;1.2.3.4/24&#x27;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">&#x27;2605:6400:aaaa:bbbb::1/48&#x27;</span></span><br><span class="line">      <span class="attr">nameservers:</span></span><br><span class="line">        <span class="attr">addresses:</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">8.8</span><span class="number">.8</span><span class="number">.8</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">1.1</span><span class="number">.1</span><span class="number">.1</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">2001</span><span class="string">:4860:4860::8888</span></span><br><span class="line">          <span class="bullet">-</span> <span class="number">2606</span><span class="string">:4700:4700::1111</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span>  </span><br><span class="line">          <span class="attr">via:</span> <span class="string">&#x27;1.2.3.1&#x27;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">default</span></span><br><span class="line">          <span class="attr">via:</span> <span class="string">&#x27;2605:6400:20::1&#x27;</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">&#x27;2605:6400:cccc::/48&#x27;</span></span><br><span class="line">          <span class="attr">scope:</span> <span class="string">link</span></span><br><span class="line">          <span class="attr">type:</span> <span class="string">local</span></span><br></pre></td></tr></table></figure>
+<p>配置完后，就准备应用这个配置了</p>
+<p>（可选）先改一下 <code>/etc/netplan/01-netcfg.yaml</code> 的权限位，这样 netplan 不会有 warning</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo <span class="built_in">chmod</span> 600 /etc/netplan/01-netcfg.yaml</span><br></pre></td></tr></table></figure>
+<p>建议用 <code>netplan try</code> 来应用配置，这样如果配错了导致 VPS 断网，过一会也可恢复。
+如果用 <code>netplan apply</code>（不推荐）来配置还配错了的话，可能就得去 BuyVM 后台 VNC 上去抢救了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo netplan try</span><br></pre></td></tr></table></figure>
+<p>如果上面命令执行完后，ssh 没卡死，就输入回车，让这个配置生效</p>
+<p>这个时候，主 IPv6 地址就已生效了。可用下面命令检查一下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ ifconfig eth0</span><br><span class="line">eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500</span><br><span class="line">        inet 209.141.54.202  netmask 255.255.255.0  broadcast 209.141.54.255</span><br><span class="line">        inet6 fe80::216:bff:fe73:2998  prefixlen 64  scopeid 0x20&lt;<span class="built_in">link</span>&gt;</span><br><span class="line">        inet6 2605:6400:20:6c4::1  prefixlen 48  scopeid 0x0&lt;global&gt;     <span class="comment"># &lt;--- 看这，主 IPv6 地址出现了</span></span><br><span class="line">        ether 00:16:0b:73:29:98  txqueuelen 1000  (Ethernet)</span><br><span class="line">        RX packets 19727111  bytes 2939632909 (2.9 GB)</span><br><span class="line">        RX errors 0  dropped 0  overruns 0  frame 0</span><br><span class="line">        TX packets 1911160  bytes 225866689 (225.8 MB)</span><br><span class="line">        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0</span><br><span class="line"></span><br><span class="line">$ curl ipv6.ip.sb</span><br><span class="line">2605:6400:aaaa:bbbb::1</span><br></pre></td></tr></table></figure>
+<h2 id="sysctl"><a class="header-anchor" href="#sysctl"></a>sysctl</h2>
+<p>最后，在配置下 sysctl 的 <code>net.ipv6.ip_nonlocal_bind=1</code>，用于允许进程绑定到本地未配置的 IPv6 地址。
+这样应用程序就可以直接用用 IPv6 池里任意的 IPv6 地址来访问互联网</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 临时配置，重启后失效</span></span><br><span class="line">sudo sysctl -w net.ipv6.ip_nonlocal_bind=1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 临时配置 + 持久化</span></span><br><span class="line">sudo sysctl -w net.ipv6.ip_nonlocal_bind=1 | sudo <span class="built_in">tee</span> /etc/sysctl.d/ipv6_ip_nonlocal_bind.conf</span><br></pre></td></tr></table></figure>
+<p>完工。可以用 curl 验证下下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ curl ipv6.ip.sb --interface 2605:6400:cccc::1</span><br><span class="line">2605:6400:cccc::1</span><br><span class="line"></span><br><span class="line">$ curl ipv6.ip.sb --interface 2605:6400:cccc::1234</span><br><span class="line">2605:6400:cccc::1234</span><br><span class="line"></span><br><span class="line">$ curl ipv6.ip.sb --interface 2605:6400:cccc:a:b:c:d:e</span><br><span class="line">2605:6400:cccc:a:b:c:d:e</span><br></pre></td></tr></table></figure>
+<h2 id="完整流程的示例输出"><a class="header-anchor" href="#完整流程的示例输出"></a>完整流程的示例输出</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">root@localhost:~<span class="comment"># sudo sysctl -w net.ipv6.ip_nonlocal_bind=1 | sudo tee /etc/sysctl.d/ipv6_ip_nonlocal_bind.conf</span></span><br><span class="line">net.ipv6.ip_nonlocal_bind = 1</span><br><span class="line">root@localhost:~<span class="comment"># sudo chmod 600 /etc/netplan/01-netcfg.yaml</span></span><br><span class="line">root@localhost:~<span class="comment"># sudo vim /etc/netplan/01-netcfg.yaml</span></span><br><span class="line">root@localhost:~<span class="comment"># sudo netplan try</span></span><br><span class="line">Do you want to keep these settings?</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Press ENTER before the <span class="built_in">timeout</span> to accept the new configuration</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Changes will revert <span class="keyword">in</span> 119 seconds</span><br><span class="line">Configuration accepted.</span><br><span class="line">root@localhost:~<span class="comment"># curl ipv6.ip.sb</span></span><br><span class="line">2605:6400:aaaa:bbbb::1</span><br><span class="line">root@localhost:~<span class="comment"># curl ipv6.ip.sb --interface 2605:6400:cccc::1234</span></span><br><span class="line">2605:6400:cccc::1234</span><br></pre></td></tr></table></figure>
+<h1 id="Aeza"><a class="header-anchor" href="#Aeza"></a>Aeza</h1>
+<p>Aeza 分配的 /48 IPv6 和其主 IPv6 是在同一个 /48 子网里的。不像 BuyVM 那样是单独分一个 Routed /48 IPv6 出来</p>
+<p>不妨设分配了 <code>aaaa:bbbb:cccc::/48</code>，其中：</p>
+<ul>
+<li><code>aaaa:bbbb:cccc::1</code> 是网关</li>
+<li><code>aaaa:bbbb:cccc::2</code> 是主 IPv6</li>
+</ul>
+<h2 id="通用"><a class="header-anchor" href="#通用"></a>通用</h2>
+<p>记得配置 sysctl <code>net.ipv6.ip_nonlocal_bind</code></p>
+<p>由于不是独立的 Routed /48 IPv6，需要配一下 ndppd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yum install -y ndppd</span><br><span class="line">apt install -y ndppd</span><br><span class="line"></span><br><span class="line">systemctl <span class="built_in">enable</span> --now ndppd</span><br></pre></td></tr></table></figure>
+<p>编辑 <code>/etc/ndppd.conf</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">proxy ens3 &#123;</span><br><span class="line">  router yes</span><br><span class="line">  rule aaaa:bbbb:cccc::/48 &#123;</span><br><span class="line">    static</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>写完配置文件后重启 ndppd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart ndppd</span><br></pre></td></tr></table></figure>
+<h2 id="Ubuntu"><a class="header-anchor" href="#Ubuntu"></a>Ubuntu</h2>
+<p>给 netplan 的配置 <code>/etc/netplan/50-cloud-init.yaml</code> 加一个 route。下面 yaml 为新增的部分</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">network:</span></span><br><span class="line">  <span class="attr">version:</span> <span class="number">2</span></span><br><span class="line">  <span class="attr">ethernets:</span></span><br><span class="line">    <span class="attr">ens3:</span></span><br><span class="line">      <span class="attr">routes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">to:</span> <span class="string">&quot;aaaa:bbbb:cccc::/48&quot;</span></span><br><span class="line">        <span class="attr">type:</span> <span class="string">local</span></span><br></pre></td></tr></table></figure>
+<h2 id="RHEL9"><a class="header-anchor" href="#RHEL9"></a>RHEL9</h2>
+<p>临时方法（重启后失效）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip -6 route add <span class="built_in">local</span> aaaa:bbbb:cccc::/48 dev lo</span><br></pre></td></tr></table></figure>
+<p>永久方法 1（重启 VPS 后可能因 lo 的 uuid 变动而失效）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nmcli connection modify lo +ipv6.routes <span class="string">&quot;aaaa:bbbb:cccc::/48 :: type=local&quot;</span></span><br><span class="line">nmcli connection up lo</span><br></pre></td></tr></table></figure>
+<p>永久方法 2（依赖 NetworkManager 版本 &gt;= 1.41.6。可用 <code>nmcli --version</code> 检查）</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://access.redhat.com/solutions/2108251">https://access.redhat.com/solutions/2108251</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nmcli connection add connection.id lo connection.type loopback connection.interface-name lo connection.autoconnect <span class="built_in">yes</span></span><br><span class="line">nmcli connection modify lo +ipv6.routes <span class="string">&quot;aaaa:bbbb:cccc::/48 :: type=local&quot;</span></span><br><span class="line">nmcli connection up lo</span><br></pre></td></tr></table></figure>
+<p>执行第一条命令好像有个 warning <code>Warning: There is another connection with the name 'lo'. Reference the connection by its uuid</code>，似乎无伤大雅的样子</p>
+<h1 id="netcup-HE-Tunnel-Broker"><a class="header-anchor" href="#netcup-HE-Tunnel-Broker"></a>netcup + HE Tunnel Broker</h1>
+<p>netcup 自带一个 IPv6 /64 子网</p>
+<p>目标：</p>
+<ul>
+<li>
+<p>不影响默认 /64 子网</p>
+<ul>
+<li>默认 IPv6 出口仍为 netcup 的 IPv6</li>
+</ul>
+</li>
+<li>
+<p>配置好 HE Tunnel Broker 的 IPv6</p>
+<ul>
+<li>可绑定 HE Tunnel 分配的 Client IPv6 Address</li>
+<li>可任意绑定 HE Tunnel 的 /64 IPv6 子网</li>
+<li>可任意绑定 HE Tunnel 的 /48 IPv6 子网</li>
+</ul>
+<p>即下面这些命令均可成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl ipv6.ip.sb --interface he-ipv6</span><br><span class="line">curl ipv6.ip.sb --interface 2001:470:aaa:bbb::2</span><br><span class="line">curl ipv6.ip.sb --interface 2001:470:aaa:bbb::abcd</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>记得配置 sysctl <code>net.ipv6.ip_nonlocal_bind</code></p>
+<h2 id="Ubuntu-2"><a class="header-anchor" href="#Ubuntu-2"></a>Ubuntu</h2>
+<p>加一个 <code>/etc/netplan/99-he-tunnel.yaml</code>，配置 he tunnel，就行了</p>
+<p>这里的 routes 都加了个 <code>metric: 200</code>，这样不会和主路由（如 <code>/etc/netplan/50-cloud-init.yaml</code> 里的配置）冲突</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">network:</span><br><span class="line">  version: 2</span><br><span class="line">  tunnels:</span><br><span class="line">    he-ipv6:</span><br><span class="line">      mode: sit</span><br><span class="line">      remote: 5.6.7.8  <span class="comment"># HE Tunnel 的服务器 IPv4 (Server IPv4 Address)</span></span><br><span class="line">      <span class="built_in">local</span>: 1.2.3.4  <span class="comment"># VPS 的 IPv4 (Client IPv4 Address)</span></span><br><span class="line">      addresses:</span><br><span class="line">        - <span class="string">&quot;2001:470:aaa:bbb::2/64&quot;</span>  <span class="comment"># HE Tunnel 分配的主 IPv6 (Client IPv6 Address)</span></span><br><span class="line">      routes:</span><br><span class="line">        - to: default</span><br><span class="line">          via: <span class="string">&quot;2001:470:aaa:bbb::1&quot;</span>  <span class="comment"># HE Tunnel 分配的 IPv6 网关 (Server IPv6 Address)</span></span><br><span class="line">          metric: 200</span><br><span class="line">        - to: <span class="string">&quot;2001:470:ccc:ddd::/64&quot;</span>  <span class="comment"># HE Tunnel 分配的 /64 Pv6 子网 (Routed /64)</span></span><br><span class="line">          scope: <span class="built_in">link</span></span><br><span class="line">          <span class="built_in">type</span>: <span class="built_in">local</span></span><br><span class="line">          metric: 200</span><br><span class="line">        - to: <span class="string">&quot;2001:470:eee::/48&quot;</span>  <span class="comment"># HE Tunnel 分配的 /48 Pv6 子网 (Routed /48)</span></span><br><span class="line">          scope: <span class="built_in">link</span></span><br><span class="line">          <span class="built_in">type</span>: <span class="built_in">local</span></span><br><span class="line">          metric: 200</span><br></pre></td></tr></table></figure>
+<h2 id="RHEL"><a class="header-anchor" href="#RHEL"></a>RHEL</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># config tunnel</span></span><br><span class="line">ip tunnel add he-ipv6 mode sit remote 5.6.7.8 <span class="built_in">local</span> 1.2.3.4 ttl 255</span><br><span class="line">ip <span class="built_in">link</span> <span class="built_in">set</span> he-ipv6 up</span><br><span class="line">ip addr add 2001:470:aaa:bbb::2/64 dev he-ipv6</span><br><span class="line"></span><br><span class="line"><span class="comment"># config table (basic)</span></span><br><span class="line"><span class="comment"># <span class="doctag">TODO:</span> /etc/iproute2/rt_tables might not exists</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;100 he-tunnel&quot;</span> &gt;&gt; /etc/iproute2/rt_tables</span><br><span class="line">ip -6 route add default via 2001:470:aaa:bbb::1 dev he-ipv6 table he-tunnel</span><br><span class="line">ip -6 rule add from 2001:470:aaa:bbb::/64 lookup he-tunnel</span><br><span class="line"></span><br><span class="line"><span class="comment"># config table (/64 subnet)</span></span><br><span class="line">ip -6 route add <span class="built_in">local</span> 2001:470:ccc:ddd::/64 dev lo table <span class="built_in">local</span></span><br><span class="line">ip -6 rule add from 2001:470:ccc:ddd::/64 lookup he-tunnel</span><br><span class="line"></span><br><span class="line"><span class="comment"># config table (/48 subnet)</span></span><br><span class="line">ip -6 route add <span class="built_in">local</span> 2001:470:eee::/48 dev lo table <span class="built_in">local</span></span><br><span class="line">ip -6 rule add from 2001:470:eee::/48 lookup he-tunnel</span><br><span class="line"></span><br><span class="line"><span class="comment"># test</span></span><br><span class="line">ip -6 route get 2001:db8::1 from 2001:470:aaa:bbb::2</span><br><span class="line">ip -6 route get 2001:db8::1 from 2001:470:ccc:ddd::abcd</span><br><span class="line"></span><br><span class="line">curl ipv6.ip.sb --interface 2001:470:aaa:bbb::2</span><br><span class="line">curl ipv6.ip.sb --interface 2001:470:ccc:ddd::abcd</span><br><span class="line"></span><br><span class="line"><span class="comment"># fix --interface he-ipv6</span></span><br><span class="line"><span class="comment"># TODO</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/" title="BuyVM VPS &#x2F;48 IPv6 子网配置">https://blog.fallenbreath.me/zh-CN/2025/buyvm-ipv6-pool-init/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/VPS/" rel="tag"># VPS</a>
+              <a href="/tags/BuyVM/" rel="tag"># BuyVM</a>
+              <a href="/tags/IPv6/" rel="tag"># IPv6</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/minecraft-service-proxy/" rel="prev" title="Minecraft 连不上认证 Mojang 认证服务器的一种解决方案：HTTP 转发">
+                  <i class="fa fa-angle-left"></i> Minecraft 连不上认证 Mojang 认证服务器的一种解决方案：HTTP 转发
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/minecraft-dev-intellij-run-config-error-fix/" rel="next" title="Minecraft 开发环境 Intellij IDE 的 Run Configuration 损坏修复">
+                  Minecraft 开发环境 Intellij IDE 的 Run Configuration 损坏修复 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2025/buyvm-ipv6-pool-init/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2025/buyvm-ipv6-pool-init/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"eaca26e6ae9261ee4280f76efa299116"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

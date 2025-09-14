@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Wiske Abused 笔记 视频传送门   bilibili：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1ze4y1g7SP&#x2F;   YouTube：https:&#x2F;&#x2F;youtu.be&#x2F;HwL7VkD1pvY   主要的技术细节都在视频里介绍完了，这里补充一些视频里没介绍的细节：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Wiske Abused 笔记">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="Wiske Abused 笔记 视频传送门   bilibili：https:&#x2F;&#x2F;www.bilibili.com&#x2F;video&#x2F;BV1ze4y1g7SP&#x2F;   YouTube：https:&#x2F;&#x2F;youtu.be&#x2F;HwL7VkD1pvY   主要的技术细节都在视频里介绍完了，这里补充一些视频里没介绍的细节：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/2-3-pad.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/cart-push.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/trapdoor.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/3x-loader.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/wiske-trace.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/tnt-pos.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/10gt-damage-cooldown.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/r24.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/alter-trace.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/trapezoid-size.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/mca-files.png">
+<meta property="article:published_time" content="2022-12-01T02:55:19.000Z">
+<meta property="article:modified_time" content="2022-12-01T02:55:19.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="方块更新">
+<meta property="article:tag" content="反混淆">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/2-3-pad.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/","path":"zh-CN/2022/wiske-abused-notes/","title":"Wiske Abused 笔记"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Wiske Abused 笔记 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Wiske-Abused-%E7%AC%94%E8%AE%B0"><span class="nav-text">Wiske Abused 笔记</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%B7%E6%80%AA%E9%9D%A2%E7%A7%AF%E5%B8%83%E5%B1%80"><span class="nav-text">刷怪面积布局</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%BF%E8%BD%A6%E7%89%A9%E5%93%81%E5%BE%AA%E7%8E%AF"><span class="nav-text">矿车物品循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%8B%E7%81%B5%E9%AA%B7%E9%AB%85%E8%BF%90%E8%BE%93%E6%96%B9%E5%BC%8F"><span class="nav-text">凋灵骷髅运输方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E4%B8%80%E6%AC%A1%E5%BD%92%E4%B8%AD"><span class="nav-text">最后一次归中</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9F%BF%E8%BD%A6%E8%BD%A8%E9%81%93%E6%9E%B6%E6%9E%84"><span class="nav-text">矿车轨道架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E7%9A%84%E6%8F%90%E5%8D%87%E6%89%8B%E6%AE%B5"><span class="nav-text">可能的提升手段</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E5%B1%82%E7%9B%B8%E5%85%B3%E7%9A%84%E5%8D%95%E5%85%83%E6%95%B0"><span class="nav-text">与层相关的单元数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%86%E6%9E%9D%E6%9C%AB%E8%8A%82"><span class="nav-text">细枝末节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E9%80%81%E5%B8%A6%E5%8A%A0%E9%80%9F"><span class="nav-text">传送带加速</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E7%BB%B4%E5%BA%A6"><span class="nav-text">双维度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%86%E9%A2%91%E5%88%B6%E4%BD%9C"><span class="nav-text">视频制作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mod"><span class="nav-text">mod</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E5%BD%B1"><span class="nav-text">光影</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E6%A1%A3"><span class="nav-text">存档</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Wiske Abused 笔记 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Wiske Abused 笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-12-01 10:55:19" itemprop="dateCreated datePublished" datetime="2022-12-01T10:55:19+08:00">2022-12-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Wiske-Abused-笔记"><a class="header-anchor" href="#Wiske-Abused-笔记"></a>Wiske Abused 笔记</h1>
+<p>视频传送门</p>
+<ul>
+<li>
+<p>bilibili：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ze4y1g7SP/">https://www.bilibili.com/video/BV1ze4y1g7SP/</a></p>
+</li>
+<li>
+<p>YouTube：<a target="_blank" rel="noopener" href="https://youtu.be/HwL7VkD1pvY">https://youtu.be/HwL7VkD1pvY</a></p>
+</li>
+</ul>
+<p>主要的技术细节都在视频里介绍完了，这里补充一些视频里没介绍的细节：</p>
+<span id="more"></span>
+<h2 id="刷怪面积布局"><a class="header-anchor" href="#刷怪面积布局"></a>刷怪面积布局</h2>
+<p>如果凋灵骷髅生成后，站在原地打死也不移动的话，理论上我们可以使用如下图所示的 2/3 面积利用率的刷怪面积。显然，这将显著地提升凋灵骷髅塔的效率</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/2-3-pad.png" alt="2/3 利用率"></p>
+<p>可惜我们并不能使用这一布局，因为凋灵骷髅会跑到两列凋灵玫瑰中间，去到一个矿车吸不到的位置</p>
+<p>控制玩家与凋灵骷髅的距离，阻止凋灵骷髅随机移动，是不能避免这个问题的，因为凋灵骷髅会被矿车推动。下面是一些矿车相关的知识：</p>
+<p>在每个 gt 运算矿车实体的时候，矿车会搜索一个范围内的实体，尝试与其交互。这个范围是其碰撞箱水平 4 方向各扩大 0.2m。碰撞箱与这个范围相交的实体都会被矿车尝试交互</p>
+<ul>
+<li>如果矿车是空载状态，这个实体将被吸上矿车</li>
+<li>如果矿车已经有了乘客，这个实体会被矿车往外挤</li>
+</ul>
+<p>可以发现，只要凋灵骷髅处于能被吸上矿车的站位，那么来一辆载着客的矿车，将会把凋灵骷髅往外挤，直至凋灵骷髅离开了能被矿车吸走的范围</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/cart-push.gif" alt="载客矿车推走凋灵骷髅"></p>
+<p>除非我们可以阻止凋灵骷髅往远离铁轨的方向移动。可惜，到目前最新版本 1.19.2 为止，MC 里不存在能满足不阻挡凋灵骷髅生成的，拥有极窄侧向碰撞箱的方块</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/trapdoor.png" alt="活板门不太好使"></p>
+<p>如上图为例，打开的活板门太宽了，活板门碰撞箱范围与凋灵骷髅的碰撞箱相交，会导致凋灵骷髅无法生成</p>
+<p>一种可行的解决方法是，利用生物寻路总喜欢回到方块正中间的特性，放几只铁傀儡让凋灵骷髅走两步，走回方块中间然后被矿车吸走。但这个解决方法的缺点也是显而易见的：部署铁傀儡非常影响刷怪面积的密度，凋灵骷髅的仇恨范围不可控，并且凋灵骷髅索敌消耗的时间也比较高</p>
+<p>没办法，还是得乖乖地用 1/2 面积利用率的布局</p>
+<p>真想用 2/3 面积的话，还是得等麻将什么时候出一个 2/16 宽度的，类似打开活板门那样横向碰撞箱极窄的方块，这样 0.125m 宽的方块用来限位就可以既防止凋灵骷髅被挤出矿车吸取范围，还能保证凋灵骷髅能正常生成</p>
+<h2 id="矿车物品循环"><a class="header-anchor" href="#矿车物品循环"></a>矿车物品循环</h2>
+<p>4 层刷怪面积，每 2 宽1个发射器，16gt 时钟，那每一列都会有1x 漏斗速度的矿车流量，因此我们需要找个如 1 宽可堆叠 1x 漏斗速，或 3 宽可堆叠 3x 漏斗速的打包机来处理矿车掉落物</p>
+<p>注意这里的打包机的处理速度需要为满漏斗速度，也即换盒耗时不能超过 8gt，否则会在换盒时堆积输入的矿车物品</p>
+<p>最后为了便于实现，也为了打包机部分的简洁性，我选择了 3 宽 3x 速打包机，这样会有比较充裕的空间进行 8gt 换盒的布线</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/3x-loader.png" alt="3 宽 3x 速打包机"></p>
+<p>值得一提的是，这些 3 宽 3x 速打包机的满速工作，是需要输入端提供稳定的 3x 漏斗速输入的。如果有一个输入盒子的漏斗不是稳定的1x速输入，那么 3 个输入盒子的漏斗将无法同步其 8gt 运行周期，这会导致打包机无法满速工作，最坏情况下会导致矿车堆积</p>
+<h2 id="凋灵骷髅运输方式"><a class="header-anchor" href="#凋灵骷髅运输方式"></a>凋灵骷髅运输方式</h2>
+<p>理想情况下，凋灵骷髅应该从刷出到死亡，全程待在矿车里，这样可以能真正地最小化凋灵骷髅对刷怪上限的占用</p>
+<p>不过这个设想的实践难度极高：带乘客的矿车流难以大范围合并，尤其是考虑峰值流量的时候。作为参考，150头/min 的产率下凋灵骷髅流量将达到一秒 45 只。如果用矿车运载的话，与之对应的矿车流量处理起来会非常棘手，还需要考虑实体挤压窒息的问题</p>
+<p>让凋灵骷髅换乘矿车的操作也是不可行的。生物离开载具后会有 60gt 的骑乘冷却，这对存活时间的影响是致命的。最为对比，最终设计里凋灵骷髅下车后的平均存活时间为 50gt。换乘船同理</p>
+<p>最后我选择了较为妥协的也最为直观的方案：让凋灵骷髅下车，用机械结构传送带送凋灵骷髅走完最后一程</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/wiske-trace.png" alt="凋灵骷髅移动路径"></p>
+<h2 id="最后一次归中"><a class="header-anchor" href="#最后一次归中"></a>最后一次归中</h2>
+<p>铁轨矿车凋灵玫瑰刷怪面积这种架构的最大特点是，能在几乎不增加凋灵骷髅存活时间的前提下，提升刷怪面积，代价仅仅是卡顿会随之增加</p>
+<p>因此，为了最小化存活时间，最理想的情况下是，在所有凋灵骷髅进入了玩家攻击范围的那一刻，就让玩家挥剑击杀凋灵骷髅。这样虽然会因玩家附近 24m 不能刷怪而损失了一些刷怪面积，但换来的存活时间下降是非常值得的</p>
+<p>不过，上述仅仅是理想情况。20 血的凋灵骷髅玩家是无法一刀杀死的，需要两次攻击。这意味着凋灵骷髅需要承受 2 次伤害，间隔至少 1 次伤害冷却的时间，也就是 10gt</p>
+<p>在这个凋灵塔的设计中，第一次伤害我选择了 TNT 的爆炸。我将 TNT 给出伤害的时间点定在了 20bps + 26.67bps 汇聚的那一刻，这样不仅能伤害到所有凋灵骷髅，还能让 TNT 伤害覆盖上层凋灵骷髅落地时的摔落伤害，统一化所有凋灵骷髅的血量。这应该算是适合放置 TNT 爆炸室的最早时刻</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/tnt-pos.png" alt="TNT 预伤害"></p>
+<p>在 TNT 伤害的 10gt 伤害冷却时间里，凋灵骷髅被运送到玩家旋风斩范围。伤害冷却一结束，玩家挥剑斩杀凋灵骷髅</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/10gt-damage-cooldown.png" alt="10gt-damage-cooldown"></p>
+<p>如果玩家挥剑迟了，凋灵骷髅在击杀室落地了，也不需要担心，因为玩家的伤害足够覆盖凋灵骷髅在击杀室的摔落伤害，照样可以秒杀凋灵骷髅</p>
+<p>10gt 的时间并不多，再加上把凋灵骷髅从受TNT爆炸伤害处推出来的时间，剩余下弹凋灵骷髅的时间所剩无几，这导致击杀室离刷怪平台的高度无法做的太高。虽然这样损失了一些刷怪面积，但这换来的存活时间下降依然是非常值得的</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/r24.png" alt="r=24 不可刷怪范围"></p>
+<h2 id="矿车轨道架构"><a class="header-anchor" href="#矿车轨道架构"></a>矿车轨道架构</h2>
+<p>对于刷怪面积部分的铁轨线路布局，我曾经做出过如下图右侧的尝试：</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/alter-trace.png" alt="折返布局"></p>
+<p>右侧的布局看上去有着很多的好处：</p>
+<ul>
+<li>矿车路程翻倍，有效提升了载客率，矿车物品的流量折半</li>
+<li>发射器发车点和仙人掌扎车点接近，不需要长距离运输矿车</li>
+<li>下车点离中心更近了，凋灵骷髅下车后走传送带的耗时能减小</li>
+</ul>
+<p>但实际测试下来，在相同的刷怪面积的情况下，右侧布局的效率反而下降了，分析见下：</p>
+<p>矿车的载客率提升会带来凋灵骷髅等车时间的提升，尤其对于那些生成于铁路末端的凋灵骷髅，得等好一会才能等到一辆空车。这导致了凋灵骷髅上车前存活时间的上升</p>
+<p>除此之外凋灵骷髅上车前是没有套上南瓜头的，因此这部分对总刷怪上限占用存活时间的增加是100% 的权重，而非传送带里的 45% 权重</p>
+<p>“-6gt（理论 + 实测）的传送带存活时间”的提升，还是抵不过“+2gt（实测）的上车前存活时间 + 刷怪面积阻挡”的下降</p>
+<p>最后，右侧布局里矿车跟凋灵骷髅在转弯处增加的路程也会带来不小的卡顿，这部分卡顿还是会随着每层单元数的增加而增加的</p>
+<h2 id="可能的提升手段"><a class="header-anchor" href="#可能的提升手段"></a>可能的提升手段</h2>
+<h3 id="与层相关的单元数"><a class="header-anchor" href="#与层相关的单元数"></a>与层相关的单元数</h3>
+<p>让每层堆叠的单元数量与层数相关。比如将第四层最边缘的单元移动追加至第一层末端。这样可以进一步减少一部分凋灵骷髅下车后的存活时间</p>
+<p>但是由于这对存活时间的降低很小，会增加迭代机器的难度，更重要的是会让机器变丑，我没有去实施</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/trapezoid-size.png" alt="梯形布局"></p>
+<h3 id="细枝末节"><a class="header-anchor" href="#细枝末节"></a>细枝末节</h3>
+<p>各种刷怪塔通用的细枝末节：</p>
+<ul>
+<li>抠 lc</li>
+<li>抠同层实体方块数</li>
+<li>加大游走范围</li>
+<li>……</li>
+</ul>
+<p>抠 lc 或许能让效率增加一丢丢，但是会让机器变得很不好看。我可不喜欢为了抠 lc，而整出了个凹凸不平的传送带天花板</p>
+<p>同层实体方块当然可以抠，但数量已经没多少了，个别的同层实体方块对效率的影响其实甚至不如测量误差大</p>
+<p>加大游走面积的话会增加找到适配堡垒的难度，毕竟现在已经需要 z 宽度 大于等于 ≥ 207m 了。现在 10m 游走其实已经非常足够了，再加的收益非常低</p>
+<h3 id="传送带加速"><a class="header-anchor" href="#传送带加速"></a>传送带加速</h3>
+<p>现在凋灵骷髅下车后的归中使用的是 20bps 传送带，如果能整出兼容的 30bps 传送带，可以进一步地减小这一次横向归中所需要的存活时间</p>
+<p>但是 30bps 并不是这么容易安上去的。30bps 的复杂度就不提了，这里还需要这个 30bps 还需要 4 高可堆叠，否则会导致效率下降</p>
+<p>更重要的一点是，30bps 大部分以是 3 长为基本单位进行堆叠，并且不支持每个位置都输入生物的。但这凋灵骷髅塔的布局是每 4 格一个侧向输入口的，3 和 4 互质，因此必然会存在凋灵骷髅输入口位于 30bps 的非法输入位置的情况。这只有增加适配模块调整凋灵骷髅位置才能解决，但这也会增加存活时间</p>
+<p>总体来看，30bps 的工程可行性堪忧</p>
+<h3 id="双维度"><a class="header-anchor" href="#双维度"></a>双维度</h3>
+<p>让凋灵骷髅下车就进传送门，利用地狱门机制进行归中，利用跨维度机制来重置载具冷却，让凋灵骷髅在回地狱的时候立刻上船，类似 burst 的 1.19 凋灵塔（BV1e44y1f71v）</p>
+<p>不过如果用了地狱门的话，那就是双维度农场的范畴了</p>
+<h2 id="视频制作"><a class="header-anchor" href="#视频制作"></a>视频制作</h2>
+<h3 id="mod"><a class="header-anchor" href="#mod"></a>mod</h3>
+<p>Optifine：光影。1.16.5 sodium 的透明方块渲染真的不太行</p>
+<p>Replay：核心渲染工具</p>
+<p>G4mespeed：丝滑的活塞动画</p>
+<p>TweakFork：选择性区域渲染，那些区域半透明的效果就是借助它做的</p>
+<p>Carpet-TIS-Addition：拉满方块事件距离、实体追踪距离，让客户端能看得见机器运行时的所有事件</p>
+<p>TweakerMore：拉满客户端的实体渲染距离和方块实体渲染距离；保证渲染时玩家皮肤已加载；用伪夜视给 BSL v8 的光影增亮（Tweakeroo 的 tweakGammaOverride 在这个光影下好像不太能用）</p>
+<h3 id="光影"><a class="header-anchor" href="#光影"></a>光影</h3>
+<p>BSL 8.0 以后，红石中继器跟红石比较器在激活的时候会出发光效果，这会显得很奇怪。虽然可以关掉光影设置里的 Material-Emissive 来解决，但这也会把其他光源的发光效果干掉</p>
+<p>最终我的解决方法是修改光影包 zip 里  <code>shaders/block.properties</code> 这个文件（猜测是用于决定各种方块状态的渲染逻辑的），把里面的 <code>minecraft:repeater:powered=true</code>、<code>minecraft:comparator:powered=true</code> 删掉，就行了</p>
+<p>这个方法至少在 BSL v8.2 有效</p>
+<h2 id="存档"><a class="header-anchor" href="#存档"></a>存档</h2>
+<p>大部分凋灵骷髅塔的存档都非常的大，存档很多体积都被无用的自然地形填满了，这显然是非常令人不爽的</p>
+<p>减少存档体积的方法很简单，将无用的 .mca 文件都删掉，仅保留与机器有关 region 的 .mca 文件</p>
+<p>为了最小化地狱侧的 mca 数量，在挑选地狱堡垒的时候，我就专门找了一个位于 region 中间的地狱堡垒，这样整个凋灵骷髅塔包括空置域都能被一个 region 所包含</p>
+<p>这样，整个存档只需要包含一个地狱侧 region 的 mca 文件，以及一个主世界出生点 region 的 mca 文件，用于存放快速从出生点前往地狱的命令方块</p>
+<p><img data-src="/zh-CN/2022/wiske-abused-notes/mca-files.png" alt="存档内的mca数量"></p>
+<p>玩家数据进度什么的文件体积占用不大，可以不做处理</p>
+<p>最后，整个存档的体积控制在了 2MB 左右，非常精简</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/" title="Wiske Abused 笔记">https://blog.fallenbreath.me/zh-CN/2022/wiske-abused-notes/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0/" rel="tag"># 方块更新</a>
+              <a href="/tags/%E5%8F%8D%E6%B7%B7%E6%B7%86/" rel="tag"># 反混淆</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/" rel="prev" title="Carpet TIS Addition 介绍：规则">
+                  <i class="fa fa-angle-left"></i> Carpet TIS Addition 介绍：规则
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2023/endermelon-notes/" rel="next" title="末影人西瓜农场笔记">
+                  末影人西瓜农场笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2022/wiske-abused-notes/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2022/wiske-abused-notes/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"e555f4faf59a8d9116437d72c816f545"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

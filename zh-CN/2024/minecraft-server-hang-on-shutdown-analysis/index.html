@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一次平常的 Minecraft 服务器运维，在把服务端 &#x2F;stop 后，却发现服务端进程久久未能关闭  反常必有妖，让我看看是谁在干坏事">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次对 Minecraft 服务器关闭时，进程无法完全退出的问题分析">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="一次平常的 Minecraft 服务器运维，在把服务端 &#x2F;stop 后，却发现服务端进程久久未能关闭  反常必有妖，让我看看是谁在干坏事">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/server_output.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/mcdr_status.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/jprofiler_1.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/jprofiler_2.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/jprofiler_3.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/git_history.png">
+<meta property="article:published_time" content="2024-10-14T17:27:47.000Z">
+<meta property="article:modified_time" content="2024-10-15T17:00:00.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="服务器运维">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/server_output.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/","path":"zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/","title":"记一次对 Minecraft 服务器关闭时，进程无法完全退出的问题分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>记一次对 Minecraft 服务器关闭时，进程无法完全退出的问题分析 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-text">问题排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83"><span class="nav-text">环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E6%AD%A5%E5%88%86%E6%9E%90"><span class="nav-text">初步分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#java-util-Timer"><span class="nav-text">java.util.Timer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#heap-dump"><span class="nav-text">heap dump</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AE%E5%AE%9A%E9%97%AE%E9%A2%98"><span class="nav-text">确定问题</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="记一次对 Minecraft 服务器关闭时，进程无法完全退出的问题分析 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          记一次对 Minecraft 服务器关闭时，进程无法完全退出的问题分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2024-10-15 01:27:47" itemprop="dateCreated datePublished" datetime="2024-10-15T01:27:47+08:00">2024-10-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-10-16 01:00:00" itemprop="dateModified" datetime="2024-10-16T01:00:00+08:00">2024-10-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>一次平常的 Minecraft 服务器运维，在把服务端 <code>/stop</code> 后，却发现服务端进程久久未能关闭</p>
+<p><img data-src="/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/server_output.png" alt="服务端输出"></p>
+<p>反常必有妖，让我看看是谁在干坏事</p>
+<span id="more"></span>
+<h2 id="问题排查"><a class="header-anchor" href="#问题排查"></a>问题排查</h2>
+<h3 id="环境"><a class="header-anchor" href="#环境"></a>环境</h3>
+<p>先列一下基本环境：</p>
+<ul>
+<li>Minecraft 1.20.1</li>
+<li>Fabric loader 0.15.11，带不少创造服相关 mod</li>
+<li>OpenJDK 21.0.4</li>
+</ul>
+<h3 id="初步分析"><a class="header-anchor" href="#初步分析"></a>初步分析</h3>
+<p>由于 MC 服务端是带着 MCDR 运行的，先用 <code>!!MCDR status</code> 看一下进程 PID</p>
+<p><img data-src="/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/mcdr_status.png" alt="!!MCDR status"></p>
+<p>拿到 java 进程的 PID <code>4409</code> 后，用 <code>jstack</code> 工具看一下每个线程都在干啥，看看有没有啥异常的</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">jstack 4409 &gt; jstack.out</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> jstack.out | grep <span class="string">&#x27;Server Thread&#x27;</span></span></span><br></pre></td></tr></table></figure>
+<p>找不到 MC 服务端主线程 <code>Server Thread</code>，说明 MC 服务端主线程已经结束了。那估计是有非 daemon thread 在搞事情</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> jstack.out | grep <span class="string">&#x27; #&#x27;</span> | grep -v daemon</span></span><br><span class="line">&quot;DestroyJavaVM&quot; #79 [4418] prio=5 os_prio=0 cpu=6699.00ms elapsed=628699.38s tid=0x00007f041002a3c0 nid=4418 waiting on condition  [0x0000000000000000]</span><br><span class="line">&quot;Timer-1&quot; #6712 [54030] prio=8 os_prio=0 cpu=0.50ms elapsed=266535.65s tid=0x00007f02bd8d8270 nid=54030 in Object.wait()  [0x00007f02686d4000]</span><br></pre></td></tr></table></figure>
+<p>这个 <code>Timer-1</code> 进程看上去很可疑，看下它的堆栈</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cat</span> jstack.out | grep <span class="string">&#x27;#6712&#x27;</span> -A 9</span></span><br><span class="line">&quot;Timer-1&quot; #6712 [54030] prio=8 os_prio=0 cpu=0.50ms elapsed=266535.65s tid=0x00007f02bd8d8270 nid=54030 in Object.wait()  [0x00007f02686d4000]</span><br><span class="line">   java.lang.Thread.State: WAITING (on object monitor)</span><br><span class="line">	at java.lang.Object.wait0(java.base@21.0.4/Native Method)</span><br><span class="line">	- waiting on &lt;no object reference available&gt;</span><br><span class="line">	at java.lang.Object.wait(java.base@21.0.4/Object.java:366)</span><br><span class="line">	at java.lang.Object.wait(java.base@21.0.4/Object.java:339)</span><br><span class="line">	at java.util.TimerThread.mainLoop(java.base@21.0.4/Timer.java:537)</span><br><span class="line">	- locked &lt;0x000000071178fcd8&gt; (a java.util.TaskQueue)</span><br><span class="line">	at java.util.TimerThread.run(java.base@21.0.4/Timer.java:516)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>基本能确定是这个 <code>TimerThread</code> 在搞事情了</p>
+<h3 id="java-util-Timer"><a class="header-anchor" href="#java-util-Timer"></a><code>java.util.Timer</code></h3>
+<p>阅读了下 jdk21 里 <code>java.util.Timer</code> 的代码，能看到在默认构造函数的情况下，<code>Timer</code> 会创建一个非 daemon 的线程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">Timer</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>(<span class="string">&quot;Timer-&quot;</span> + serialNumber());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">Timer</span><span class="params">(<span class="type">boolean</span> isDaemon)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>(<span class="string">&quot;Timer-&quot;</span> + serialNumber(), isDaemon);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">Timer</span><span class="params">(String name)</span> &#123;</span><br><span class="line">    <span class="built_in">this</span>(name, <span class="literal">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="title function_">Timer</span><span class="params">(String name, <span class="type">boolean</span> isDaemon)</span> &#123;</span><br><span class="line">    <span class="type">var</span> <span class="variable">threadReaper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ThreadReaper</span>(queue, thread);</span><br><span class="line">    <span class="built_in">this</span>.cleanup = CleanerFactory.cleaner().register(<span class="built_in">this</span>, threadReaper);</span><br><span class="line">    thread.setName(name);</span><br><span class="line">    thread.setDaemon(isDaemon);</span><br><span class="line">    thread.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先猜一个，有坏东西创建一个非 daemon 的 timer 且忘了关，导致服务端关不掉</p>
+<p>先看看是不是 mojang 在干坏事。在 MC 1.20.1 的源代码里翻了一遍 <code>java.util.Timer</code> 的引用，
+服务端的相关代码里只看到 watchdog 里有用 timer，且那个 timer 是拿来兜底关进程的，应该并不相关</p>
+<p>怀疑是不是 mod 在干坏事了</p>
+<h3 id="heap-dump"><a class="header-anchor" href="#heap-dump"></a>heap dump</h3>
+<p>一个一个翻 mod 代码可能比较费时间，先再从现场保留一些信息下来，搞个 heap dump 看下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:format=b,file=heapdump.hprof 4409</span><br></pre></td></tr></table></figure>
+<p>把 <code>heapdump.hprof</code> 搞到本地，拿 jprofiler 打开，过滤下 <code>java.util.Timer</code> 对象，发现只有俩</p>
+<p><img data-src="/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/jprofiler_1.png" alt="jprofiler_1"></p>
+<p>找到那个 <code>tid=6712</code> 的对象 <code>0x1728d8</code></p>
+<p><img data-src="/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/jprofiler_2.png" alt="jprofiler_2"></p>
+<p>看看传入引用</p>
+<p><img data-src="/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/jprofiler_3.png" alt="jprofiler_3"></p>
+<p>发现凶手了，是 WorldEdit（<code>worldedit-mod-7.2.15.jar</code>） 在干坏事</p>
+<h3 id="确定问题"><a class="header-anchor" href="#确定问题"></a>确定问题</h3>
+<p>直接把 mod 的 jar 搞下来，反编译一下，这样比翻 git 仓库的版本更快也更准些</p>
+<p>找到 <code>com.sk89q.worldedit.command.util.FutureProgressListener</code> 这个类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FutureProgressListener</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">   <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Timer</span> <span class="variable">timer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Timer</span>();</span><br><span class="line">   <span class="comment">// ...</span></span><br></pre></td></tr></table></figure>
+<p>罪魁祸首找到了。这个 <code>FutureProgressListener</code> 类搞了个全局的 timer，还是非 daemon thread 的 timer，搞的服务端关也关不掉</p>
+<p>考虑到这个问题并非是必现的（如果必现，早就被人发现了），再去看下代码。如果 <code>FutureProgressListener</code> 这个类被加载了，其 static timer 对象就会被构造，就会导致服务端关不掉，
+那就意味着，只要服务端从不使用、不加载这个 <code>FutureProgressListener</code> 类，就不会有问题</p>
+<p>看一下 <code>FutureProgressListener</code> 在 WorldEdit 代码里的使用情况，能看到它会在几个异步指令的执行处被触发（代码关键字：<code>com.sk89q.worldedit.command.util.AsyncCommandBuilder#buildAndExec</code>），比如</p>
+<ul>
+<li>加载、保存 schematic 文件</li>
+<li><code>/searchitem</code>、<code>listchunks</code> 等指令</li>
+</ul>
+<p>如果服务器运行过程中没触发相关逻辑的话，服务端即可正常关闭</p>
+<p>尝试着复现了一下：仅保留 <code>worldedit-mod-7.2.15.jar</code> 这个 mod，开服，输入 <code>/searchitem stone</code>，<code>/stop</code>，服务端果然卡着了</p>
+<p>确定了触发路径，再看看影响范围，这次不得不打开 <a target="_blank" rel="noopener" href="https://github.com/EngineHub/WorldEdit">WorldEdit 的 git 仓库</a> 了</p>
+<p>对着 <code>private static final Timer timer = new Timer();</code> 这行来一个 Git &gt; Show History for Selection，确定影响范围：
+从 7.0.0-beta-05 开始的版本，均受影响。这基本上可以说是，MC 1.13 以上的，至目前最新的 MC 1.21 的 WorldEdit 7.3.7，均受影响。影响范围还蛮大的</p>
+<p><img data-src="/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/git_history.png" alt="git history"></p>
+<p>这么看上去，说不定这个 bug 也是 <a target="_blank" rel="noopener" href="https://github.com/MCDReforged/MCDReforged/issues/150">MCDR 的某个疑难 issue</a> 的根因</p>
+<p>不管怎么说，得给 WorldEdit 交了个 issue。搜下 issue 列表，发现了个 <a target="_blank" rel="noopener" href="https://github.com/EngineHub/WorldEdit/issues/2459">已存在的 issue</a>，但被 close 了，
+那就补上一波详细说明：<a target="_blank" rel="noopener" href="https://github.com/EngineHub/WorldEdit/issues/2459#issuecomment-2412020684">https://github.com/EngineHub/WorldEdit/issues/2459#issuecomment-2412020684</a></p>
+<p>总的来讲，WorldEdit 存在两个影响服务器支持关闭的 bug：</p>
+<ol>
+<li><code>FutureProgressListener</code> 存在一个非 daemon thread 运行的 <code>Timer</code>，导致服务端关闭时会永久卡住。这也是本文发现的 bug</li>
+<li><code>WorldEdit.getInstance().getExecutorService()</code> 未在服务器关闭时 <code>shutdown</code>。这最多会卡住服务端 60s</li>
+</ol>
+<p>等 WorldEdit 修 bug 还得好一会时间 <s>说不定还会被 reverted</s>，并且 WorldEdit 大概率不会去照顾老版本，那不如自己动手整个 fix mod，拎起 mixin 直接上：
+<a target="_blank" rel="noopener" href="https://github.com/Fallen-Breath/worldedit-hang-fix">https://github.com/Fallen-Breath/worldedit-hang-fix</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/" title="记一次对 Minecraft 服务器关闭时，进程无法完全退出的问题分析">https://blog.fallenbreath.me/zh-CN/2024/minecraft-server-hang-on-shutdown-analysis/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+              <a href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%90%E7%BB%B4/" rel="tag"># 服务器运维</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2024/fortress-nether-bricks-pack-spawning-issue-1182/" rel="prev" title="Minecraft 1.18.2+ 中地狱堡垒的地狱砖刷怪游走问题分析">
+                  <i class="fa fa-angle-left"></i> Minecraft 1.18.2+ 中地狱堡垒的地狱砖刷怪游走问题分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/minecraft-service-proxy/" rel="next" title="Minecraft 连不上认证 Mojang 认证服务器的一种解决方案：HTTP 转发">
+                  Minecraft 连不上认证 Mojang 认证服务器的一种解决方案：HTTP 转发 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2024/minecraft-server-hang-on-shutdown-analysis/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2024/minecraft-server-hang-on-shutdown-analysis/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"018987c61b97ea06f7625958a464abc8"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

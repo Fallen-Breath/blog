@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="给 PVE8 换一下源，整理了下具体的操作步骤以及每步的意图，也为给自己留个档 基本信息  PVE 版本：8.0.3 debian 版本：12 (bookworm) 目标源：中科大 USTC 源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Proxmox VE 8 换源">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2023/pve8-change-sourceslist/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="给 PVE8 换一下源，整理了下具体的操作步骤以及每步的意图，也为给自己留个档 基本信息  PVE 版本：8.0.3 debian 版本：12 (bookworm) 目标源：中科大 USTC 源">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-07-31T17:56:20.000Z">
+<meta property="article:modified_time" content="2023-08-19T09:36:00.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="PVE">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2023/pve8-change-sourceslist/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2023/pve8-change-sourceslist/","path":"zh-CN/2023/pve8-change-sourceslist/","title":"Proxmox VE 8 换源"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Proxmox VE 8 换源 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="nav-text">基本信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APT-%E6%8D%A2%E6%BA%90"><span class="nav-text">APT 换源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TL-DR"><span class="nav-text">TL;DR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sources-list"><span class="nav-text">sources.list</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ceph-list"><span class="nav-text">ceph.list</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pve-enterprise-list"><span class="nav-text">pve-enterprise.list</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%88%90"><span class="nav-text">完成</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CT-%E6%A8%A1%E6%9D%BF%E6%8D%A2%E6%BA%90"><span class="nav-text">CT 模板换源</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#APLInfo-pm"><span class="nav-text">APLInfo.pm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E6%88%90-2"><span class="nav-text">完成</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2023/pve8-change-sourceslist/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Proxmox VE 8 换源 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Proxmox VE 8 换源
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-08-01 01:56:20" itemprop="dateCreated datePublished" datetime="2023-08-01T01:56:20+08:00">2023-08-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-08-19 17:36:00" itemprop="dateModified" datetime="2023-08-19T17:36:00+08:00">2023-08-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/PVE/" itemprop="url" rel="index"><span itemprop="name">PVE</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>2 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>给 PVE8 换一下源，整理了下具体的操作步骤以及每步的意图，也为给自己留个档</p>
+<h2 id="基本信息"><a class="header-anchor" href="#基本信息"></a>基本信息</h2>
+<ul>
+<li>PVE 版本：8.0.3</li>
+<li>debian 版本：12 (bookworm)</li>
+<li>目标源：<a target="_blank" rel="noopener" href="https://mirrors.ustc.edu.cn/">中科大 USTC 源</a></li>
+</ul>
+<span id="more"></span>
+<p>清华源的 <a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/ceph/debian-quincy/dists/">https://mirrors.tuna.tsinghua.edu.cn/ceph/debian-quincy/dists/</a> 里还没有 bookworm 的数据，因此不太能用</p>
+<h2 id="APT-换源"><a class="header-anchor" href="#APT-换源"></a>APT 换源</h2>
+<p>需修改文件</p>
+<ol>
+<li><code>/etc/apt/sources.list</code></li>
+<li><code>/etc/apt/sources.list.d/ceph.list</code></li>
+<li><code>/etc/apt/sources.list.d/pve-enterprise.list</code></li>
+</ol>
+<p>修改前先备份，以防万一：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> /etc/apt/sources_backup</span><br><span class="line"><span class="built_in">cp</span> /etc/apt/sources.list /etc/apt/sources_backup/sources.list.bak</span><br><span class="line"><span class="built_in">cp</span> /etc/apt/sources.list.d/ceph.list /etc/apt/sources_backup/ceph.list.bak</span><br><span class="line"><span class="built_in">cp</span> /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources_backup/pve-enterprise.list.bak</span><br></pre></td></tr></table></figure>
+<p>可以参考 <a target="_blank" rel="noopener" href="https://mirrors.ustc.edu.cn/help/proxmox.html">中科大 proxmox 镜像的文档</a>，不过这个文档里的操作应该是适配旧版 proxmox 的，有些地方需要改改适配下</p>
+<h3 id="TL-DR"><a class="header-anchor" href="#TL-DR"></a>TL;DR</h3>
+<p>太长不看，指令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sources.list</span></span><br><span class="line">sed -i <span class="string">&#x27;s|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g&#x27;</span> /etc/apt/sources.list</span><br><span class="line">sed -i <span class="string">&#x27;s|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g&#x27;</span> /etc/apt/sources.list</span><br><span class="line"><span class="comment"># ceph.list</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm no-subscription&quot;</span> &gt; /etc/apt/sources.list.d/ceph.list</span><br><span class="line"><span class="comment"># pve-enterprise.list</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;&quot;</span> &gt; /etc/apt/sources.list.d/pve-enterprise.list</span><br></pre></td></tr></table></figure>
+<h3 id="sources-list"><a class="header-anchor" href="#sources-list"></a>sources.list</h3>
+<p>期望执行如下链接的替换</p>
+<table>
+<thead>
+<tr>
+<th>原链接</th>
+<th>新链接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>http://ftp.debian.org</code></td>
+<td><code>https://mirrors.ustc.edu.cn</code></td>
+</tr>
+<tr>
+<td><code>http://security.debian.org</code></td>
+<td><code>https://mirrors.ustc.edu.cn/debian-security</code></td>
+</tr>
+</tbody>
+</table>
+<p>指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s|^deb http://ftp.debian.org|deb https://mirrors.ustc.edu.cn|g&#x27;</span> /etc/apt/sources.list</span><br><span class="line">sed -i <span class="string">&#x27;s|^deb http://security.debian.org|deb https://mirrors.ustc.edu.cn/debian-security|g&#x27;</span> /etc/apt/sources.list</span><br></pre></td></tr></table></figure>
+<p>文件变化：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/etc/apt/sources_backup/sources.list.bak</span></span><br><span class="line"><span class="comment">+++ b/etc/apt/sources.list</span></span><br><span class="line"><span class="meta">@@ -1,6 +1,6 @@</span></span><br><span class="line"><span class="deletion">-deb http://ftp.debian.org/debian bookworm main contrib</span></span><br><span class="line"><span class="addition">+deb https://mirrors.ustc.edu.cn/debian bookworm main contrib</span></span><br><span class="line"> </span><br><span class="line"><span class="deletion">-deb http://ftp.debian.org/debian bookworm-updates main contrib</span></span><br><span class="line"><span class="addition">+deb https://mirrors.ustc.edu.cn/debian bookworm-updates main contrib</span></span><br><span class="line"> </span><br><span class="line"> # security updates</span><br><span class="line"><span class="deletion">-deb http://security.debian.org bookworm-security main contrib</span></span><br><span class="line"><span class="addition">+deb https://mirrors.ustc.edu.cn/debian-security bookworm-security main contrib</span></span><br></pre></td></tr></table></figure>
+<h3 id="ceph-list"><a class="header-anchor" href="#ceph-list"></a>ceph.list</h3>
+<p>这个原文件就一行，直接覆盖了完事</p>
+<p>指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm no-subscription&quot;</span> &gt; /etc/apt/sources.list.d/ceph.list</span><br></pre></td></tr></table></figure>
+<p>这里，我这里用了 <code>no-subscription</code>，但中科大文档里用的是 <code>pve-no-subscription</code>，原因是 <a target="_blank" rel="noopener" href="https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy/dists/bookworm/">中科院源里</a> 里只有叫个 <code>no-subscription</code> 子目录，并没有 <code>pve-no-subscription</code>，因此得根据情况改一下</p>
+<p>文件变化：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/etc/apt/sources_backup/ceph.list.bak</span></span><br><span class="line"><span class="comment">+++ b/etc/apt/sources.list.d/ceph.list</span></span><br><span class="line">@@ -1 +1 @@</span><br><span class="line"><span class="deletion">-deb https://enterprise.proxmox.com/debian/ceph-quincy bookworm enterprise</span></span><br><span class="line"><span class="addition">+deb https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm no-subscription</span></span><br></pre></td></tr></table></figure>
+<h3 id="pve-enterprise-list"><a class="header-anchor" href="#pve-enterprise-list"></a>pve-enterprise.list</h3>
+<p>最后，把 <code>pve-enterprise.list</code> 的企业源扬了。毕竟这个企业源得订阅了才能用，没订阅意味着没用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;&quot;</span> &gt; /etc/apt/sources.list.d/pve-enterprise.list</span><br></pre></td></tr></table></figure>
+<p>文件变化：</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/etc/apt/sources_backup/pve-enterprise.list.bak</span></span><br><span class="line"><span class="comment">+++ b/etc/apt/sources.list.d/pve-enterprise.list</span></span><br><span class="line">@@ -1 +1 @@</span><br><span class="line"><span class="deletion">-deb https://enterprise.proxmox.com/debian/pve bookworm pve-enterprise</span></span><br><span class="line"><span class="addition">+</span></span><br></pre></td></tr></table></figure>
+<p>（可选）如果没有订阅，却依然想要一个可以更新 PVE 的源，可以用 PVE 的 <a target="_blank" rel="noopener" href="https://pve.proxmox.com/wiki/Package_Repositories">pve-no-subscription</a> 源。可以用如下指令添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&quot;deb https://mirrors.ustc.edu.cn/proxmox/debian/pve bookworm pve-no-subscription&quot;</span> &gt; /etc/apt/sources.list.d/pve-no-subscription.list</span><br></pre></td></tr></table></figure>
+<p>如文档所述，这个源的 PVE 软件包是作为企业源的上游源，可能相对不那么的稳定</p>
+<h3 id="完成"><a class="header-anchor" href="#完成"></a>完成</h3>
+<p>done。可以 <code>apt update</code> 更新下，也作为一个换源操作正确性的验证</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">root@localhost:~<span class="comment"># apt update</span></span><br><span class="line">Hit:1 https://mirrors.ustc.edu.cn/debian bookworm InRelease</span><br><span class="line">Hit:2 https://mirrors.ustc.edu.cn/debian bookworm-updates InRelease</span><br><span class="line">Hit:3 https://mirrors.ustc.edu.cn/debian-security bookworm-security InRelease</span><br><span class="line">Hit:4 https://mirrors.ustc.edu.cn/proxmox/debian/ceph-quincy bookworm InRelease</span><br><span class="line">Reading package lists... Done</span><br><span class="line">Building dependency tree... Done</span><br><span class="line">Reading state information... Done</span><br><span class="line">38 packages can be upgraded. Run <span class="string">&#x27;apt list --upgradable&#x27;</span> to see them.</span><br><span class="line">root@localhost:~<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+<p>如需回滚，可以用如下指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /etc/apt/sources_backup/sources.list.bak /etc/apt/sources.list</span><br><span class="line"><span class="built_in">cp</span> /etc/apt/sources_backup/ceph.list.bak /etc/apt/sources.list.d/ceph.list</span><br><span class="line"><span class="built_in">cp</span> /etc/apt/sources_backup/pve-enterprise.list.bak /etc/apt/sources.list.d/pve-enterprise.list</span><br></pre></td></tr></table></figure>
+<h2 id="CT-模板换源"><a class="header-anchor" href="#CT-模板换源"></a>CT 模板换源</h2>
+<p>需修改文件：</p>
+<ul>
+<li><code>/usr/share/perl5/PVE/APLInfo.pm</code></li>
+</ul>
+<p>先备份以防万一</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /usr/share/perl5/PVE/APLInfo.pm /usr/share/perl5/PVE/APLInfo.pm.bak</span><br></pre></td></tr></table></figure>
+<h3 id="APLInfo-pm"><a class="header-anchor" href="#APLInfo-pm"></a><a target="_blank" rel="noopener" href="http://APLInfo.pm">APLInfo.pm</a></h3>
+<p>用如下指令修改，把 <code>APLInfo.pm</code> 里所有 <code>http://download.proxmox.com</code> 替换成中科大的镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i <span class="string">&#x27;s|http://download.proxmox.com|https://mirrors.ustc.edu.cn/proxmox|g&#x27;</span> /usr/share/perl5/PVE/APLInfo.pm</span><br></pre></td></tr></table></figure>
+<p>具体变更的内容如下所示</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/usr/share/perl5/PVE/APLInfo.pm.bak</span></span><br><span class="line"><span class="comment">+++ b/usr/share/perl5/PVE/APLInfo.pm</span></span><br><span class="line"><span class="meta">@@ -197,7 +197,7 @@</span> sub get_apl_sources &#123;</span><br><span class="line">     my $sources = [</span><br><span class="line">        &#123;</span><br><span class="line">            host =&gt; &quot;download.proxmox.com&quot;,</span><br><span class="line"><span class="deletion">-           url =&gt; &quot;http://download.proxmox.com/images&quot;,</span></span><br><span class="line"><span class="addition">+           url =&gt; &quot;https://mirrors.ustc.edu.cn/proxmox/images&quot;,</span></span><br><span class="line">            file =&gt; &#x27;aplinfo-pve-8.dat&#x27;,</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br></pre></td></tr></table></figure>
+<p>注意这里的 <code>host</code> 属性是不能修改的，只改 <code>url</code> 就好</p>
+<h3 id="完成-2"><a class="header-anchor" href="#完成-2"></a>完成</h3>
+<p>重启下 <code>pvedaemon.service</code>，刷新下 web 页面，完事</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart pvedaemon.service</span><br></pre></td></tr></table></figure>
+<p>如需回滚，可以用如下指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> /usr/share/perl5/PVE/APLInfo.pm.bak /usr/share/perl5/PVE/APLInfo.pm</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2023/pve8-change-sourceslist/" title="Proxmox VE 8 换源">https://blog.fallenbreath.me/zh-CN/2023/pve8-change-sourceslist/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/PVE/" rel="tag"># PVE</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2023/endermelon-notes/" rel="prev" title="末影人西瓜农场笔记">
+                  <i class="fa fa-angle-left"></i> 末影人西瓜农场笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2024/fortress-nether-bricks-pack-spawning-issue-1182/" rel="next" title="Minecraft 1.18.2+ 中地狱堡垒的地狱砖刷怪游走问题分析">
+                  Minecraft 1.18.2+ 中地狱堡垒的地狱砖刷怪游走问题分析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2023/pve8-change-sourceslist/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2023/pve8-change-sourceslist/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"a10cfd224886fa444c6a8bffe2f36535"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="1 游戏流程 1.1 代码层面上的 GameTime 内游戏运算顺序 下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 tick() 时的游戏执行顺序：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深度剖析Minecraft #1 游戏流程">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="1 游戏流程 1.1 代码层面上的 GameTime 内游戏运算顺序 下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 tick() 时的游戏执行顺序：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/process_analysis.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/process_analysis_wtu.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/BELoader1.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/BELoader2.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/BELoader3.png">
+<meta property="article:published_time" content="2019-12-08T11:14:39.000Z">
+<meta property="article:modified_time" content="2020-11-07T15:17:32.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="深度剖析MC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/process_analysis.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/","path":"zh-CN/2019/deeply-dissecting-minecraft_1/","title":"深度剖析Minecraft #1 游戏流程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>深度剖析Minecraft #1 游戏流程 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E6%B8%B8%E6%88%8F%E6%B5%81%E7%A8%8B"><span class="nav-text">1 游戏流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E4%B8%8A%E7%9A%84-GameTime-%E5%86%85%E6%B8%B8%E6%88%8F%E8%BF%90%E7%AE%97%E9%A1%BA%E5%BA%8F"><span class="nav-text">1.1 代码层面上的 GameTime 内游戏运算顺序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-GameTick"><span class="nav-text">1.2 GameTick</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-%E6%B8%B8%E6%88%8F%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C%E6%97%B6%E5%88%BB"><span class="nav-text">1.3 游戏事件执行时刻</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B-%E8%87%AA%E5%8A%A0%E8%BD%BD%E5%9E%8B%E5%8C%BA%E5%9D%97%E5%8A%A0%E8%BD%BD%E5%99%A8%E4%BC%AA%E5%92%8C%E5%B9%B3"><span class="nav-text">实例 自加载型区块加载器伪和平</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="深度剖析Minecraft #1 游戏流程 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深度剖析Minecraft #1 游戏流程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-12-08 19:14:39" itemprop="dateCreated datePublished" datetime="2019-12-08T19:14:39+08:00">2019-12-08</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2020-11-07 23:17:32" itemprop="dateModified" datetime="2020-11-07T23:17:32+08:00">2020-11-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="1-游戏流程"><a class="header-anchor" href="#1-游戏流程"></a>1 游戏流程</h1>
+<h2 id="1-1-代码层面上的-GameTime-内游戏运算顺序"><a class="header-anchor" href="#1-1-代码层面上的-GameTime-内游戏运算顺序"></a>1.1 代码层面上的 GameTime 内游戏运算顺序</h2>
+<p>下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 <code>tick()</code> 时的游戏执行顺序：</p>
+<span id="more"></span>
+<p><img data-src="/zh-CN/2019/deeply-dissecting-minecraft_1/process_analysis.png" alt="游戏流程剖析"></p>
+<p>如读者感兴趣，<a href="/2019/12/08/deeply-dissecting-minecraft_1/process_analysis_1.15.2.png">这里</a>是1.15.2版本的流程分析图</p>
+<h2 id="1-2-GameTick"><a class="header-anchor" href="#1-2-GameTick"></a>1.2 GameTick</h2>
+<p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
+<p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<code>GameTime 与 DayTime 加一</code>，并给出GameTick的定义：</p>
+<blockquote>
+<p>GameTick 为 x 的定义是：所有执行 <code>World.worldInfo.getGameTime()</code> 得到的返回值为 x 的时刻的集合</p>
+</blockquote>
+<p>于是，我们可以得到事件P发生于GameTick x的定义：</p>
+<blockquote>
+<p>一个事件P发生于 GameTick x 的定义为：
+发生事件P时若执行<code>World.worldInfo.getGameTime()</code>，得到的返回值为 x</p>
+</blockquote>
+<p>这样做定义 GameTick 的好处有：</p>
+<ul>
+<li>与 TileTick 元件的执行时间相对应。在 GameTick N 触发的 x gt 延迟 TileTick 元件会在 GameTick N + x 执行动作</li>
+<li>可以直观地在代码中调用 <code>World.worldInfo.getGameTime()</code> 来确定当前的 GameTick</li>
+</ul>
+<p>定义完 GameTick 并确定好分界线后，我们就可以重新排列 1.1 节的树状图，并获得一个 GameTick 内各阶段发生的顺序了：</p>
+<p><img data-src="/zh-CN/2019/deeply-dissecting-minecraft_1/process_analysis_wtu.png" alt="游戏流程剖析，从 WTU 开始"></p>
+<p>对于与修改服务端世界相关的操作所在的阶段，即树状图中使用黄色标出的阶段，可归纳得到下<strong>常用阶段顺序表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>设置世界时间</td>
+<td>World Time Update</td>
+<td>WTU</td>
+</tr>
+<tr>
+<td>2</td>
+<td>计划刻</td>
+<td>Tile Tick (Next Tick Entry)</td>
+<td>TT (NTE)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>随机刻与气候</td>
+<td>RandomTick&amp;Climate</td>
+<td>RTC</td>
+</tr>
+<tr>
+<td>4</td>
+<td>村庄运算</td>
+<td>Village</td>
+<td>V</td>
+</tr>
+<tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>6</td>
+<td>实体</td>
+<td>Entity Update</td>
+<td>EU</td>
+</tr>
+<tr>
+<td>7</td>
+<td>方块实体</td>
+<td>Tile Entity</td>
+<td>TE</td>
+</tr>
+<tr>
+<td>8</td>
+<td>玩家操作</td>
+<td>Network Update</td>
+<td>NU</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody>
+</table>
+<p>这个常用阶段顺序表是之后分析最为常用的列表，划重点记笔记！（其实只要记住缩写即可，因为下文会大量使用缩写）</p>
+<p>对于之后对精确到一个游戏刻内阶段的分析，我称之为：微观时序分析</p>
+<h2 id="1-3-游戏事件执行时刻"><a class="header-anchor" href="#1-3-游戏事件执行时刻"></a>1.3 游戏事件执行时刻</h2>
+<blockquote>
+<p>这一章节的目的是概述各大部分游戏事件运作的时刻，其中性质的详细描述见后文</p>
+</blockquote>
+<p>在 1.2 里，存在以下几个游戏阶段为抽象的阶段，并未明确声明在其中会发生什么事件。它们是：</p>
+<ul>
+<li>计划刻 TT</li>
+<li>方块事件 BE</li>
+<li>方块实体 TE</li>
+<li>玩家操作 NU</li>
+</ul>
+<p>下面列一下大部分与之相关的游戏事件</p>
+<ul>
+<li>中继器、比较器、红石火把、侦测器的激活与熄灭：TT</li>
+<li>按钮、压力板、红石灯、绊线、绊线钩的激活：瞬时；熄灭：TT</li>
+<li>拉杆、红石线、铁轨、各类活版栅栏木铁门、漏斗、音符盒、投掷器发射器的激活与熄灭：瞬时</li>
+<li>投掷器发射器的工作：TT</li>
+<li>命令方块的运作：TT</li>
+<li>树叶、流体、脚手架的更新：TT</li>
+<li>重力方块判定并创建重力方块实体：TT</li>
+<li>活塞推拉的开始：BE</li>
+<li>移动中方块的运算：TE</li>
+<li>移动中方块的到位：BE（粘性活塞受短脉冲）；TE（粘性活塞受长信号）</li>
+<li>玩家移动、放置破坏方块、与方块交互：NU</li>
+</ul>
+<p>注：瞬时指的是可属于任意阶段，触发即运算，且触发与运算之间无法插入其他操作</p>
+<h2 id="实例-自加载型区块加载器伪和平"><a class="header-anchor" href="#实例-自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2>
+<p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
+<p>让我们分析一下基于活塞区块加载器的伪和平：</p>
+<p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
+<p><img data-src="/zh-CN/2019/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1">
+备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
+<p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody>
+</table>
+<p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
+<hr>
+<p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
+<p><img data-src="/zh-CN/2019/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
+<p>相关的阶段：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>7</td>
+<td>方块实体</td>
+<td>Tile Entity</td>
+<td>TE</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody>
+</table>
+<p>让我们看一下这个设计的区块被卸载时的微观时序</p>
+<table>
+<thead>
+<tr>
+<th>GameTick</th>
+<th>阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+<tr>
+<td>N</td>
+<td>CU</td>
+<td>伪和平装置的区块被卸载</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>BE</td>
+<td>活塞加载器区块加载，漏斗A被加载并立刻被添加至世界参与运算的TE列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>TE</td>
+<td>漏斗加载存怪装置区块</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>S</td>
+<td>刷怪阶段内怪物容量被占满，伪和平开启，不刷怪</td>
+</tr>
+</tbody>
+</table>
+<p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
+<hr>
+<p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
+<p><img data-src="/zh-CN/2019/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
+<p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
+<p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
+<p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>GameTick</th>
+<th>阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+<tr>
+<td>N</td>
+<td>CU</td>
+<td>伪和平装置的区块被卸载</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>BE</td>
+<td>活塞加载器区块加载，漏斗 A 被加载并立刻被添加至世界参与运算的TE列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>TE</td>
+<td>漏斗 A 加载漏斗 B 所在的区块。漏斗 B 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>S</td>
+<td>伪和平失效，<strong>刷怪</strong></td>
+</tr>
+<tr>
+<td>N + 2</td>
+<td>TE</td>
+<td>漏斗 B 加载漏斗 C 所在的区块。漏斗 C 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
+</tr>
+<tr>
+<td>N + 2</td>
+<td>S</td>
+<td>伪和平失效，<strong>刷怪</strong></td>
+</tr>
+<tr>
+<td>N + 3</td>
+<td>TE</td>
+<td>漏斗 C 加载存怪装置区块</td>
+</tr>
+<tr>
+<td>N + 3</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+</tbody>
+</table>
+<p>因此这个伪和平方案在每次被卸载时，足足有 2gt 的刷怪空档期，不是一个完美的伪和平方案</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/" title="深度剖析Minecraft #1 游戏流程">https://blog.fallenbreath.me/zh-CN/2019/deeply-dissecting-minecraft_1/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90MC/" rel="tag"># 深度剖析MC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2019/deeply-dissecting-minecraft_0/" rel="prev" title="深度剖析Minecraft #0 绪论">
+                  <i class="fa fa-angle-left"></i> 深度剖析Minecraft #0 绪论
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2020/deeply-dissecting-minecraft_2/" rel="next" title="深度剖析Minecraft #2 方块更新">
+                  深度剖析Minecraft #2 方块更新 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2019/deeply-dissecting-minecraft_1/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2019/deeply-dissecting-minecraft_1/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"3926b960f0925550c879c5fe58c0089d"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

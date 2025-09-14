@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="计划刻元件库，元件属性机制全剖析！【施工中，不保证准确性】">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深度剖析Minecraft #3.4 计划刻元件">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="计划刻元件库，元件属性机制全剖析！【施工中，不保证准确性】">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/diode_update_range.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/repeater_lock.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/4gtrepeater2.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/4gtrepeater3.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_input.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_side_input.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/observer_comparator1.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/observer_comparator2.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/double_observer_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/0t_x_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif">
+<meta property="article:published_time" content="2020-09-17T06:50:29.000Z">
+<meta property="article:modified_time" content="2020-09-17T06:50:29.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="深度剖析MC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/diode_update_range.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/","path":"zh-CN/2020/deeply-dissecting-minecraft_3.4/","title":"深度剖析Minecraft #3.4 计划刻元件"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>深度剖析Minecraft #3.4 计划刻元件 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-text">3.4 计划刻元件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-text">3.4.1 红石二极管</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.1.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-2-%E5%93%8D%E5%BA%94%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.1.2 响应方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-3-%E5%8F%91%E5%87%BA%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.1.3 发出更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-2-%E7%BA%A2%E7%9F%B3%E4%B8%AD%E7%BB%A7%E5%99%A8"><span class="nav-text">3.4.2 红石中继器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.2.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-2-%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-text">3.4.2.2 检测信号变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-3-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.2.3 计划刻事件执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-4-%E5%8F%97%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0%E6%97%B6"><span class="nav-text">3.4.2.4 受状态更新时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8E-4gt-%E6%97%B6%E9%92%9F%E4%BA%A4%E4%BA%92"><span class="nav-text">与 4gt 时钟交互</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-3-%E7%BA%A2%E7%9F%B3%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">3.4.3 红石比较器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.3.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-2-%E4%BF%A1%E5%8F%B7%E5%BC%BA%E5%BA%A6%E8%AE%A1%E7%AE%97"><span class="nav-text">3.4.3.2 信号强度计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-3-%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-text">3.4.3.3 检测信号变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.3.4 计划刻事件执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B-2"><span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6%E7%9A%84-2gt-%E8%84%89%E5%86%B2"><span class="nav-text">响应计划刻元件的 2gt 脉冲</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-0gt-%E4%BF%A1%E5%8F%B7%E6%BF%80%E6%B4%BB%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">使用 0gt 信号激活比较器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E5%BB%B6%E8%BF%9F%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">无延迟比较器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%94%E8%BE%83%E5%99%A8%E6%9B%B4%E6%96%B0%E6%A3%80%E6%B5%8B%E5%99%A8"><span class="nav-text">比较器更新检测器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-4-%E7%BA%A2%E7%9F%B3%E7%81%AB%E6%8A%8A"><span class="nav-text">3.4.4 红石火把</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-5-%E4%BE%A6%E6%B5%8B%E5%99%A8"><span class="nav-text">3.4.5 侦测器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-5-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.5.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-5-2-%E6%8E%A5%E5%8F%97%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.5.2 接受方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-5-3-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.5.3 计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%95%E6%8E%B7%E5%99%A8-%E5%8F%91%E5%B0%84%E5%99%A8"><span class="nav-text">投掷器&#x2F;发射器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-2"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AF"><span class="nav-text">红石灯</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-3"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E7%B1%BB%E5%85%83%E4%BB%B6"><span class="nav-text">探测类元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-4"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-text">其他红石元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-5"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-text">非红石元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-6"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E4%BD%93"><span class="nav-text">流体</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-7"><span class="nav-text">计划刻事件执行</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="深度剖析Minecraft #3.4 计划刻元件 | fallen's attic">
+      <meta itemprop="description" content="计划刻元件库，元件属性机制全剖析！【施工中，不保证准确性】">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深度剖析Minecraft #3.4 计划刻元件
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-09-17 14:50:29" itemprop="dateCreated datePublished" datetime="2020-09-17T14:50:29+08:00">2020-09-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+            <div class="post-description">计划刻元件库，元件属性机制全剖析！【施工中，不保证准确性】</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="3-4-计划刻元件"><a class="header-anchor" href="#3-4-计划刻元件"></a>3.4 计划刻元件</h1>
+<p>阅前必读：</p>
+<p>《<a href="/zh-CN/2020/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">深度剖析Minecraft #2 方块更新</a>》</p>
+<p>《<a href="/zh-CN/2020/deeply-dissecting-minecraft_3/" title="深度剖析Minecraft #3 计划刻">深度剖析Minecraft #3 计划刻</a>》</p>
+<h2 id="3-4-1-红石二极管"><a class="header-anchor" href="#3-4-1-红石二极管"></a>3.4.1 红石二极管</h2>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockHorizontal</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>其下方依附着的方块上表面完整</td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>判断掉落，更新信号</td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>不响应</td>
+</tr>
+</tbody>
+</table>
+<p>这是一个抽象类，是红石中继器以及红石比较器的基类，也就是说中继器跟比较器的本质是一个二极管，有许多的机制是完全相同的</p>
+<h3 id="3-4-1-1-方块状态"><a class="header-anchor" href="#3-4-1-1-方块状态"></a>3.4.1.1 方块状态</h3>
+<p>作为一个可水平旋转的方块，二极管拥有一个 <code>facing</code> 标签表示其水平指向。除此之外二极管还具有以下标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>powered</td>
+<td>false, true</td>
+<td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管亮起</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-1-2-响应方块更新"><a class="header-anchor" href="#3-4-1-2-响应方块更新"></a>3.4.1.2 响应方块更新</h3>
+<p>当二极管受到方块更新时，它会首先检测其所处位置是否满足位置需求，若不满足则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>）；若合法，则开始检测信号变化 <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup>。具体的检测信号变化的方法见 <a href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1">红石中继器</a> 以及 <a href="#3-4-2-%E7%BA%A2%E7%9F%B3%E4%B8%AD%E7%BB%A7%E5%99%A8">红石比较器</a></p>
+<h3 id="3-4-1-3-发出更新"><a class="header-anchor" href="#3-4-1-3-发出更新"></a>3.4.1.3 发出更新</h3>
+<p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处（下图黄色玻璃）发出一个除其指向方向反方向的方块更新。图中所有的染色玻璃也即是所有的<strong>受到</strong>方块更新的方块的位置</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/diode_update_range.png" alt="二极管更新范围示意"></p>
+<p>具体的方法为 <code>net.minecraft.block.BlockRedstoneDiode#notifyNeighbors</code></p>
+<p>这一部分的调用之处是在 <code>onBlockAdded</code> 以及 <code>onReplaced</code> 中，因此只要涉及到二极管的方块状态的变化，均可以让这个二极管发出上述更新</p>
+<h2 id="3-4-2-红石中继器"><a class="header-anchor" href="#3-4-2-红石中继器"></a>3.4.2 红石中继器</h2>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneRepeater</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>同 <a href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1">红石二极管</a></td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>同 <a href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1">红石二极管</a></td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>更新自身被锁的状态</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-2-1-方块状态"><a class="header-anchor" href="#3-4-2-1-方块状态"></a>3.4.2.1 方块状态</h3>
+<p>红石中继器（简称中继器）在红石二极管的基础上，新增了两个方块标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>delay</td>
+<td>1, 2, 3, 4</td>
+<td>储存中继器的延迟。计划刻事件的延迟将为 <code>delay</code> * 2</td>
+</tr>
+<tr>
+<td>locked</td>
+<td>false, true</td>
+<td>储存中继器是否被锁</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-2-2-检测信号变化"><a class="header-anchor" href="#3-4-2-2-检测信号变化"></a>3.4.2.2 检测信号变化</h3>
+<p>中继器接受来自其输入端方块的弱充能信号，与其当前的 <code>powered</code> 标签进行对比，若发现其状态需要改变，则添加一个计划刻事件用于延迟更新状态。计划刻事件的延迟如上所述，优先级如下：</p>
+<ul>
+<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -3</li>
+<li>若中继器的原 <code>powered</code> 标签为假，也即中继器准备熄灭，则优先级为 -2</li>
+<li>否则优先级为 -1</li>
+</ul>
+<h3 id="3-4-2-3-计划刻事件执行"><a class="header-anchor" href="#3-4-2-3-计划刻事件执行"></a>3.4.2.3 计划刻事件执行</h3>
+<p>如果中继器目前被锁住，则跳过该计划刻事件的执行。由于计划刻事件并不储存该事件的实际功能，中继器需要再次计算其输入端方块的弱充能信号，并与其当前的 <code>powered</code> 标签作比较：</p>
+<ul>
+<li>若当前状态为亮起且输入端无信号，则改为熄灭状态</li>
+<li>若的前状态为熄灭，则改为亮起状态，再判断输入端是否有信号，若无信号则添加一个延迟为其自身的延迟，优先级为 -1 <sup class="footnote-ref"><a href="#fn3" id="fnref3">[3]</a></sup> 的计划刻事件用于熄灭。也就是说，即便在执行计划刻事件的时候输入信号已经消失，中继器也依然会亮起，这也是中继器可响应并输出任意短的正脉冲的原理</li>
+</ul>
+<p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1">红石二极管</a> 的发出更新小节</p>
+<h3 id="3-4-2-4-受状态更新时"><a class="header-anchor" href="#3-4-2-4-受状态更新时"></a>3.4.2.4 受状态更新时</h3>
+<p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新"></p>
+<h3 id="实例"><a class="header-anchor" href="#实例"></a>实例</h3>
+<h4 id="与-4gt-时钟交互"><a class="header-anchor" href="#与-4gt-时钟交互"></a>与 4gt 时钟交互</h4>
+<p>当将 4gt 时钟，如对脸侦测器，的输出接至中继器链时，常常会见到下图的现象：中继器链大部分都在 4gt 时钟下闪烁，可是最末端的中继器却处于常量状态</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
+<p>这是因为中继器添加事件的优先级所导致的。</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/4gtrepeater2.gif" alt="4gtrepeater2"></p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/4gtrepeater3.gif" alt="4gtrepeater3"></p>
+<h2 id="3-4-3-红石比较器"><a class="header-anchor" href="#3-4-3-红石比较器"></a>3.4.3 红石比较器</h2>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneComparator</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>2</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>同 <a href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1">红石二极管</a></td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>同 <a href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1">红石二极管</a></td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>不响应</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-3-1-方块状态"><a class="header-anchor" href="#3-4-3-1-方块状态"></a>3.4.3.1 方块状态</h3>
+<p>红石比较器（简称比较器）在红石二极管的基础上，新增了一个方块标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mode</td>
+<td>compare, subtract</td>
+<td>储存着比较器当前的模式（比较模式、减法模式）</td>
+</tr>
+</tbody>
+</table>
+<p>对于当前比较器的输出信号的储存，可能是因为一些历史遗留问题（1.13 以前的方块附加值储存能力不足），是储存于比较器方块实体之中的。也就是说，比较器其实是一个含有方块实体的方块。不过由于该方块实体并不是常运算的方块实体 <sup class="footnote-ref"><a href="#fn4" id="fnref4">[4]</a></sup>，因此并不会带来额外的卡顿</p>
+<h3 id="3-4-3-2-信号强度计算"><a class="header-anchor" href="#3-4-3-2-信号强度计算"></a>3.4.3.2 信号强度计算</h3>
+<blockquote>
+<p>net.minecraft.block.BlockRedstoneComparator#calculateInputStrength</p>
+</blockquote>
+<p>首先，需要计算输入端的信号强度</p>
+<p>令输入端，即比较器后方一格处的方块为 A，比较器后方二格处的方块为 B</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_input.png" alt="比较器输入信号"></p>
+<ol>
+<li>维护一个取值为 0 ~ 15 的整数 $n$ 作为比较器待确定的输入的信号强度</li>
+<li>计算方块 A 的弱充能信号强度（与中继器相同），将 $n$ 设为该信号强度</li>
+<li>判断方块 A 是否可输出比较器信号</li>
+</ol>
+<ul>
+<li>如果是，则将 $n$ 设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
+<li>如果不是，若 $n &lt; 15$ 且方块 A 为实体方块 <sup class="footnote-ref"><a href="#fn5" id="fnref5">[5]</a></sup>，则进行尝试使用 B 处可能的容器输出来覆盖当前的输入强度：
+<ol>
+<li>如果方块 B 可输出比较器信号，则将 $n$ 设方块 B 的比较器输出值</li>
+<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到，则将 $n$ 设置为物品展示架的角度</li>
+</ol>
+</li>
+</ul>
+<ol start="4">
+<li>$n$ 即为比较器的输入信号强度</li>
+</ol>
+<p>随后，比较器会计算其来自侧面的输入的最大值。比较器<strong>仅</strong>会接受以下三种形式的输入：</p>
+<ul>
+<li>毗邻的红石块</li>
+<li>毗邻的红石粉</li>
+<li>毗邻的指向比较器的强充能元件</li>
+</ul>
+<p>下图是一些常见的给予比较器侧面输入信号的方法</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_side_input.png" alt="比较器侧面输入"></p>
+<p>不过，强充能元件并非只有中继器、比较器。当比较器前方有二极管时，比较器可响应侦测器的侧方输入。如果使用指令等方式得到了浮空方块，你甚至可以使用拉杆、按钮等元件进行输入：</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png" alt="comparetor_side_input_sp"></p>
+<p>现在，我们已经知道比较器的后方输入以及侧面输入的信号强度了，现在只需要根据其所处模式（比较模式/减法模式）再次计算，即可得出比较器的输出信号了：</p>
+<ul>
+<li>比较模式：输出信号 = 后方输入（大小比较的相关逻辑并不在此处）</li>
+<li>减法模式：输出信号 = max(0, 后方输入 - 侧面输入)</li>
+</ul>
+<p>之后，比较器就可以判断是否应该输出信号了。这部分的实现很简单，直接结合代码说明：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">shouldBePowered</span><span class="params">(World worldIn, BlockPos pos, IBlockState state)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="built_in">this</span>.calculateInputStrength(worldIn, pos, state);</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= <span class="number">15</span>)  <span class="comment">// 输入信号强度大于15</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">0</span>)  <span class="comment">// 输入信号强度为0</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> i &gt;= <span class="built_in">this</span>.getPowerOnSides(worldIn, pos, state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里也是比较模式大小相关逻辑的实现之处</p>
+<h3 id="3-4-3-3-检测信号变化"><a class="header-anchor" href="#3-4-3-3-检测信号变化"></a>3.4.3.3 检测信号变化</h3>
+<p>与中继器类似，比较器会计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。如果输出的信号强度有改变，或者其亮起状态有变化，则添加一个计划刻事件，优先级如下：</p>
+<ul>
+<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -1</li>
+<li>其他情况，优先级为 0</li>
+</ul>
+<h3 id="3-4-3-4-计划刻事件执行"><a class="header-anchor" href="#3-4-3-4-计划刻事件执行"></a>3.4.3.4 计划刻事件执行</h3>
+<p>与中继器类似，由于计划刻事件并不储存该事件的实际功能，比较器需要再次计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。若两者不同，或者其亮起状态有变化，则更新当前的亮起状态，并<a href="#3-4-1-3-%E5%8F%91%E5%87%BA%E6%9B%B4%E6%96%B0">发出更新</a>。可以注意到，比较器并非同中继器一样，当原状态是熄灭的时候，无论如何都会点亮。<strong>如果比较器的计划刻执行时输入信号已消失，比较器是不会输出的</strong></p>
+<p>注意到对于任意一个红石二极管，当其方块状态发生变化时也会发出一次更新，因此若比较器在上述步骤中改变了亮起状态时，它会发出更新两次 <s>&lt;3 mojang</s></p>
+<h3 id="实例-2"><a class="header-anchor" href="#实例-2"></a>实例</h3>
+<h4 id="响应计划刻元件的-2gt-脉冲"><a class="header-anchor" href="#响应计划刻元件的-2gt-脉冲"></a>响应计划刻元件的 2gt 脉冲</h4>
+<p>下面以典型的侦测器为例。正常情况下，侦测器脉冲是无法激活比较器的，如下面这个例子</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/observer_comparator1.gif" alt="侦测器尝试激活比较器"></p>
+<p>时序分析：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0（关于侦测器的执行计划刻事件时的逻辑，见 <a href="#3-4-5-%E4%BE%A6%E6%B5%8B%E5%99%A8">侦测器</a>）</td>
+</tr>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器发出方块更新。比较器受到方块更新，发现可输出信号，添加位于 gt 2 的计划刻事件，优先级为 0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器</td>
+<td>侦测器熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（0），无变化，不执行任何操作</td>
+</tr>
+</tbody>
+</table>
+<p>可见，比较器的计划刻事件执行的时候输入端信号已经消失，这导致了比较器不响应侦测器的脉冲</p>
+<hr>
+<p>若想要使用侦测器来激活比较器，有两种方法</p>
+<p><strong>1. 提升比较器的优先级</strong></p>
+<p>观察时序分析表，容易发现如果让 gt 2 中比较器的事件先于侦测器执行，则可以让侦测器执行计划刻事件时侦测器仍处于激活状态。一种可行的方法就是提升比较器的优先级，更准确地说，提升比较器添加用于亮起的计划刻事件的优先级。我们可以通过在比较器前方添加中继器来实现</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/observer_comparator2.gif" alt="侦测器尝试激活比较器"></p>
+<p>时序分析：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.<strong>-1</strong>.比较器</td>
+<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器</td>
+<td>侦测器熄灭</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. 延长等优先级的 2gt 脉冲</strong></p>
+<p>为了让比较器在执行其计划刻事件的时候输入端仍有信号，除了提升比较器的计划刻事件的优先级外，是否还有方法？更新比较器，让比较器添加计划刻事件的那个侦测器肯定不能起到作用了，那么是否可以额外添加一个侦测器，让第二个侦测器在比较器事件执行完毕之后再熄灭？答案是可以，方案如下：</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/double_observer_comparator.gif" alt="双侦测器激活比较器"></p>
+<p>时序分析如下：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器 A</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
+</tr>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器 B</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器尝试添加位于 gt 2 的计划事件，不过由于计划刻队列中已有该事件，忽略操作</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器 A</td>
+<td>侦测器 A 熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>虽然侦测器 A 熄灭了，但是侦测器 B 仍处于亮起状态。比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器 B</td>
+<td>侦测器 B 熄灭</td>
+</tr>
+</tbody>
+</table>
+<p>值得注意的是，该方案的铁轨不可用 2gt 的计划刻元件脉冲去激活，具体原因与侦测器的实现有关</p>
+<h4 id="使用-0gt-信号激活比较器"><a class="header-anchor" href="#使用-0gt-信号激活比较器"></a>使用 0gt 信号激活比较器</h4>
+<p>通过上述例子我们可发现，若想要激活一个比较器，仅需要在比较器检查输入端是否有信号的时候，也就是以下两个时刻：</p>
+<ul>
+<li>添加计划刻事件时</li>
+<li>执行计划刻事件时</li>
+</ul>
+<p>让输入端存在信号就行了。这意味着，激活比较器的信号并不需要是一个连续的信号，我们只需要用两次脉冲分别覆盖上述两个时刻，就能让比较器点亮。这两个脉冲的时长可以任意短，可以短到 0gt 时长，只要覆盖到了上述两个时刻就行了</p>
+<p>对于上述的第一个时刻“添加计划刻事件时”，可在任意时刻实现；对于第二个时刻“执行计划刻事件时”，需理清楚比较器的计划刻事件的执行时间点</p>
+<p>下图是一个使用两次 0gt 信号激活比较器的例子</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/0t_x_comparator.gif" alt="0gt脉冲激活比较器"></p>
+<p>时序分析：</p>
+<p>该装置中含有两个 0gt 脉冲发生器，脉冲的持续时间为 TT.-1 ~ BE，可覆盖正常优先级的比较器的计划刻事件时刻 TT.0</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>TT.-1.上中继器 A</td>
+<td>中继器 A 亮起，充能铁块激活红石粉，更新比较器。比较器添加位于 gt 2 的计划刻事件</td>
+</tr>
+<tr>
+<td>0</td>
+<td>BE</td>
+<td>活塞 A 推出，红石粉熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.-1.上中继器 B</td>
+<td>中继器 B 亮起，充能铁块激活红石粉</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>比较器亮起，信号强度为 14（信号强度源自中继器 B）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BE</td>
+<td>活塞 B 推出，红石粉熄灭。红石粉更新比较器，比较器添加位于 gt 4 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT</td>
+<td>比较器熄灭</td>
+</tr>
+</tbody>
+</table>
+<p>如果将比较器输入信号是否存在视作 0 1，画出波形图的话，是这样子的</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png" alt="波形图"></p>
+<p>类似的，如果我们每 2gt 都发出一次上述 0gt 脉冲的话，比较器就能一直保持常亮状态。下方是上述例子示意装置的一个简单扩展，如果有必要的话甚至可以让比较器的输出信号强度也保持不变</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif" alt="0gt脉冲常激活比较器"></p>
+<h4 id="无延迟比较器"><a class="header-anchor" href="#无延迟比较器"></a>无延迟比较器</h4>
+<p>在传统的使用比较器传输模拟信号的线路中，比较器逐个亮起，依次往前传递信号，传输速度较慢，如下图</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有延迟比较器"></p>
+<p>让我们分析一下上图，为什么这个比较器链传输信号如此之慢。上图中，比较器 B 需要等待比较器 A 亮起后才可亮起；比较器 C 需要等待比较器 B 亮起后才可亮起；比较器 D 需要等待比较器 C 亮起后才可亮起……每次等待，都耗费了 2gt 的时间进行延迟</p>
+<p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成所有比较器的点亮，这就是无延迟比较器</p>
+<p>下图是一个简单的无延迟比较器的例子</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器"></p>
+<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件生成的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这种诱导比较器在指定时刻添加计划刻事件的脉冲，我们称之为<strong>诱导脉冲</strong>。</p>
+<p>上述操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都是 0 延迟，因此我们称之为无延迟比较器</p>
+<p>下面是上图中的无延迟比较器的亮起操作的时序分析。熄灭/信号改变的时序分析同理：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>NU</td>
+<td>拉杆拉下</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT</td>
+<td>比较器 1 亮起。侦测器亮起，中继器<strong>从近到远依次</strong>添加位于 gt 4 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 A</td>
+<td>亮起，更新比较器 A，比较器 A 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 B</td>
+<td>亮起，更新比较器 B，比较器 B 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 F</td>
+<td>亮起，更新比较器 F，比较器 F 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.0</td>
+<td>比较器 2 亮起。侦测器熄灭</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.-1</td>
+<td>中继器 A ~ F 依次熄灭</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 A</td>
+<td>比较器 A 发现其输入端有来自比较器 2 的信号，亮起</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 B</td>
+<td>比较器 B 发现其输入端有来自比较器 A 的信号，亮起</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 F</td>
+<td>比较器 F 发现其输入端有来自比较器 E 的信号，亮起</td>
+</tr>
+</tbody>
+</table>
+<p>不过，上述无延迟比较器有一个缺点，就是在输入信号强度为 15 的情况下改变信号强度时不能维持无延迟。这是因为当输入的信号强度是 15 时，比较器链中都储存着强度为 15 的信号，而侧方位中继器发出的脉冲信号强度也是 15，两者大小相等，导致了诱导脉冲无法诱使比较器添加计划刻事件。如下图所示：</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif" alt="于输入15信号的下降沿失效"></p>
+<p>对此的解决方法也并不困难。我们需要的是诱使比较器添加计划刻事件，只要按顺序添加了就可以，至于比较器是因为什么原因而添加计划刻事件，我们并不关心</p>
+<p>当比较器输出信号是 15 的时候，还有什么方法能诱使比较器添加计划刻事件呢？在减法模式下向比较器侧面输入脉冲！这样子，比较器会发现其输出信号需要减去其侧面输入，从而添加计划刻事件</p>
+<p>在向其侧面输入脉冲的条件下，向其背面输入端的脉冲也不可去掉，如下图所示</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png" alt="侧面输入脉冲"></p>
+<p>设比较器的原信号强度为 $n$</p>
+<ul>
+<li>若 $n &gt; 0$，则来自比较器侧面的脉冲可让比较器输出的信号强度减小，从而诱使比较器添加计划刻事件</li>
+<li>若 $n &lt; 15$，则来自比较器后方的脉冲可让比较器输出的信号强度变为 15，从而诱使比较器添加计划刻事件</li>
+</ul>
+<p>【疑似有虫】当侧面输入与后方输入的信号强度相等时，比如使用中继器或侦测器这类输出 15 强度信号的元件时，这两个脉冲的顺序也是有讲究的。对于无延迟链上的每一个比较器，我们需要首先向其后端输入脉冲，再向其侧面输入脉冲，才可在所有情况下无延迟地传递信号。如果顺序相反，则当后端输入脉冲时，由于比较器侧面已存在信号强度 15 的输入，比较器将会输出 0 强度信号。若比较器储存着的信号已经是 0 强度了，那么这次脉冲输入就无法诱使比较器添加计划刻事件，从而使无延迟比较器失效</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png" alt="脉冲顺序【此图有虫】"></p>
+<p>下面图这类兼容所有情况的信号变化的无延迟比较器的一个实现</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif" alt="全情况可用的无延迟比较器"></p>
+<p>以上图为例，在使用中继器或中继器时，所有需要以以下的顺序向比较器输入诱导脉冲：</p>
+<ol>
+<li>比较器 A 的后方输入端</li>
+<li>比较器 A 的侧面输入端</li>
+<li>比较器 B 的后方输入端</li>
+<li>比较器 B 的侧面输入端</li>
+<li>……</li>
+<li>比较器 F 的后方输入端</li>
+<li>比较器 F 的侧面输入端</li>
+</ol>
+<p>当然，在实际使用中，由于上述无延迟比较器设计都不能无限地延长。不过，如果配合无延迟信号线使用，即可实现可无限延伸的无延迟比较器链。下面是一个可行的例子</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif" alt="无限延伸的无延迟比较器链"></p>
+<h4 id="比较器更新检测器"><a class="header-anchor" href="#比较器更新检测器"></a>比较器更新检测器</h4>
+<h2 id="3-4-4-红石火把"><a class="header-anchor" href="#3-4-4-红石火把"></a>3.4.4 红石火把</h2>
+<h3 id="计划刻事件执行"><a class="header-anchor" href="#计划刻事件执行"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="3-4-5-侦测器"><a class="header-anchor" href="#3-4-5-侦测器"></a>3.4.5 侦测器</h2>
+<h3 id="3-4-5-1-方块状态"><a class="header-anchor" href="#3-4-5-1-方块状态"></a>3.4.5.1 方块状态</h3>
+<p>作为一个可旋转的方块，侦测器拥有一个 <code>facing</code> 标签表示其指向。除此之外侦测器还具有以下标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>powered</td>
+<td>false, true</td>
+<td>其当前的亮起状态。我们称该标签为假时侦测器熄灭，该标签为真时侦测器亮起</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-4-5-2-接受方块更新"><a class="header-anchor" href="#3-4-5-2-接受方块更新"></a>3.4.5.2 接受方块更新</h3>
+<p>当侦测器输入端的位置发出了状态更新，将引起侦测器的检测</p>
+<p>注意，用于块更新红石粉方侧下方红石粉链接状态的状态更新是不会被侦测器响应的</p>
+<h3 id="3-4-5-3-计划刻事件执行"><a class="header-anchor" href="#3-4-5-3-计划刻事件执行"></a>3.4.5.3 计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="投掷器-发射器"><a class="header-anchor" href="#投掷器-发射器"></a>投掷器/发射器</h2>
+<h3 id="计划刻事件执行-2"><a class="header-anchor" href="#计划刻事件执行-2"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="红石灯"><a class="header-anchor" href="#红石灯"></a>红石灯</h2>
+<h3 id="计划刻事件执行-3"><a class="header-anchor" href="#计划刻事件执行-3"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="探测类元件"><a class="header-anchor" href="#探测类元件"></a>探测类元件</h2>
+<h3 id="计划刻事件执行-4"><a class="header-anchor" href="#计划刻事件执行-4"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="其他红石元件"><a class="header-anchor" href="#其他红石元件"></a>其他红石元件</h2>
+<h3 id="计划刻事件执行-5"><a class="header-anchor" href="#计划刻事件执行-5"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="非红石元件"><a class="header-anchor" href="#非红石元件"></a>非红石元件</h2>
+<h3 id="计划刻事件执行-6"><a class="header-anchor" href="#计划刻事件执行-6"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<h2 id="流体"><a class="header-anchor" href="#流体"></a>流体</h2>
+<h3 id="计划刻事件执行-7"><a class="header-anchor" href="#计划刻事件执行-7"></a>计划刻事件执行</h3>
+<p>blabla</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>net.minecraft.util.EnumFacing#values <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>net.minecraft.block.BlockRedstoneDiode#updateState <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn3" class="footnote-item"><p>在 1.15 及以后，该事件的优先级改为 -2 <a href="#fnref3" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn4" class="footnote-item"><p>也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口 <a href="#fnref4" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn5" class="footnote-item"><p>net.minecraft.block.Block#isNormalCube <a href="#fnref5" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/" title="深度剖析Minecraft #3.4 计划刻元件">https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_3.4/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90MC/" rel="tag"># 深度剖析MC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2020/discussion-about-13-blockupdate-types/" rel="prev" title="对1.13后两种不同方块更新类型译名的探讨">
+                  <i class="fa fa-angle-left"></i> 对1.13后两种不同方块更新类型译名的探讨
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2020/vanished-technologies/" rel="next" title="消逝的科技">
+                  消逝的科技 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2020/deeply-dissecting-minecraft_3.4/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2020/deeply-dissecting-minecraft_3.4/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"fd4b5efbdd2d45f14cb038840aa26ebd"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

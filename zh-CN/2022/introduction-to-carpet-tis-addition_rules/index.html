@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="索引页：Carpet TIS Addition 介绍：索引 Carpet TIS Addition 介绍：规则 作为一个地毯 mod 扩展，Carpet TIS Addition （也称为 TIS Carpet）自然拥有着大量的可用于操控游戏特性的规则（截止至 v1.47 版本，共含有 94 个的规则）， 它们可以通过指令 &#x2F;carpet &lt;规则名&gt; &lt;规则值&gt; 来使用。在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Carpet TIS Addition 介绍：规则">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="索引页：Carpet TIS Addition 介绍：索引 Carpet TIS Addition 介绍：规则 作为一个地毯 mod 扩展，Carpet TIS Addition （也称为 TIS Carpet）自然拥有着大量的可用于操控游戏特性的规则（截止至 v1.47 版本，共含有 94 个的规则）， 它们可以通过指令 &#x2F;carpet &lt;规则名&gt; &lt;规则值&gt; 来使用。在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/blockPlacementIgnoreEntity.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/creativeOpenContainerForcibly.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/failSoftBlockStateParsing.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/fillCommandModeEnhance.jpg">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/fluidDestructionDisabled.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/hopperNoItemCost.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/preciseEntityPlacement.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/redstoneDustRandomUpdateOrder.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/syncServerMsptMetricsData.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/blockEventPacketRange.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/chunkTickSpeed.jpg">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/creativeNetherWaterPlacement.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/creativeNoItemCooldown.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/explosionPacketRange.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/flattenTriangularDistribution.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/minecartTakePassengerMinVelocity.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/observerNoDetection.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/structureBlockDoNotPreserveFluid.jpg">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/tntIgnoreRedstoneSignal.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/toughWitherRose.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/turtleEggTrampledDisabled.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/dispensersFireDragonBreath.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/largeBarrel.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/railDupingFix.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/renewableDragonEgg.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/tntDupingFix.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/tooledTNT.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/optimizedFastEntityMovement.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/fakePlayerNamePrefix.jpg">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/stopCommandDoubleConfirmation.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/visualizeProjectileLoggerEnabled.jpg">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/yeetUpdateSuppressionCrash.png">
+<meta property="article:published_time" content="2022-03-15T16:43:52.000Z">
+<meta property="article:modified_time" content="2023-06-06T17:00:00.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="Carpet TIS Addition">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/blockPlacementIgnoreEntity.gif">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/","path":"zh-CN/2022/introduction-to-carpet-tis-addition_rules/","title":"Carpet TIS Addition 介绍：规则"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Carpet TIS Addition 介绍：规则 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Carpet-TIS-Addition-%E4%BB%8B%E7%BB%8D%EF%BC%9A%E8%A7%84%E5%88%99"><span class="nav-text">Carpet TIS Addition 介绍：规则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E9%80%A0%E6%A8%A1%E5%BC%8F%E7%94%A8%E6%96%B0%E5%A2%9E%E6%9C%BA%E5%88%B6"><span class="nav-text">创造模式用新增机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%9D%97%E6%94%BE%E7%BD%AE%E5%BF%BD%E7%95%A5%E5%AE%9E%E4%BD%93-blockPlacementIgnoreEntity"><span class="nav-text">方块放置忽略实体 (blockPlacementIgnoreEntity)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E9%80%A0%E7%8E%A9%E5%AE%B6%E5%BC%BA%E5%88%B6%E6%89%93%E5%BC%80%E5%AE%B9%E5%99%A8-creativeOpenContainerForcibly"><span class="nav-text">创造玩家强制打开容器 (creativeOpenContainerForcibly)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B0%84%E5%99%A8%E4%B8%8D%E6%B6%88%E8%80%97%E7%89%A9%E5%93%81-dispenserNoItemCost"><span class="nav-text">发射器不消耗物品 (dispenserNoItemCost)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#enchant%E6%8C%87%E4%BB%A4%E7%BA%A6%E6%9D%9F%E7%A7%BB%E9%99%A4-enchantCommandNoRestriction"><span class="nav-text">enchant指令约束移除 (enchantCommandNoRestriction)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93%E6%94%BE%E7%BD%AE%E6%97%A0%E8%A7%86%E7%A2%B0%E6%92%9E-entityPlacementIgnoreCollision"><span class="nav-text">实体放置无视碰撞 (entityPlacementIgnoreCollision)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81%E8%A7%A3%E6%9E%90%E5%BF%BD%E7%95%A5%E5%A4%B1%E8%B4%A5-failSoftBlockStateParsing"><span class="nav-text">方块状态解析忽略失败 (failSoftBlockStateParsing)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fill%E6%8C%87%E4%BB%A4%E6%A8%A1%E5%BC%8F%E5%A2%9E%E5%BC%BA-fillCommandModeEnhance"><span class="nav-text">fill指令模式增强 (fillCommandModeEnhance)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E6%B5%81%E4%BD%93%E7%A0%B4%E5%9D%8F-fluidDestructionDisabled"><span class="nav-text">禁用流体破坏 (fluidDestructionDisabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%96%97%E8%AE%A1%E6%95%B0%E5%99%A8%E6%97%A0%E9%99%90%E9%80%9F%E5%BA%A6-hopperCountersUnlimitedSpeed"><span class="nav-text">漏斗计数器无限速度 (hopperCountersUnlimitedSpeed)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%96%97%E4%B8%8D%E6%B6%88%E8%80%97%E7%89%A9%E5%93%81-hopperNoItemCost"><span class="nav-text">漏斗不消耗物品 (hopperNoItemCost)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9E%AC%E6%97%B6%E5%91%BD%E4%BB%A4%E6%96%B9%E5%9D%97-instantCommandBlock"><span class="nav-text">瞬时命令方块 (instantCommandBlock)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%97%B6%E5%BA%8F-microTiming"><span class="nav-text">微时序 (microTiming)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%97%B6%E5%BA%8F%E6%9F%93%E6%96%99%E8%AE%B0%E5%8F%B7-microTimingDyeMarker"><span class="nav-text">微时序染料记号 (microTimingDyeMarker)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%97%B6%E5%BA%8F%E7%9B%AE%E6%A0%87-microTimingTarget"><span class="nav-text">微时序目标 (microTimingTarget)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%97%B6%E5%BA%8F%E6%B8%B8%E6%88%8F%E5%88%BB%E5%88%92%E5%88%86-microTimingTickDivision"><span class="nav-text">微时序游戏刻划分 (microTimingTickDivision)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B2%BE%E5%87%86%E5%AE%9E%E4%BD%93%E6%94%BE%E7%BD%AE-preciseEntityPlacement"><span class="nav-text">精准实体放置 (preciseEntityPlacement)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E7%BB%A7%E5%99%A8%E5%BB%B6%E8%BF%9F%E6%8A%98%E5%8D%8A-repeaterHalfDelay"><span class="nav-text">中继器延迟折半 (repeaterHalfDelay)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%B2%89%E9%9A%8F%E6%9C%BA%E6%9B%B4%E6%96%B0%E9%A1%BA%E5%BA%8F-redstoneDustRandomUpdateOrder"><span class="nav-text">红石粉随机更新顺序 (redstoneDustRandomUpdateOrder)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E6%9C%8D%E5%8A%A1%E7%AB%AFmspt%E6%8C%87%E6%A0%87%E6%95%B0%E6%8D%AE-syncServerMsptMetricsData"><span class="nav-text">同步服务端mspt指标数据 (syncServerMsptMetricsData)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TISCM%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE-tiscmNetworkProtocol"><span class="nav-text">TISCM网络协议 (tiscmNetworkProtocol)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E9%80%A0%E6%A8%A1%E5%BC%8F%E7%94%A8%E6%B8%B8%E6%88%8F%E4%BF%AE%E6%94%B9"><span class="nav-text">创造模式用游戏修改</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%9D%97%E4%BA%8B%E4%BB%B6%E5%B9%BF%E6%92%AD%E8%8C%83%E5%9B%B4-blockEventPacketRange"><span class="nav-text">方块事件广播范围 (blockEventPacketRange)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%82%BC%E8%8D%AF%E9%94%85%E6%96%B9%E5%9D%97%E7%B1%BB%E7%89%A9%E5%93%81%E4%BA%A4%E4%BA%92%E4%BF%AE%E5%A4%8D-cauldronBlockItemInteractFix"><span class="nav-text">炼药锅方块类物品交互修复 (cauldronBlockItemInteractFix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E5%9D%97%E6%9B%B4%E6%96%B0%E6%95%B0%E6%8D%AE%E5%8C%85%E9%98%88%E5%80%BC-chunkUpdatePacketThreshold"><span class="nav-text">区块更新数据包阈值 (chunkUpdatePacketThreshold)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E5%9D%97%E5%88%BB%E9%80%9F%E5%BA%A6-chunkTickSpeed"><span class="nav-text">区块刻速度 (chunkTickSpeed)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E9%80%A0%E7%8E%A9%E5%AE%B6%E5%9C%B0%E7%8B%B1%E6%94%BE%E6%B0%B4-creativeNetherWaterPlacement"><span class="nav-text">创造玩家地狱放水 (creativeNetherWaterPlacement)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E9%80%A0%E7%8E%A9%E5%AE%B6%E6%97%A0%E7%89%A9%E5%93%81%E5%86%B7%E5%8D%B4-creativeNoItemCooldown"><span class="nav-text">创造玩家无物品冷却 (creativeNoItemCooldown)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93%E9%80%9F%E5%BA%A6%E4%B8%A2%E5%A4%B1-entityMomentumLoss"><span class="nav-text">实体速度丢失 (entityMomentumLoss)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93%E5%90%8C%E6%AD%A5%E8%B7%9D%E7%A6%BB-entityTrackerDistance"><span class="nav-text">实体同步距离 (entityTrackerDistance)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BD%93%E5%90%8C%E6%AD%A5%E9%97%B4%E9%9A%94-entityTrackerInterval"><span class="nav-text">实体同步间隔 (entityTrackerInterval)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%88%86%E7%82%B8%E4%B8%8D%E5%BD%B1%E5%93%8D%E5%AE%9E%E4%BD%93-explosionNoEntityInfluence"><span class="nav-text">爆炸不影响实体 (explosionNoEntityInfluence)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%88%86%E7%82%B8%E6%95%B0%E6%8D%AE%E5%8C%85%E5%B9%BF%E6%92%AD%E8%8C%83%E5%9B%B4-explosionPacketRange"><span class="nav-text">爆炸数据包广播范围 (explosionPacketRange)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E8%80%95%E5%9C%B0%E8%A2%AB%E8%B8%A9%E8%B8%8F-farmlandTrampledDisabled"><span class="nav-text">禁用耕地被踩踏 (farmlandTrampledDisabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%8D%E6%89%81%E4%B8%89%E8%A7%92%E5%BD%A2%E5%88%86%E5%B8%83-flattenTriangularDistribution"><span class="nav-text">拍扁三角形分布 (flattenTriangularDistribution)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E7%89%A9%E5%93%81%E5%AE%9E%E4%BD%93%E8%B7%B3%E8%BF%87%E7%A7%BB%E5%8A%A8%E8%BF%90%E7%AE%97-itemEntitySkipMovementDisabled"><span class="nav-text">禁用物品实体跳过移动运算 (itemEntitySkipMovementDisabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E6%96%B0%E5%BC%95%E5%85%A5%E7%9E%AC%E6%97%B6%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0%E9%80%BB%E8%BE%91-instantBlockUpdaterReintroduced"><span class="nav-text">重新引入瞬时方块更新逻辑 (instantBlockUpdaterReintroduced)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%85%A7%E6%9B%B4%E6%96%B0-lightUpdates"><span class="nav-text">光照更新 (lightUpdates)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%BF%E8%BD%A6%E6%90%AD%E8%BD%BD%E4%B9%98%E5%AE%A2%E6%9C%80%E5%B0%8F%E9%80%9F%E5%BA%A6-minecartTakePassengerMinVelocity"><span class="nav-text">矿车搭载乘客最小速度 (minecartTakePassengerMinVelocity)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A9%A1%E6%A0%91%E9%95%BF%E6%88%90%E9%B8%A1%E8%85%BF%E6%A0%91%E7%99%BE%E5%88%86%E7%8E%87-oakBalloonPercent"><span class="nav-text">橡树长成鸡腿树百分率 (oakBalloonPercent)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E4%BE%A6%E6%B5%8B%E5%99%A8%E6%A3%80%E6%B5%8B%E5%8A%9F%E8%83%BD-observerNoDetection"><span class="nav-text">禁用侦测器检测功能 (observerNoDetection)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#POI%E6%9B%B4%E6%96%B0%E5%BC%80%E5%85%B3-poiUpdates"><span class="nav-text">POI更新开关 (poiUpdates)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%9E%8D%E9%9B%AA%E6%9C%80%E5%B0%8F%E4%BA%AE%E5%BA%A6-snowMeltMinLightLevel"><span class="nav-text">融雪最小亮度 (snowMeltMinLightLevel)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E6%96%B9%E5%9D%97%E4%B8%8D%E4%BF%9D%E7%95%99%E6%B5%81%E4%BD%93-structureBlockDoNotPreserveFluid"><span class="nav-text">结构方块不保留流体 (structureBlockDoNotPreserveFluid)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E6%96%B9%E5%9D%97%E8%8C%83%E5%9B%B4%E9%99%90%E5%88%B6-structureBlockLimit"><span class="nav-text">结构方块范围限制 (structureBlockLimit)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E5%85%89%E7%85%A7%E7%BA%BF%E7%A8%8B-synchronizedLightThread"><span class="nav-text">同步光照线程 (synchronizedLightThread)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%B8%8A%E9%99%90-tileTickLimit"><span class="nav-text">计划刻上限 (tileTickLimit)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TNT%E5%BC%95%E4%BF%A1%E6%97%B6%E9%95%BF-tntFuseDuration"><span class="nav-text">TNT引信时长 (tntFuseDuration)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TNT%E5%BF%BD%E7%95%A5%E7%BA%A2%E7%9F%B3%E4%BF%A1%E5%8F%B7-tntIgnoreRedstoneSignal"><span class="nav-text">TNT忽略红石信号 (tntIgnoreRedstoneSignal)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%8C%E5%85%A8%E6%B2%A1%E6%9C%89%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0-totallyNoBlockUpdate"><span class="nav-text">完全没有方块更新 (totallyNoBlockUpdate)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9D%9A%E9%9F%A7%E7%9A%84%E5%87%8B%E9%9B%B6%E7%8E%AB%E7%91%B0-toughWitherRose"><span class="nav-text">坚韧的凋零玫瑰 (toughWitherRose)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E6%B5%B7%E9%BE%9F%E8%9B%8B%E8%A2%AB%E8%B7%B5%E8%B8%8F-turtleEggTrampledDisabled"><span class="nav-text">禁用海龟蛋被践踏 (turtleEggTrampledDisabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A1%E7%81%B5%E7%94%9F%E7%89%A9%E5%88%AB%E5%9C%A8%E9%98%B3%E5%85%89%E4%B8%8B%E7%9D%80%E7%81%AB-undeadDontBurnInSunlight"><span class="nav-text">亡灵生物别在阳光下着火 (undeadDontBurnInSunlight)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E7%A9%BA%E4%BC%A4%E5%AE%B3%E6%95%B0%E5%80%BC-voidDamageAmount"><span class="nav-text">虚空伤害数值 (voidDamageAmount)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E7%A9%BA%E4%BC%A4%E5%AE%B3%E5%BF%BD%E7%95%A5%E7%8E%A9%E5%AE%B6-voidDamageIgnorePlayer"><span class="nav-text">虚空伤害忽略玩家 (voidDamageIgnorePlayer)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E7%A9%BA%E7%9B%B8%E5%AF%B9%E6%B5%B7%E6%8B%94%E9%AB%98%E5%BA%A6-voidRelatedAltitude"><span class="nav-text">虚空相对海拔高度 (voidRelatedAltitude)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E5%87%8B%E7%81%B5%E7%94%9F%E6%88%90%E9%9F%B3%E6%95%88-witherSpawnedSoundDisabled"><span class="nav-text">禁用凋灵生成音效 (witherSpawnedSoundDisabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%8F%E9%AA%8C%E7%90%83%E8%BF%BD%E8%B8%AA%E8%B7%9D%E7%A6%BB-xpTrackingDistance"><span class="nav-text">经验球追踪距离 (xpTrackingDistance)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%9F%E5%AD%98%E6%A8%A1%E5%BC%8F%E7%94%A8%E6%96%B0%E5%A2%9E%E7%89%B9%E6%80%A7-bug%E4%BF%AE%E5%A4%8D"><span class="nav-text">生存模式用新增特性&#x2F;bug修复</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%A9%E5%AE%B6%E9%87%8D%E7%94%9F%E4%B8%A2%E5%A4%B1%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AE%BE%E7%BD%AE%E6%95%B0%E6%8D%AE%E4%BF%AE%E5%A4%8D-clientSettingsLostOnRespawnFix"><span class="nav-text">玩家重生丢失客户端设置数据修复 (clientSettingsLostOnRespawnFix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B0%84%E5%99%A8%E5%8F%91%E5%B0%84%E9%BE%99%E6%81%AF-dispensersFireDragonBreath"><span class="nav-text">发射器发射龙息 (dispensersFireDragonBreath)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%9D%E6%8C%81%E5%BC%B1%E5%8A%A0%E8%BD%BD%E5%8C%BA%E5%9D%97%E7%9A%84%E6%80%AA%E7%89%A9-keepMobInLazyChunks"><span class="nav-text">保持弱加载区块的怪物 (keepMobInLazyChunks)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E6%9C%A8%E6%A1%B6-largeBarrel"><span class="nav-text">大木桶 (largeBarrel)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%B7%E9%93%81%E8%BD%A8%E6%9C%BA%E4%BF%AE%E5%A4%8D-railDupingFix"><span class="nav-text">刷铁轨机修复 (railDupingFix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E5%86%8D%E7%94%9F%E9%BE%99%E8%9B%8B-renewableDragonEgg"><span class="nav-text">可再生龙蛋 (renewableDragonEgg)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E5%86%8D%E7%94%9F%E9%BE%99%E9%A6%96-renewableDragonHead"><span class="nav-text">可再生龙首 (renewableDragonHead)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E5%86%8D%E7%94%9F%E9%9E%98%E7%BF%85-renewableElytra"><span class="nav-text">可再生鞘翅 (renewableElytra)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%B7%E6%B2%99%E6%9C%BA%E4%BF%AE%E5%A4%8D-sandDupingFix"><span class="nav-text">刷沙机修复 (sandDupingFix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TNT%E5%A4%8D%E5%88%B6%E4%BF%AE%E5%A4%8D-tntDupingFix"><span class="nav-text">TNT复制修复 (tntDupingFix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E5%85%B7%E5%8C%96TNT-tooledTNT"><span class="nav-text">工具化TNT (tooledTNT)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B8%B8%E6%88%8F%E4%BC%98%E5%8C%96"><span class="nav-text">游戏优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E9%AB%98%E9%80%9F%E5%AE%9E%E4%BD%93%E7%A7%BB%E5%8A%A8-optimizedFastEntityMovement"><span class="nav-text">优化高速实体移动 (optimizedFastEntityMovement)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E7%A1%AC%E7%A2%B0%E6%92%9E%E7%AE%B1%E5%AE%9E%E4%BD%93%E7%A2%B0%E6%92%9E-optimizedHardHitBoxEntityCollision"><span class="nav-text">优化硬碰撞箱实体碰撞 (optimizedHardHitBoxEntityCollision)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TNT%E4%BC%98%E5%8C%96%E9%AB%98%E4%BC%98%E5%85%88%E7%BA%A7-optimizedTNTHighPriority"><span class="nav-text">TNT优化高优先级 (optimizedTNTHighPriority)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E8%A7%84%E5%88%99"><span class="nav-text">其他规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A6%81%E7%94%A8%E5%8F%8D%E5%88%B7%E5%B1%8F%E7%9B%91%E6%B5%8B-antiSpamDisabled"><span class="nav-text">禁用反刷屏监测 (antiSpamDisabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E6%B4%BB%E6%97%B6%E9%97%B4%E8%BF%BD%E8%B8%AA%E5%99%A8-commandLifeTime"><span class="nav-text">存活时间追踪器 (commandLifeTime)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%96%E7%95%8C%E6%8E%A7%E5%88%B6%E5%91%BD%E4%BB%A4%E5%BC%80%E5%85%B3-commandManipulate"><span class="nav-text">世界控制命令开关 (commandManipulate)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A2%AD%E5%87%BB%E8%BF%BD%E8%B8%AA%E5%99%A8-commandRaid"><span class="nav-text">袭击追踪器 (commandRaid)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%84%E7%BA%BF%E8%BF%BD%E8%B8%AA%E5%91%BD%E4%BB%A4%E5%BC%80%E5%85%B3-commandRaycast"><span class="nav-text">射线追踪命令开关 (commandRaycast)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%B7%E6%96%B0%E5%91%BD%E4%BB%A4%E5%BC%80%E5%85%B3-commandRefresh"><span class="nav-text">刷新命令开关 (commandRefresh)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%BB%E9%99%A4%E5%AE%9E%E4%BD%93%E5%91%BD%E4%BB%A4%E5%BC%80%E5%85%B3-commandRemoveEntity"><span class="nav-text">移除实体命令开关 (commandRemoveEntity)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9D%A1%E7%9C%A0%E5%91%BD%E4%BB%A4%E5%BC%80%E5%85%B3-commandSleep"><span class="nav-text">睡眠命令开关 (commandSleep)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8D%E6%B7%B7%E6%B7%86%E5%B4%A9%E6%BA%83%E6%8A%A5%E5%91%8A%E5%A0%86%E6%A0%88%E8%BF%BD%E8%B8%AA-deobfuscateCrashReportStackTrace"><span class="nav-text">反混淆崩溃报告堆栈追踪 (deobfuscateCrashReportStackTrace)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%87%E4%BA%BA%E5%90%8D%E7%A7%B0%E5%89%8D%E7%BC%80-fakePlayerNamePrefix"><span class="nav-text">假人名称前缀 (fakePlayerNamePrefix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%87%E4%BA%BA%E5%90%8D%E7%A7%B0%E5%90%8E%E7%BC%80-fakePlayerNameSuffix"><span class="nav-text">假人名称后缀 (fakePlayerNameSuffix)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%87%E4%BA%BA%E8%BF%9C%E7%A8%8B%E5%8F%AC%E5%94%A4-fakePlayerRemoteSpawning"><span class="nav-text">假人远程召唤 (fakePlayerRemoteSpawning)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HUD%E8%AE%B0%E5%BD%95%E5%99%A8%E6%9B%B4%E6%96%B0%E9%97%B4%E9%9A%94-HUDLoggerUpdateInterval"><span class="nav-text">HUD记录器更新间隔 (HUDLoggerUpdateInterval)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%98%E6%B4%BB%E6%97%B6%E9%97%B4%E8%BF%BD%E8%B8%AA%E5%99%A8%E8%80%83%E8%99%91%E6%80%AA%E7%89%A9%E5%AE%B9%E9%87%8F-lifeTimeTrackerConsidersMobcap"><span class="nav-text">存活时间追踪器考虑怪物容量 (lifeTimeTrackerConsidersMobcap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%89%E7%85%A7%E9%98%9F%E5%88%97%E8%AE%B0%E5%BD%95%E5%99%A8%E9%87%87%E6%A0%B7%E6%97%B6%E9%95%BF-lightQueueLoggerSamplingDuration"><span class="nav-text">光照队列记录器采样时长 (lightQueueLoggerSamplingDuration)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E8%AE%B0%E5%BD%95%E5%99%A8-loggerMovement"><span class="nav-text">移动记录器 (loggerMovement)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%AA%E7%89%A9%E5%AE%B9%E9%87%8F%E6%98%BE%E7%A4%BA%E5%BF%BD%E7%95%A5%E6%9D%82%E9%A1%B9-mobcapsDisplayIgnoreMisc"><span class="nav-text">怪物容量显示忽略杂项 (mobcapsDisplayIgnoreMisc)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#op%E7%8E%A9%E5%AE%B6%E4%B8%8D%E5%87%86%E4%BD%9C%E5%BC%8A-opPlayerNoCheat"><span class="nav-text">op玩家不准作弊 (opPlayerNoCheat)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E6%80%A7%E8%AE%B0%E5%BD%95%E5%99%A8%E8%AE%A2%E9%98%85-persistentLoggerSubscription"><span class="nav-text">持久性记录器订阅 (persistentLoggerSubscription)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stop%E6%8C%87%E4%BB%A4%E4%B8%A4%E6%AD%A5%E7%A1%AE%E8%AE%A4-stopCommandDoubleConfirmation"><span class="nav-text">stop指令两步确认 (stopCommandDoubleConfirmation)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%A7%86%E5%8C%96%E6%8A%95%E6%8E%B7%E7%89%A9%E8%AE%B0%E5%BD%95%E5%99%A8-visualizeProjectileLoggerEnabled"><span class="nav-text">可视化投掷物记录器 (visualizeProjectileLoggerEnabled)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%BB%E6%AD%A2%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6%E5%B4%A9%E6%BA%83-yeetUpdateSuppressionCrash"><span class="nav-text">阻止更新抑制崩溃 (yeetUpdateSuppressionCrash)</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Carpet TIS Addition 介绍：规则 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Carpet TIS Addition 介绍：规则
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-03-16 00:43:52" itemprop="dateCreated datePublished" datetime="2022-03-16T00:43:52+08:00">2022-03-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-06-07 01:00:00" itemprop="dateModified" datetime="2023-06-07T01:00:00+08:00">2023-06-07</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>22k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>40 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>索引页：<a href="/zh-CN/2022/introduction-to-carpet-tis-addition/" title="Carpet TIS Addition 介绍：索引">Carpet TIS Addition 介绍：索引</a></p>
+<h1 id="Carpet-TIS-Addition-介绍：规则"><a class="header-anchor" href="#Carpet-TIS-Addition-介绍：规则"></a>Carpet TIS Addition 介绍：规则</h1>
+<p>作为一个地毯 mod 扩展，Carpet TIS Addition （也称为 TIS Carpet）自然拥有着大量的可用于操控游戏特性的规则（截止至 v1.47 版本，共含有 94 个的规则），
+它们可以通过指令 <code>/carpet &lt;规则名&gt; &lt;规则值&gt;</code> 来使用。在默认情况下，所有的规则均为关闭状态，以保证服务端的原版性以及对性能的零额外开销</p>
+<p>这一系列的规则大部分是用于增强创造模式游戏体验的，包括对游戏特性的控制、修改和开关等。除此之外还有不少为生存模式添加的有意思的机制、bug 修复，以及一些对游戏的优化</p>
+<p>下文将按照这些规则的类别，按照字母顺序，对他们进行详细的介绍。在zhao叙chao述规则简介的同时，我还会写下这些规则的设计意图、常见用途、注意事项，以及背后隐藏着的游戏机制</p>
+<span id="more"></span>
+<p>Carpet TIS Addition 相关链接：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/TISUnion/Carpet-TIS-Addition">Github 仓库</a>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/TISUnion/Carpet-TIS-Addition/blob/master/README_CN.md">中文文档</a></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://www.curseforge.com/minecraft/mc-mods/carpet-tis-addition">CurseForge 页面</a></li>
+<li><a target="_blank" rel="noopener" href="https://modrinth.com/mod/carpet-tis-addition">Modrinth 页面</a></li>
+</ul>
+<hr>
+<h2 id="创造模式用新增机制"><a class="header-anchor" href="#创造模式用新增机制"></a>创造模式用新增机制</h2>
+<p>这一系列规则添加了为创造模式设计的新功能/新机制，能有效地提升创造模式下的游戏体验</p>
+<h3 id="方块放置忽略实体-blockPlacementIgnoreEntity"><a class="header-anchor" href="#方块放置忽略实体-blockPlacementIgnoreEntity"></a>方块放置忽略实体 (blockPlacementIgnoreEntity)</h3>
+<blockquote>
+<p>方块可放置时无视实体碰撞检测，也就是你可以将方块放在实体内，仅对创造模式玩家有效</p>
+</blockquote>
+<p>在设计各种包含实体的机器，遇到比如盔甲架开盒检测合成站、漏斗矿车藏方块等情况的时候，容易出现需要在实体碰撞箱范围内放置方块的情况，
+但原版又不允许玩家在实体碰撞箱中放方块，因此就可以借助这条规则进行绕过</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/blockPlacementIgnoreEntity.gif" alt="blockPlacementIgnoreEntity"></p>
+<h3 id="创造玩家强制打开容器-creativeOpenContainerForcibly"><a class="header-anchor" href="#创造玩家强制打开容器-creativeOpenContainerForcibly"></a>创造玩家强制打开容器 (creativeOpenContainerForcibly)</h3>
+<blockquote>
+<p>允许创造模式的玩家打开被阻挡的容器，如潜影盒</p>
+</blockquote>
+<p>在设计如打包机等机器时，经常需要查看并操控其中的潜影盒，但打包机的潜影盒往往会被一些实体方块所阻挡。借助这条规则，创造模式玩家可以无视其上方的方块，强行打开这种被阻挡的潜影盒。</p>
+<p>除了潜影盒外，被阻挡的箱子末影箱等也可以被创造模式强制打开</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/creativeOpenContainerForcibly.gif" alt="creativeOpenContainerForcibly"></p>
+<h3 id="发射器不消耗物品-dispenserNoItemCost"><a class="header-anchor" href="#发射器不消耗物品-dispenserNoItemCost"></a>发射器不消耗物品 (dispenserNoItemCost)</h3>
+<blockquote>
+<p>开启后，发射器和投掷器使用被激活时不再消耗物品。无论投掷物品还是使用物品都如此，但是投掷器传输物品仍会消耗物品</p>
+</blockquote>
+<p>当你需要测试基于发射器/投掷器的机器，但又不想做补货模块的话，可以用这条规则来让发射器/投掷器不消耗物品</p>
+<p>不过由于这条规则会对所有发射器/投掷器造成影响，如果可行的话建议使用规则“漏斗不消耗物品”替代</p>
+<h3 id="enchant指令约束移除-enchantCommandNoRestriction"><a class="header-anchor" href="#enchant指令约束移除-enchantCommandNoRestriction"></a>enchant指令约束移除 (enchantCommandNoRestriction)</h3>
+<blockquote>
+<p>移除 <code>/enchant</code> 指令中所有对目标附魔的约束</p>
+</blockquote>
+<p>包括附魔与物品的匹配性检查、附魔间的冲突检查、附魔重复检查、附魔等级上限检查。</p>
+<h3 id="实体放置无视碰撞-entityPlacementIgnoreCollision"><a class="header-anchor" href="#实体放置无视碰撞-entityPlacementIgnoreCollision"></a>实体放置无视碰撞 (entityPlacementIgnoreCollision)</h3>
+<blockquote>
+<p>在使用物品放置实体时禁用相关的方块与实体的碰撞检测。受影响的物品：盔甲架、末影水晶、所有种类的船。刷怪蛋物品不在作用范围内</p>
+</blockquote>
+<p>类似规则“方块放置忽略实体”，不过这次针对的是实体的放置</p>
+<h3 id="方块状态解析忽略失败-failSoftBlockStateParsing"><a class="header-anchor" href="#方块状态解析忽略失败-failSoftBlockStateParsing"></a>方块状态解析忽略失败 (failSoftBlockStateParsing)</h3>
+<blockquote>
+<p>忽略在 <code>/setblock</code> 等指令的方块状态参数中出现的无效键/值参数。原版中这些无效的键/值会导致指令解析出错。这条规则抑制了这一出错，有助于跨版本粘贴 litematica 原理图等</p>
+</blockquote>
+<p>例如，在 mc 1.14 中音符盒添加了铁木琴音色，在音符盒放置于铁块上时其方块状态 <code>instrument</code> 的值将被设置为 <code>iron_xylophone</code>。
+如果使用投影将这一方块粘贴至 mc 1.13 中，会由于该方块状态无法被解析而导致对应的 <code>/setblock</code> 指令出错，导致位于铁块上的音符盒无法被放置。
+如果启用本条规则，那么该音符盒将会使用默认的 <code>instrument</code> 方块状态正常地由 <code>/setblock</code> 指令放置</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/failSoftBlockStateParsing.gif" alt="failSoftBlockStateParsing"></p>
+<h3 id="fill指令模式增强-fillCommandModeEnhance"><a class="header-anchor" href="#fill指令模式增强-fillCommandModeEnhance"></a>fill指令模式增强 (fillCommandModeEnhance)</h3>
+<blockquote>
+<p>增加 <code>/fill</code> 指令中各种模式的功能：增加 <code>softreplace</code> 模式: 尽可能地保留原方块的方块状态，可用于替换楼梯/半砖的材质等</p>
+</blockquote>
+<p>指令例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/fill ~ ~ ~ ~<span class="number">10</span> ~<span class="number">10</span> ~<span class="number">10</span> minecraft:stone_brick_stairs softreplace minecraft:oak_stairs</span><br></pre></td></tr></table></figure>
+<p>这个指令会将范围内的所有橡木楼梯替换成石砖楼梯，并保留楼梯的方块状态</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/fillCommandModeEnhance.jpg" alt="fillCommandModeEnhance"></p>
+<p>技术上来讲，该功能并不关心新旧方块的种类是什么，它只管确保那些新旧方块均拥有的方块状态，在 <code>/fill</code> 前后保持不变。
+举个例子，在侦测器 / 活塞 / 末地烛三者相互 <code>softreplace</code> 时，它们的“朝向”（<code>facing</code>）方块状态将会保持不变</p>
+<h3 id="禁用流体破坏-fluidDestructionDisabled"><a class="header-anchor" href="#禁用流体破坏-fluidDestructionDisabled"></a>禁用流体破坏 (fluidDestructionDisabled)</h3>
+<blockquote>
+<p>禁用流体流动造成的方块破坏，包括水和岩浆。此时流体会简单地停留在即将破坏方块时的状态</p>
+</blockquote>
+<p>在设计包含流体的机器/建筑时，比如带有水道的机器，很容易有意无意地破坏了水道导致漏水，然后把电路装饰方块冲坏。
+借助这条规则，把流体破坏关掉后，就可以大胆地修改与流体相关的部件，随便漏水，完全不需要担心流体冲坏东西了</p>
+<p>不过还是得小心水固化混凝土、岩浆点着地毯等情况，这些情况是本条规则无法阻止的</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/fluidDestructionDisabled.gif" alt="fluidDestructionDisabled"></p>
+<h3 id="漏斗计数器无限速度-hopperCountersUnlimitedSpeed"><a class="header-anchor" href="#漏斗计数器无限速度-hopperCountersUnlimitedSpeed"></a>漏斗计数器无限速度 (hopperCountersUnlimitedSpeed)</h3>
+<blockquote>
+<p>当漏斗指向羊毛方块时，漏斗将拥有无限的物品吸取以及传输速度，且无冷却时间</p>
+<p>仅当 Carpet Mod 中的规则 <code>hopperCounters</code> 开启时有效</p>
+</blockquote>
+<p>作为一个漏斗计数器，这个漏斗就别在拘束于原版一次一组的吸物品速度，也别 8gt 才工作一次了，来点无限的吸物品速度，来多少物品就吸多少物品。
+借此，对于需要用到漏斗计数器的时候，一个漏斗 + 一个羊毛即可处理干净所有来到的物品，不需要担心出现机器产率过高，漏斗吸不过来的情况</p>
+<p>实际的代码实现中，作为漏斗计数器的漏斗会尝试传输 32767 次，以防止在与其他 mod 冲突时无限死循环吸物品</p>
+<h3 id="漏斗不消耗物品-hopperNoItemCost"><a class="header-anchor" href="#漏斗不消耗物品-hopperNoItemCost"></a>漏斗不消耗物品 (hopperNoItemCost)</h3>
+<blockquote>
+<p>上方放有羊毛方块的漏斗可不消耗物品地无限输出储存的物品</p>
+</blockquote>
+<p>谁不想要一个可以无限输出物品的漏斗呢？</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/hopperNoItemCost.gif" alt="hopperNoItemCost"></p>
+<h3 id="瞬时命令方块-instantCommandBlock"><a class="header-anchor" href="#瞬时命令方块-instantCommandBlock"></a>瞬时命令方块 (instantCommandBlock)</h3>
+<blockquote>
+<p>令位于红石矿上的命令方块瞬间执行命令，而不是添加一个 1gt 的计划刻事件用于执行。仅影响普通命令方块</p>
+</blockquote>
+<p>在原版中，脉冲型命令方块接收到红石信号时并非是瞬间执行所储存的命令的，而是添加一个延迟为 1gt 的计划刻事件，然后在该计划刻事件中执行命令，这会影响我们一些与微时序紧密相关的操作</p>
+<p>该规则移除了这一延迟，让位于红石矿上方的命令方块在受激活的瞬间执行命令</p>
+<p>除此之外，原版的命令方块有着每 gt 只能执行最多一次指令的限制。这一限制也被该规则移除了，当然只对红石矿上方的命令方块有效</p>
+<h3 id="微时序-microTiming"><a class="header-anchor" href="#微时序-microTiming"></a>微时序 (microTiming)</h3>
+<p>微时序记录器的的总开关。微时序记录器相关介绍较长，本篇文章不进行叙述</p>
+<h3 id="微时序染料记号-microTimingDyeMarker"><a class="header-anchor" href="#微时序染料记号-microTimingDyeMarker"></a>微时序染料记号 (microTimingDyeMarker)</h3>
+<blockquote>
+<p>允许玩家手持染料右击方块来将其标记为微时序监视器的目标</p>
+</blockquote>
+<p>微时序记录器的染料记号功能的开关。微时序记录器相关介绍较长，本篇文章不进行叙述</p>
+<h3 id="微时序目标-microTimingTarget"><a class="header-anchor" href="#微时序目标-microTimingTarget"></a>微时序目标 (microTimingTarget)</h3>
+<blockquote>
+<p>设置指定微时序记录器记录目标的方法</p>
+<ul>
+<li><code>labelled</code>: 记录被羊毛块标记的事件</li>
+<li><code>in_range</code>: 记录离任意玩家 32m</li>
+<li><code>all</code>: 记录所有事件。<strong>谨慎使用</strong></li>
+<li><code>marker_only</code>: 仅记录被染料记号标记的方块。将其与规则 <code>microTimingDyeMarker</code>  一起使用</li>
+</ul>
+</blockquote>
+<p>指定微时序记录器该记录哪些目标。如果能确保客户端均有 carpet 的话，可以选择 <code>marker_only</code>，让玩家都用染料记号来标记目标</p>
+<h3 id="微时序游戏刻划分-microTimingTickDivision"><a class="header-anchor" href="#微时序游戏刻划分-microTimingTickDivision"></a>微时序游戏刻划分 (microTimingTickDivision)</h3>
+<blockquote>
+<p>设置指定微时序记录器划分两个游戏刻的方法</p>
+<ul>
+<li>world_timer: 划分于世界计时器自增时</li>
+<li>player_action: 划分于玩家操作阶段开始前</li>
+</ul>
+</blockquote>
+<p>国内外玩家微时序相关的模型在游戏刻的划分上有着不小差别：</p>
+<ul>
+<li>国内玩家将世界计时器自增时刻作为游戏刻的划分点，优势是计划刻元件的延迟可以跟游戏刻完全对应上，缺点是跨维度分析时序/分析非主世界其他游戏阶段时序时会比较困难</li>
+<li>国外玩家将游戏代码中完整的一次循环作为一个游戏刻的范围，优势是游戏刻能跟服务端的 tick 计数器完美匹配，面对多维度时序分析时也轻而易举，不过缺点需要对玩家操作等阶段触发的计划刻元件的延迟减少作特殊解释处理</li>
+</ul>
+<p>该规则则作为一种为微时序记录器切换两种游戏刻模型的方式</p>
+<h3 id="精准实体放置-preciseEntityPlacement"><a class="header-anchor" href="#精准实体放置-preciseEntityPlacement"></a>精准实体放置 (preciseEntityPlacement)</h3>
+<blockquote>
+<p>当使用物品放置/召唤实体时，将实体准确地放置在玩家指针指向的坐标点。受影响的物品：刷怪蛋、盔甲架、末影水晶</p>
+</blockquote>
+<p>可以配合 <code>entityPlacementIgnoreCollision</code> 一起使用，达到快速放置合成站的盔甲架的效果</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/preciseEntityPlacement.gif" alt="preciseEntityPlacement"></p>
+<h3 id="中继器延迟折半-repeaterHalfDelay"><a class="header-anchor" href="#中继器延迟折半-repeaterHalfDelay"></a>中继器延迟折半 (repeaterHalfDelay)</h3>
+<p>当红石中继器位于红石矿上方时，红石中继器的延迟将减半。延迟将会由 2, 4, 6, 8 游戏刻变为 1, 2, 3, 4 游戏刻</p>
+<p>需要 1gt 或者奇数 gt 的延迟，或者想要逐 gt 地调整电路延迟看看效果，但又懒得用原版电路实现，怎么办？启用这一条规则，把中继器放在红石矿上，完事！</p>
+<h3 id="红石粉随机更新顺序-redstoneDustRandomUpdateOrder"><a class="header-anchor" href="#红石粉随机更新顺序-redstoneDustRandomUpdateOrder"></a>红石粉随机更新顺序 (redstoneDustRandomUpdateOrder)</h3>
+<blockquote>
+<p>随机化红石粉发出方块更新的顺序，有助于测试你的装置是否依赖于位置。在规则 <code>fastRedstoneDust</code> 启用时无效</p>
+</blockquote>
+<p>一个简单快捷的方式，用于测试你的红石粉飞线是否具有位置依赖性</p>
+<p>由于该规则的实现为随机打乱红石粉发出更新的顺序，与真实情况下出现的依赖位置是“随机”是有区别的。
+你可以视为该规则随机出更新顺序集合是真实情况更新顺序集合的超集，也就是能在该规则启用下稳定正常工作的机器一定能不会在真实情况中出现问题，
+但在该规则启用下可能出错的机器不一定会在真实情况中出现问题，或者在真实情况下出现问题的概率极低</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/redstoneDustRandomUpdateOrder.gif" alt="redstoneDustRandomUpdateOrder"></p>
+<h3 id="同步服务端mspt指标数据-syncServerMsptMetricsData"><a class="header-anchor" href="#同步服务端mspt指标数据-syncServerMsptMetricsData"></a>同步服务端mspt指标数据 (syncServerMsptMetricsData)</h3>
+<blockquote>
+<p>向客户端同步服务端的 mspt 指标数据，借此，玩家可使用 F3 + ALT 在调试界面中看到这一服务端的指标。需要在客户端中安装 Carpet TIS Addition 模组</p>
+</blockquote>
+<p>单人游戏的 F3 调试界面中，右下角的那个显示 mspt 的图表可是个好东西。可惜在原版里，多人游戏中用不了这个功能</p>
+<p>这条规则的功能即为让调试界面的 mspt 显示功能在多人游戏中也能用，也即让服务端把它的 mspt 数据同步给客户端，进而在客户端显示相关数据</p>
+<p>由于需要进行服务端与客户端之间的网络通讯，本规则依赖规则 <code>tiscmNetworkProtocol</code></p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/syncServerMsptMetricsData.png" alt="syncServerMsptMetricsData"></p>
+<h3 id="TISCM网络协议-tiscmNetworkProtocol"><a class="header-anchor" href="#TISCM网络协议-tiscmNetworkProtocol"></a>TISCM网络协议 (tiscmNetworkProtocol)</h3>
+<blockquote>
+<p>TISCM 网络协议的开关</p>
+</blockquote>
+<p>作为一个总开关，这条规则可以一键让所有用了 TISCM 网络协议的规则失效，让 MC 的网络层面上回归原版表现</p>
+<p>当然，这条规则默认值是 <code>false</code>，因此你需要把它设置为 <code>true</code> 来使得用了 TISCM 网络协议的规则生效</p>
+<p>可以使用指令 <code>/carpet list TISCM_protocol</code> 来列出所有使用了 TISCM 网络协议的规则</p>
+<h2 id="创造模式用游戏修改"><a class="header-anchor" href="#创造模式用游戏修改"></a>创造模式用游戏修改</h2>
+<p>为创造模式设计的，对游戏参数/行为的更改，让你更好的控制 Minecraft</p>
+<h3 id="方块事件广播范围-blockEventPacketRange"><a class="header-anchor" href="#方块事件广播范围-blockEventPacketRange"></a>方块事件广播范围 (blockEventPacketRange)</h3>
+<blockquote>
+<p>设置会在方块事件成功执行后收到数据包的玩家范围。对于活塞而言，这一个数据包用于显示活塞的运动。把这个值调小以减小客户端卡顿</p>
+</blockquote>
+<p>在服务端成功执行一次方块事件时，服务端将会把这一方块事件广播给 64m 范围内的玩家。对于活塞而言，这一广播的方块事件数据包将触发客户端为活塞添加方块事件，
+随即计算活塞的推拉并借助客户端的 b36 方块实体显示活塞的移动动画。本规则的用途即为修改 64m 这一常量</p>
+<p>如果你在调试一些有着大量活塞运行导致客户端帧率很低的机器，你可以将这个值调低，降低活塞动画的范围，提升帧数</p>
+<p>如果你想要录制机器的运行，如使用 replay mod，你可以将这个值调高，这样离玩家很远的活塞动画也不会丢失</p>
+<p>该功能与 g4mespeed 的 Block Event Distance 设置相同。若本规则的值有修改，g4mespeed 所设值将被覆盖；否则 g4mespeed 的值将会被使用</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/blockEventPacketRange.gif" alt="blockEventPacketRange"></p>
+<p>p.s. 本规则是 Carpet TIS Addition 的第一条规则</p>
+<h3 id="炼药锅方块类物品交互修复-cauldronBlockItemInteractFix"><a class="header-anchor" href="#炼药锅方块类物品交互修复-cauldronBlockItemInteractFix"></a>炼药锅方块类物品交互修复 (cauldronBlockItemInteractFix)</h3>
+<blockquote>
+<p>让玩家可以对着填充有水的炼药锅放置方块。仅对 Minecraft &lt;= 1.16.x 有效。这个烦人的机制已经在 1.17+ 中被修复了</p>
+</blockquote>
+<p>麻将的奇怪脑回路在为了处理有水炼药锅为潜影盒去色的逻辑时，直接影响了非潜影盒的方块类物品的放置，导致玩家需要按住 shift 才可在炼药锅旁放方块。这当然不能忍，用这条规则给我修！</p>
+<h3 id="区块更新数据包阈值-chunkUpdatePacketThreshold"><a class="header-anchor" href="#区块更新数据包阈值-chunkUpdatePacketThreshold"></a>区块更新数据包阈值 (chunkUpdatePacketThreshold)</h3>
+<blockquote>
+<p>如果方块变化的数量大于这个阈值，则游戏将仅发送区块更新数据包而非若干个方块变更数据包。增加该数值或许可以减小网络带宽用量，并在子区段同时存在不少方块实体与方块变化时提升客户端的帧数</p>
+<p>将其设为非常高以模拟1.16+的表现，也就是不存在区块更新数据包，仅有多个方块变更数据包。<strong>该规则仅于1.16前的版本有效</strong></p>
+</blockquote>
+<p>大型机器运行时客户端的卡顿源之一，为区块重建，而区块重建是因由服务端发送的区块数据包（yarn 名 <code>ChunkDataS2CPacket</code>）引起的</p>
+<p>在区块刻阶段前后（是前是后根据游戏版本决定，在此不重要），服务端会将每个区块中这一 gt 内发生的方块变化同步至客户端。
+在 1.16 前，当一个区块中发生的方块变化数量超过 64 时，服务端将把整个区块的数据完整地同步给玩家，这会导致客户端重建区块，
+重新增删内部的方块实体，导致了较高的客户端卡顿，以及较大的网络负载。不过完整的区块数据包也有一个好处，它可以去除客户端在这个区块中出现的幽灵方块</p>
+<p>这一规则的用途即为调整 64 这一常量，毕竟 1gt 发生至少 64 处方块更新在大型机器中实在是太常见了。
+将其调高，可以避免服务端发送大量区块数据包，提升客户端帧数，减少网络带宽占用，但得小心幽灵方块</p>
+<h3 id="区块刻速度-chunkTickSpeed"><a class="header-anchor" href="#区块刻速度-chunkTickSpeed"></a>区块刻速度 (chunkTickSpeed)</h3>
+<blockquote>
+<p>修改每游戏刻每区块的区块刻运算的频率。默认值为 <code>1</code>。将其设为 <code>0</code> 以禁用区块刻。受影响的游戏阶段：雷电、结冰与积雪、随机刻</p>
+<p>在值为 <code>n</code> 时，每游戏刻每区块，气候相关的阶段会发生 <code>n</code> 次，而随机刻会在每区段中发生 <code>n</code> * <code>randomTickSpeed</code> 次</p>
+</blockquote>
+<p>一个区块刻阶段包含着以下多种游戏阶段：雷电&amp;骷髅马的生成、雨雪的降落与水源结冰，以及随机抽取方块执行随机刻。
+对于其中的随机刻阶段，我们可以简单地使用 <code>/gamerule randomTickSpeed</code> 来控制其运行速度，或者阻止随机刻的执行，
+不过对于雷电冰雪这一类气候相关的运行逻辑，并没有对应的游戏规则</p>
+<p>本规则即为一个类似 <code>/gamerule randomTickSpeed</code> 的游戏规则，可以将其设为一个很大的数值来加速气候逻辑的执行，让你的刷冰机快速结满冰，
+也可以将其设为 0 来阻止游戏落雷降雪结冰。由于它的作用范围是完整的区块刻阶段，且随机刻阶段包含于区块刻阶段中，
+因此要注意到该规则数值的变化是会同时影响随机刻的作用速度的。你可以将随机刻调为 0 以防止随机刻阶段占用了过高的 mspt</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/chunkTickSpeed.jpg" alt="chunkTickSpeed"></p>
+<h3 id="创造玩家地狱放水-creativeNetherWaterPlacement"><a class="header-anchor" href="#创造玩家地狱放水-creativeNetherWaterPlacement"></a>创造玩家地狱放水 (creativeNetherWaterPlacement)</h3>
+<blockquote>
+<p>允许创造模式的玩家在地狱通过水桶放出水。技术上来讲，本条规则对所有 ultrawarm 的维度都生效</p>
+</blockquote>
+<p>都已经是创造模式了，玩家当然是想干什么就干什么，想划水就放水</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/creativeNetherWaterPlacement.gif" alt="creativeNetherWaterPlacement"></p>
+<h3 id="创造玩家无物品冷却-creativeNoItemCooldown"><a class="header-anchor" href="#创造玩家无物品冷却-creativeNoItemCooldown"></a>创造玩家无物品冷却 (creativeNoItemCooldown)</h3>
+<blockquote>
+<p>取消创造模式玩家的任何物品使用冷却，例如使用末影珍珠的 20gt 冷却</p>
+</blockquote>
+<p>都已经是创造模式了，麻将为何还要用物品使用冷却逻辑约束玩家</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/creativeNoItemCooldown.png" alt="creativeNoItemCooldown"></p>
+<h3 id="实体速度丢失-entityMomentumLoss"><a class="header-anchor" href="#实体速度丢失-entityMomentumLoss"></a>实体速度丢失 (entityMomentumLoss)</h3>
+<blockquote>
+<p>将其设为 <code>false</code> 以关闭从磁盘载入时实体超过10m/gt部分的沿轴速度的丢失</p>
+</blockquote>
+<p>对于实体而言，在从 nbt 读取读取到的速度矢量中，对于每一坐标轴上的速度分量，如果它的绝对值大于 10 （单位：m/gt）的话，那就将该速度分量置为 0</p>
+<p>从 nbt 读取数据这一操作常见于实体通过传送门跨维度时，以及加载区块读取储存着的实体数据时</p>
+<p>对于珍珠炮而言，是很容易出现发射出去的珍珠存在大于 10m/gt 的沿轴速度分量的。当这一种高速珍珠所在区块被卸载的时候，若重新加载此区块，
+该珍珠对应的沿轴速度分量将会置零，导致我们不能直观地看到珍珠的运动轨迹。这时候我们就可以通过本规则，将这一机制进行暂时性的抑制处理</p>
+<h3 id="实体同步距离-entityTrackerDistance"><a class="header-anchor" href="#实体同步距离-entityTrackerDistance"></a>实体同步距离 (entityTrackerDistance)</h3>
+<blockquote>
+<p>服务器同步实体信息至客户端的最大水平切比雪夫距离（单位: 区块）。基本上这就是服务端的“实体渲染视距”，不过这个距离依旧会被服务端视距所约束</p>
+<p>将其设为一个不小于服务端视距的数值，就能令服务端将玩家视距内的所有实体都同步至客户端；将其设为一个非正值以使用原版逻辑</p>
+<p>需要重新加载区块以将新的规则数值应用到实体上</p>
+</blockquote>
+<p>服务器中的每个实体被载入游戏时，服务器都会为其分配一个实体追踪器（EntityTracker），用于同步这一实体的数据给玩家。
+根据实体类型的不同，实体追踪器会有着不同的同步距离上限以及不同的同步频率</p>
+<p>在 1.15.2 中，实体追踪器的默认同步距离如下所示：</p>
+<table>
+<thead>
+<tr>
+<th>实体种类</th>
+<th>同步距离（单位：区块）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>玩家</td>
+<td>32</td>
+</tr>
+<tr>
+<td>末影水晶</td>
+<td>16</td>
+</tr>
+<tr>
+<td>末影龙、TNT、落沙、物品展示框、栓绳结、画、盔甲架、经验球、滞留药水效果云、唤魔者尖牙</td>
+<td>10</td>
+</tr>
+<tr>
+<td>鱼钩、箭、光灵箭、三叉戟、各种火球、凋灵头颅、所有投掷物（雪球、羊驼口水、末影珍珠、鸡蛋、喷溅药水、经验瓶）、烟花火箭、物品</td>
+<td>4</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p>客户端仅能显示同步范围内的实体并接受它们的数据，超出同步范围实体将会从客户端中移出，因此实体同步间隔可看做服务端的实体渲染距离，一个根据实体类型而变的实体渲染距离</p>
+<p>要注意实体同步距离的实际值会与服务端的视距取最小值，这保证了实体视距总是不会超过服务端的视距</p>
+<p>当我们想要让客户端能尽可能地显示出极远处的实体时，如使用 replay mod 摄像时，可以修改本规则，拉高所有实体的实体视距。
+你可以直接将本规则设置为一个足够大的值（如 64），以此让实体视距等同于服务端视距</p>
+<h3 id="实体同步间隔-entityTrackerInterval"><a class="header-anchor" href="#实体同步间隔-entityTrackerInterval"></a>实体同步间隔 (entityTrackerInterval)</h3>
+<blockquote>
+<p>服务器同步实体信息至客户端的时间间隔（单位: gt）。如果设为一个较小的数值，如 1，服务器将每 1gt 都同步实体信息至客户端，这能减小客户端发生实体不同步现象的概率</p>
+<p>将其设为一个非正值以使用原版逻辑</p>
+<p>需要重新加载区块以将新的规则数值应用到实体上</p>
+</blockquote>
+<p>实体追踪器的相关信息见 entityTrackerDistance 的介绍</p>
+<p>在 1.15.2 中，实体追踪器的默认同步周期如下所示：</p>
+<table>
+<thead>
+<tr>
+<th>实体种类</th>
+<th>同步周期（单位：游戏刻）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>玩家、唤魔者尖牙</td>
+<td>2</td>
+</tr>
+<tr>
+<td>末影之眼</td>
+<td>4</td>
+</tr>
+<tr>
+<td>鱼钩</td>
+<td>5</td>
+</tr>
+<tr>
+<td>各种火球、凋灵头颅、所有投掷物（雪球、羊驼口水、末影珍珠、鸡蛋、喷溅药水、经验瓶）、烟花火箭、TNT</td>
+<td>10</td>
+</tr>
+<tr>
+<td>箭、光灵箭、三叉戟、物品、落沙、经验球</td>
+<td>20</td>
+</tr>
+<tr>
+<td>物品展示框、栓绳结、画、滞留药水效果云、末影水晶</td>
+<td>Integer.MAX_VALUE，可视作无穷大</td>
+</tr>
+<tr>
+<td>其他</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>除非一个实体发生了速度的突变，或者一些重要的数据发生了变化，实体追踪器只会每隔一定时间才向范围内的玩家发送相关的数据，而这一间隔则为实体追踪器的同步时间</p>
+<p>投掷物、重力方块、TNT 等实体有着较大的实体同步周期，而末影水晶甚至不与客户端进行信息同步，这导致在设计相关机器的时候，
+客户端容易出现实体运动与服务端不同步的情况，这是很烦人的。这时，你可以使用本规则将实体同步间隔设为 1，让服务端每 gt 都同步所有实体的数据，尽可能避免不同步的发生</p>
+<h3 id="爆炸不影响实体-explosionNoEntityInfluence"><a class="header-anchor" href="#爆炸不影响实体-explosionNoEntityInfluence"></a>爆炸不影响实体 (explosionNoEntityInfluence)</h3>
+<blockquote>
+<p>爆炸不会影响任何实体。这里的影响包括伤害、加速等效果</p>
+</blockquote>
+<p>虽然 carpet 的规则 <code>explosionNoBlockDamage</code> 可以阻止爆炸对方块的影响，但它并不阻止爆炸对实体的影响，
+会导致乱飞的 TNT 依然可以把意料之外的实体炸没。这不好，用这条规则给我关</p>
+<h3 id="爆炸数据包广播范围-explosionPacketRange"><a class="header-anchor" href="#爆炸数据包广播范围-explosionPacketRange"></a>爆炸数据包广播范围 (explosionPacketRange)</h3>
+<blockquote>
+<p>设置在爆炸发生时，爆炸数据包对玩家的广播范围</p>
+</blockquote>
+<p>在爆炸发生时，服务端仅会告知离爆点 64m 内的玩家，这里发生了爆炸，而离爆点 64m 范围外的玩家是见不到爆炸效果的</p>
+<p>本规则的作用即为修改 64m 这一常量，你可以将其调大以见到更远的爆炸，也可以将其调小来减轻巨量爆炸时客户端的压力</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/explosionPacketRange.gif" alt="explosionPacketRange"></p>
+<h3 id="禁用耕地被踩踏-farmlandTrampledDisabled"><a class="header-anchor" href="#禁用耕地被踩踏-farmlandTrampledDisabled"></a>禁用耕地被踩踏 (farmlandTrampledDisabled)</h3>
+<blockquote>
+<p>阻止耕地被生物踩成泥土</p>
+</blockquote>
+<p>在设计一些如小黑瓜机这种，使用了生物 + 耕地的机器时，很容易会遇到生物踩烂了耕地的情况。
+这挺烦人的，尤其是在做概念验证的时候，毕竟这时我们更关心其他数据，并不在意耕地是否足够安全</p>
+<h3 id="拍扁三角形分布-flattenTriangularDistribution"><a class="header-anchor" href="#拍扁三角形分布-flattenTriangularDistribution"></a>拍扁三角形分布 (flattenTriangularDistribution)</h3>
+<blockquote>
+<p><strong>本规则仅在 Minecraft &gt;= 1.19 中存在</strong></p>
+<p>把 Minecraft 随机数发生器的三角形分布改为均匀分布。借此，边界情况就更有可能发生了</p>
+</blockquote>
+<p>在 MC 1.19 版本之前，fabric carpet 提供了一个被命名为 <code>extremeBehaviours</code> 的规则，它能使得一些依赖正态分布随机数生成器的游戏机制更频繁地产生极端情况。
+这些机制包括：投掷器喷出物品的随机速度、箭矢的基础伤害、生物生成时的 <code>FOLLOW_RANGE</code> 属性随机调整等</p>
+<p>正态分布的随机数生成器产生的结果是无边界的，在极端情况下可能会产生偏差很大的随机值。<code>extremeBehaviours</code> 正是为了测试机器在这些极端情况的稳定性而生。
+不过随着 MC 1.19 的到来，麻将把各种正态分布换成了有界的三角分布，fabric carpet 也因此将 <code>extremeBehaviours</code> 规则删除了</p>
+<p>但是，就算是三角分布，它的边界情况依然也是罕见的，设计机器时也依然存在着测试边界情况的需求。
+那么不如整一个 <code>flattenTriangularDistribution</code>，把三角分布替换成值域相同的均匀分布，让边界情况更容易发生</p>
+<p>在本规则开启前后，相关随机数生成器的概率密度函数变化如下所示。左侧为原来的三角分布，右侧为修改后的均匀分布</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/flattenTriangularDistribution.png" alt="flattenTriangularDistribution"></p>
+<h3 id="禁用物品实体跳过移动运算-itemEntitySkipMovementDisabled"><a class="header-anchor" href="#禁用物品实体跳过移动运算-itemEntitySkipMovementDisabled"></a>禁用物品实体跳过移动运算 (itemEntitySkipMovementDisabled)</h3>
+<blockquote>
+<p>移除物品实体跳过移动运算的机制。改回为 1.13 及以前的物品实体机制，也就是低速着地的物品实体依然会每 gt 都运算移动，而非每 4gt</p>
+<p>当你需要精准使用物品实体运动逻辑时有用。会导致利用了相关机制的机器无法工作，如 2no2name 的无线红石</p>
+</blockquote>
+<p>在 1.14+ 中，mojang 为物品实体引入了一个新逻辑：当物品实体满足以下两种情况</p>
+<ul>
+<li>物品实体着地</li>
+<li>物品实体水平方向的速度小于等于的平方 &gt; $10^{-5}m/gt$，即水平速度不超过约 0.063m/s</li>
+</ul>
+<p>的时候，每 4gt 才运算一次物品实体的移动逻辑。这虽然能减少在地面上扎堆不动物品实体带来的运算量，但也会带来一些额外的问题：
+一大堆物品实体从一个平台落下时，会分成 4 批逐批落下，这有时候会对我们的实验造成影响</p>
+<p>本规则的作用即为移除这一“着地低速物品实体每 4gt 运算一次移动”的机制，让物品实体在任何情况下都能每 gt 运算一遍移动逻辑</p>
+<h3 id="重新引入瞬时方块更新逻辑-instantBlockUpdaterReintroduced"><a class="header-anchor" href="#重新引入瞬时方块更新逻辑-instantBlockUpdaterReintroduced"></a>重新引入瞬时方块更新逻辑 (instantBlockUpdaterReintroduced)</h3>
+<blockquote>
+<p><strong>本规则仅在 Minecraft &gt;= 1.19 中存在</strong></p>
+<p>重新引入 1.19 以前的瞬时方块更新逻辑。本规则让基于栈溢出的更新抑制在 1.19+ 中再次可行</p>
+<p>它还可以让微时序记录器的记录结果更加清晰有逻辑，如 1.19 以前的版本一样的清晰</p>
+</blockquote>
+<p>MC 1.19 引入了人工栈数据结构来处理 MC 方块更新，这导致 1.19 之后，方块并不会瞬时发出更新了。这带来了两个影响：</p>
+<ul>
+<li>足够长的方块更新链不再能引发 JVM 栈溢出异常，这导致基于方块更新栈溢出的更新抑制不再可行</li>
+<li>方块更新之间的代码调用关系从直接调用变成了间接调用，变得更加晦涩。这不仅仅使得代码阅读的难度增加，还会使得微时序记录器的输出变得抽象起来，增加借助微时序记录器分析时序的难度</li>
+</ul>
+<p>好在麻将并没有完全移除瞬时更新的逻辑，因此可以整条规则把 1.19 以前的瞬时方块更新带回来</p>
+<p>参考 Void514 的观点，在这里，一个操作是“瞬时”的，指：在操作的结果发生时，触发操作的原因位于当前 JVM 的函数调用栈上</p>
+<h3 id="光照更新-lightUpdates"><a class="header-anchor" href="#光照更新-lightUpdates"></a>光照更新 (lightUpdates)</h3>
+<blockquote>
+<p>暂停或者禁止光照更新</p>
+<ul>
+<li>若被设为抑制(suppressed)，光照更新不会被执行，这可用于模拟光照抑制器</li>
+<li>若被设为忽略(ignored)，光照更新不会被计划，这常用于在创造模式中制造光照错误</li>
+<li>若被设为关闭(off)，光照更新不会被计划或被执行</li>
+</ul>
+<p><strong>【警告】</strong>：若被设为抑制或关闭，新的区块将无法被加载。如果此时玩家等原因尝试加载新的区块，服务端将进入无法跳出的死循环</p>
+</blockquote>
+<p>1.14 后，Minecraft 的光照引擎被重写，服务端的光照更新被安排至一个独立的光照线程执行。Mojang 使用了队列来进行主线程与光照线程间的通讯，
+因此一次光照更新想要执行，得先进入光照队列排队等待，等待光照线程将光照队列取出并执行这一更新</p>
+<p>该规则用于控制原版的光照队列，它的四种可能取值对应着下方的行为逻辑表格</p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>是否将光照更新入队</th>
+<th>是否执行光照队列中的更新</th>
+<th>表现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>开启 (on)</td>
+<td>是</td>
+<td>是</td>
+<td>原版表现，光照更新正常执行</td>
+</tr>
+<tr>
+<td>抑制 (suppressed)</td>
+<td>是</td>
+<td>否</td>
+<td>光照更新入队，但不出队。模拟光照队列被光照抑制器阻塞的情况。在本规则的值调回为<em>开启</em>或<em>忽略</em>时，队列中积攒的光照更新会依次执行</td>
+</tr>
+<tr>
+<td>忽略 (ignored)</td>
+<td>否</td>
+<td>是</td>
+<td>光照更新不入队，但队列中的光照更新正常执行。常用于制作一些幽灵光源或无亮度光源</td>
+</tr>
+<tr>
+<td>关闭 (off)</td>
+<td>否</td>
+<td>否</td>
+<td>光照更新不入队，队列中的光照更新也不执行。相比于选项“抑制”，光照更新被关闭地更彻底</td>
+</tr>
+</tbody>
+</table>
+<h3 id="矿车搭载乘客最小速度-minecartTakePassengerMinVelocity"><a class="header-anchor" href="#矿车搭载乘客最小速度-minecartTakePassengerMinVelocity"></a>矿车搭载乘客最小速度 (minecartTakePassengerMinVelocity)</h3>
+<blockquote>
+<p>决定矿车将其附近实体作为乘客搭载上车所需的最低水平方向速度（m/gt）。将其设为 0 以让矿车忽略速度，像船一样总能将附件实体载上车。将其设为 NaN 以让矿车永远不能把实体载上车</p>
+</blockquote>
+<p>一个矿车想要把附近的生物吸上车，需要满足其在水平方向上的速度大于 0.1m/gt（2m/s）这个条件，这意味着静止 / 慢慢移动的矿车无法把生物吸上车</p>
+<p>在设计机器时，这个矿车吸生物上车的条件有时候就挺烦人的。为了把生物装进矿车里，我们还得专门搞一段铁轨来给矿车加速。
+如果矿车能像船一样，蹭着生物就能吸上车，那就最好了。多说无益，整条规则改之</p>
+<p>由于本规则修改的是“矿车搭载乘客的最小速度”，因此你可以把它设置成不同的取值，来满足不同场景下的需求：</p>
+<ul>
+<li>把值设成 <code>0</code>：矿车像船一样，蹭着生物就能把生物吸上去</li>
+<li>把值设成 <code>NaN</code>：矿车无论怎样都不会把生物吸上去</li>
+</ul>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/minecartTakePassengerMinVelocity.gif" alt="minecartTakePassengerMinVelocity"></p>
+<h3 id="橡树长成鸡腿树百分率-oakBalloonPercent"><a class="header-anchor" href="#橡树长成鸡腿树百分率-oakBalloonPercent"></a>橡树长成鸡腿树百分率 (oakBalloonPercent)</h3>
+<blockquote>
+<p>橡树树苗长成鸡腿树（fancy_oak）的概率，使用百分率作为值。如，0 代表没有鸡腿树，50 代表有 50% 的概率长成鸡腿树，100 代表总长成鸡腿树</p>
+<p>将其设为 -1 以禁用本规则并使用原版逻辑（10% 概率长成鸡腿树）</p>
+</blockquote>
+<p>若想高效地测试树场对鸡腿橡树的兼容性，与其对着原版的 10% 鸡腿树概率慢慢尝试，不如开条规则来修改原版的概率。必出鸡腿树 / 必不出鸡腿树，任你选择</p>
+<h3 id="禁用侦测器检测功能-observerNoDetection"><a class="header-anchor" href="#禁用侦测器检测功能-observerNoDetection"></a>禁用侦测器检测功能 (observerNoDetection)</h3>
+<blockquote>
+<p>不准侦测器在受状态更新时添加计划刻事件。可以认为这条规则禁用了观察者的检测功能</p>
+</blockquote>
+<p>在使用 <code>/fill</code>、<code>/clone</code> 指令、结构方块、worldedit 等方式来修改世界时，有时候会莫名其妙地把侦测器给激活了。
+与其想办法关掉方块更新，排除各种误触的地方，不如直接禁止侦测器检测方块变化，从源头上解决问题</p>
+<p>值得注意的是，不要在机器开着的时候启用这条规则，毕竟这条规则的作用范围是整个服务器</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/observerNoDetection.gif" alt="observerNoDetection"></p>
+<h3 id="POI更新开关-poiUpdates"><a class="header-anchor" href="#POI更新开关-poiUpdates"></a>POI更新开关 (poiUpdates)</h3>
+<blockquote>
+<p>方块变化时是否会更新 POI。将其设为 <code>false</code> 以禁用 POI 更新</p>
+</blockquote>
+<p>POI 的更新是方块变化流程的最后一步，用于移除旧方块的 POI 并添加新方块的 POI。这一操作是可以被更新抑制所抑制的。
+在创造模式中，如果构造 POI 不一致的方块依然得用到更新抑制器显然太麻烦了，于是就有了本条规则</p>
+<p>可用于如在 1.15 方便地制作无 POI 的地狱门方块</p>
+<h3 id="融雪最小亮度-snowMeltMinLightLevel"><a class="header-anchor" href="#融雪最小亮度-snowMeltMinLightLevel"></a>融雪最小亮度 (snowMeltMinLightLevel)</h3>
+<blockquote>
+<p>雪片融化所需的最小亮度等级。在原版里这个值为 12，意味着雪片将在亮度等级 &gt;= 12时于随机刻中融化</p>
+<p>将其设为 0 以将所有位于你建筑上的烦人的雪片融化；将其设为与防止降雪的最小亮度等级 (12) 来方便地测试你的建筑是否能借助亮度来防降雪</p>
+<p>你可以修改游戏规则 <code>randomTickSpeed</code> 来加速雪的融化，也可以修改地毯规则 <code>chunkTickSpeed</code> 来加速降雪的过程</p>
+</blockquote>
+<p>规则简介已经描述的很清楚了 XD</p>
+<h3 id="结构方块不保留流体-structureBlockDoNotPreserveFluid"><a class="header-anchor" href="#结构方块不保留流体-structureBlockDoNotPreserveFluid"></a>结构方块不保留流体 (structureBlockDoNotPreserveFluid)</h3>
+<blockquote>
+<p>结构方块在放置含水方块时，不保留已存在的流体。同时有着抑制 <a target="_blank" rel="noopener" href="https://bugs.mojang.com/browse/MC-130584">MC-130584</a> 发生的副作用</p>
+</blockquote>
+<p>如图所示</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/structureBlockDoNotPreserveFluid.jpg" alt="structureBlockDoNotPreserveFluid"></p>
+<p><a target="_blank" rel="noopener" href="https://bugs.mojang.com/browse/MC-130584">MC-130584</a> 是一个在结构方块放置结构的时候，水会蔓延至含水方块里的 bug。
+它在 1.17 的快照 20w45a 中被修复。这条规则也可以作为 1.17 前对这一 bug 的补丁</p>
+<h3 id="结构方块范围限制-structureBlockLimit"><a class="header-anchor" href="#结构方块范围限制-structureBlockLimit"></a>结构方块范围限制 (structureBlockLimit)</h3>
+<blockquote>
+<p>覆写结构方块的范围限制。当相对位置的值大于32时客户端里结构的位置可能会错误地显示</p>
+</blockquote>
+<p>原版结构方块怎么只有这么一点大小限制？给我改！</p>
+<p>fabric carpet 1.4.25 中引入了功能一致的规则，因此在 MC 1.16 及以后的 Carpet TIS Addition 中该规则被移除</p>
+<p>由于原版的结构方块数据包中使用了 byte 来储存结构的大小及偏移，因此在只使用原版协议的前提下可操作的结构方块大小最大为 127。
+fabric-carpet 给出的解决方法是在原版数据包末端追加使用 int 储存的结构大小及偏移，该规则也同样地移植了这一实现</p>
+<h3 id="同步光照线程-synchronizedLightThread"><a class="header-anchor" href="#同步光照线程-synchronizedLightThread"></a>同步光照线程 (synchronizedLightThread)</h3>
+<blockquote>
+<p>将光照线程与主线程同步，这样光照线程就不会于落后主线程而失去同步。服务器将会在每个世界开始运算时等待光照线程的任务完成。你可以借此安全地 <code>/tick warp</code> 而不用担心潜在的光照抑制或光照不同步</p>
+</blockquote>
+<p>在很多时候，我们宁可服务端主线程等待光照线程把光照更新执行完，也不愿让光照队列堆积导致光照抑制甚至内存溢出。
+本规则是一简单又有效的实现：在服务端线程开始运算一个维度时，先等待这一维度的光照线程将队列里的更新都处理完，再继续处理这一维度的服务端线程任务</p>
+<p>这一规则还为 CarpetProfiler 添加了一个名为 <code>Lighting synchronization</code> 的游戏阶段，用于记录服务端等待光照线程所造成的额外 mspt。这会在 <code>/tick health</code> 指令中显示</p>
+<h3 id="计划刻上限-tileTickLimit"><a class="header-anchor" href="#计划刻上限-tileTickLimit"></a>计划刻上限 (tileTickLimit)</h3>
+<blockquote>
+<p>修改每游戏刻中计划刻事件的执行次数上限</p>
+</blockquote>
+<p>一个计划刻队列每 gt 只会执行最多 65536 个计划刻事件，超出这一限制的计划刻事件将被延后至下一个 gt 执行。该规则的作用即为修改这一常量，常用于方便地触发/模拟计划刻 EMP</p>
+<h3 id="TNT引信时长-tntFuseDuration"><a class="header-anchor" href="#TNT引信时长-tntFuseDuration"></a>TNT引信时长 (tntFuseDuration)</h3>
+<blockquote>
+<p>覆盖 TNT 的默认引信时长。这也会影响被爆炸点燃的 TNT 的引信时长</p>
+</blockquote>
+<p>有时候你想快速地点几个 TNT 测试它们的爆炸，你可以借助这一规则将 TNT 的引信改短，让它们快速爆炸</p>
+<p>有时候你只想要一个不会爆炸的 TNT 实体来做实验，这时你也可以借助这一规则将 TNT 的引信加长，从而生成一个几乎不会爆的任你揉搓的 TNT</p>
+<p>注意到在 TNT 实体保存至/读取自 nbt 数据时，其 Fuse 标签使用的是 short 数据类型进行储存，因此 TNT 的引信时长最大值为 32767（约 27.3 分钟），这也足够长了</p>
+<h3 id="TNT忽略红石信号-tntIgnoreRedstoneSignal"><a class="header-anchor" href="#TNT忽略红石信号-tntIgnoreRedstoneSignal"></a>TNT忽略红石信号 (tntIgnoreRedstoneSignal)</h3>
+<blockquote>
+<p>阻止 TNT 被红石信号点燃。你仍可以使用爆炸等方式点燃 TNT</p>
+</blockquote>
+<p>在使用原版指令 / WorldEdit 等工具修改移动含 TNT 的机器时，总有那么些时候会不小心误触导致其中的 TNT 被点燃。
+用 <code>totallyNoBlockUpdate</code> 规则扬掉所有更新的副作用又太大，这时你就需要本规则，让 TNT 怎么激活也不会被点燃了</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/tntIgnoreRedstoneSignal.gif" alt="tntIgnoreRedstoneSignal"></p>
+<h3 id="完全没有方块更新-totallyNoBlockUpdate"><a class="header-anchor" href="#完全没有方块更新-totallyNoBlockUpdate"></a>完全没有方块更新 (totallyNoBlockUpdate)</h3>
+<blockquote>
+<p>禁用所有方块更新以及状态更新的执行</p>
+</blockquote>
+<p>这条规则的功能很简单：禁止所有方块更新及状态更新的执行，常用于使用指令 / WorldEdit 等工具修改移动机器</p>
+<p>值得注意的是，除了更新外的其他机制依然可以正常运作，如流体通过计划刻流动，比较器检测到容器容量变化而更新其状态。
+以及本规则的作用范围是整个服务器，盲目地开启这一规则很有可能会损坏/冻结住那些一直在运行的机器</p>
+<h3 id="坚韧的凋零玫瑰-toughWitherRose"><a class="header-anchor" href="#坚韧的凋零玫瑰-toughWitherRose"></a>坚韧的凋零玫瑰 (toughWitherRose)</h3>
+<blockquote>
+<p>由死而生，凋零玫瑰非常坚韧，能在任意表面上种植。该规则移除了凋零玫瑰所有的放置约束，这意味着你可以将零玫瑰种植在任何地方。</p>
+<p>在你想用更新抑制的凋零玫瑰做凋灵骷髅塔时，这条规则可以帮你一把</p>
+</blockquote>
+<p>背景知识：凋灵玫瑰在受到状态更新时会检查其是否处于合法的状态，如果不合法则立即掉落</p>
+<p>如规则介绍所述，在设计把凋灵玫瑰种在地狱砖上的凋灵骷髅塔时，很容易因误触而整掉了一整片的凋灵玫瑰，非常烦人</p>
+<p>本条规则的作用就是去除凋灵玫瑰的一切放置限制，让凋灵玫瑰可以种在任何方块上。在什么地狱砖，铁轨，岩浆，甚至空气之上，都能种凋灵玫瑰</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/toughWitherRose.png" alt="toughWitherRose"></p>
+<h3 id="禁用海龟蛋被践踏-turtleEggTrampledDisabled"><a class="header-anchor" href="#禁用海龟蛋被践踏-turtleEggTrampledDisabled"></a>禁用海龟蛋被践踏 (turtleEggTrampledDisabled)</h3>
+<blockquote>
+<p>阻止海龟蛋因实体踩踏而破坏</p>
+</blockquote>
+<p>如规则描述所述，当你想要测试一个机器是否能正确通过海龟蛋处理僵尸猪人，但又暂时不想考虑海龟蛋被不明原因踩坏的时候，你就可以把这条规则开起来，让海龟蛋怎么踩都踩不烂</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/turtleEggTrampledDisabled.gif" alt="turtleEggTrampledDisabled"></p>
+<h3 id="亡灵生物别在阳光下着火-undeadDontBurnInSunlight"><a class="header-anchor" href="#亡灵生物别在阳光下着火-undeadDontBurnInSunlight"></a>亡灵生物别在阳光下着火 (undeadDontBurnInSunlight)</h3>
+<blockquote>
+<p>阻止亡灵生物在阳光下着火。不过他们的头盔依然会在阳光下损失耐久</p>
+</blockquote>
+<p>有时在主世界测试一些与亡灵生物相关的机器时，还得记得给做个遮阳天花板，防止亡灵生物被晒死。
+这挺烦人的，不如整个规则给亡灵涂足防晒霜。毕竟绝大部分情况下，给最终实装版本加个天花板防晒是很容易的操作</p>
+<h3 id="虚空伤害数值-voidDamageAmount"><a class="header-anchor" href="#虚空伤害数值-voidDamageAmount"></a>虚空伤害数值 (voidDamageAmount)</h3>
+<blockquote>
+<p>修改虚空伤害的数值</p>
+</blockquote>
+<p>让掉虚空的生物死快些，原版虚空的 4 点伤害有点太低了，直接加到 1000 点</p>
+<h3 id="虚空伤害忽略玩家-voidDamageIgnorePlayer"><a class="header-anchor" href="#虚空伤害忽略玩家-voidDamageIgnorePlayer"></a>虚空伤害忽略玩家 (voidDamageIgnorePlayer)</h3>
+<blockquote>
+<p>阻止玩家受到任何虚空伤害。对玩家完全无害的虚空，好耶！</p>
+</blockquote>
+<p>有些时候，你想飞到虚空深处，来从远处贴近世界底部的机器的整体运行情况，但又担心会被无视游戏模式的虚空伤害搞死。
+不如整个规则，移除虚空对玩家的伤害，让玩家想在虚空逛多深逛多久都没问题</p>
+<h3 id="虚空相对海拔高度-voidRelatedAltitude"><a class="header-anchor" href="#虚空相对海拔高度-voidRelatedAltitude"></a>虚空相对海拔高度 (voidRelatedAltitude)</h3>
+<blockquote>
+<p>修改虚空相对世界底部的海拔高度，此处的虚空指实体会受到虚空伤害的区域</p>
+</blockquote>
+<p>有时候你想往虚空飞一飞，飞低点得到机器底部的视角，但又恐 y=-64 虚空伤害直击创造模式玩家，这时你可以用这条规则，把虚空伤害所在的海拔高度阈值调低，这样你就可以尽情地在虚空里遨游了</p>
+<p>注意该规则所表示的海拔高度是一个相对值，是相对世界底部 y 值的相对高度值</p>
+<h3 id="禁用凋灵生成音效-witherSpawnedSoundDisabled"><a class="header-anchor" href="#禁用凋灵生成音效-witherSpawnedSoundDisabled"></a>禁用凋灵生成音效 (witherSpawnedSoundDisabled)</h3>
+<blockquote>
+<p>禁用凋灵在召唤后生命值回满时发出的世界中所有玩家都能听到的音效</p>
+</blockquote>
+<p>凋灵生命值回满爆炸时发出的那一个声音全世界都能听到，真的吵死了，快给我关掉</p>
+<h3 id="经验球追踪距离-xpTrackingDistance"><a class="header-anchor" href="#经验球追踪距离-xpTrackingDistance"></a>经验球追踪距离 (xpTrackingDistance)</h3>
+<blockquote>
+<p>修改经验球检测并追踪玩家的距离。将其调至 0 以禁用追踪</p>
+</blockquote>
+<p>当你想要在经验球管道附近修改东西，但又不想因为自己在经验球附近而扰乱了经验球的运动，你就可以用这条规则将经验球的追踪给禁用掉。
+当然你也可以把经验球的追踪距离拉到很高，感受经验球漫天飞舞最终汇聚于身的体验</p>
+<h2 id="生存模式用新增特性-bug修复"><a class="header-anchor" href="#生存模式用新增特性-bug修复"></a>生存模式用新增特性/bug修复</h2>
+<h3 id="玩家重生丢失客户端设置数据修复-clientSettingsLostOnRespawnFix"><a class="header-anchor" href="#玩家重生丢失客户端设置数据修复-clientSettingsLostOnRespawnFix"></a>玩家重生丢失客户端设置数据修复 (clientSettingsLostOnRespawnFix)</h3>
+<blockquote>
+<p>修复在玩家重生或从末地进入末地门时，新创建的玩家实体未迁移旧玩家实体中储存着的客户端设置的问题。因此依赖客户端设置数据的模组总能正常的工作，如本模组以及 worldedit 模组的服务端翻译</p>
+</blockquote>
+<p>对于玩家重生，以及玩家从末地进入末地门这两个操作，MC 会重建一个玩家实体对象，并把原实体的数据复制到新实体上</p>
+<p>可惜，在这个复制数据的过程中，麻将忘了复制客户端配置相关的数据，这包括但不限于玩家客户端的语言设置。
+这会导致一些依赖客户端设置数据的 mod 无法按照预期工作，比如 worldedit 和本 mod 的文本在玩家重生后都变成了英文</p>
+<p>这是个 bug，虽然不严重，但挺影响游戏体验的，得重进服务器或者手动调一下客户端设置，才能恢复正常</p>
+<p>有虫，得修，<code>/carpet setDefault clientSettingsLostOnRespawnFix true</code>，done</p>
+<p>技术上来讲，在从旧玩家实体复制数据到新玩家实体的过程中，这条规则会重新将曾经用于旧玩家实体的客户端设置数据包（<code>ClientSettingsC2SPacket</code>）应用到新的玩家实体上。</p>
+<h3 id="发射器发射龙息-dispensersFireDragonBreath"><a class="header-anchor" href="#发射器发射龙息-dispensersFireDragonBreath"></a>发射器发射龙息 (dispensersFireDragonBreath)</h3>
+<blockquote>
+<p>发射器可使用龙息瓶创造出龙息效果云</p>
+</blockquote>
+<p>新特性，让生存玩家可以在不依赖末影龙的情况下生成龙息效果云。可与规则 <a href="#%E5%8F%AF%E5%86%8D%E7%94%9F%E9%BE%99%E8%9B%8B-renewabledragonegg">renewableDragonEgg</a> 配合使用</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/dispensersFireDragonBreath.gif" alt="dispensersFireDragonBreath"></p>
+<h3 id="保持弱加载区块的怪物-keepMobInLazyChunks"><a class="header-anchor" href="#保持弱加载区块的怪物-keepMobInLazyChunks"></a>保持弱加载区块的怪物 (keepMobInLazyChunks)</h3>
+<blockquote>
+<p>弱加载区块的怪物不再会被刷新掉，就像 1.15 之前版本似的。此选项仅对 1.15 至 1.16 间的版本有效</p>
+</blockquote>
+<p>在 1.15 ~ 1.16 中，位于弱加载区块中的生物也会同位于强加载时一样，执行离所有玩家 128m 则立即消失的逻辑。这导致了玩家无法使用存放在弱加载区块中的普通怪物制作伪和平装置</p>
+<p>改规则将生物处理立即消失的逻辑改回了 1.14 及以前的逻辑，让弱加载区块中的生物不会因为远离玩家而立即消失</p>
+<h3 id="大木桶-largeBarrel"><a class="header-anchor" href="#大木桶-largeBarrel"></a>大木桶 (largeBarrel)</h3>
+<blockquote>
+<p>史上最棒的物品仓储方块: 大木桶！两个相邻的底部相连木桶可以组成一个大木桶，大木桶的行为逻辑跟大箱子相近</p>
+</blockquote>
+<p>箱子能拼成大箱子，储量大，但它渲染很卡；木桶渲染不卡，但只有小箱子的容量。没有两全其美的储存容器真是令人纠结，不过有了这条规则后，就可以说：我全都要！</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/largeBarrel.gif" alt="largeBarrel"></p>
+<p>底座相连的木桶将组成一个大木桶，位于坐标轴负方向的木桶作为大木桶的上半部分，位于坐标轴正方向的木桶作为大木桶的下半部分</p>
+<h3 id="刷铁轨机修复-railDupingFix"><a class="header-anchor" href="#刷铁轨机修复-railDupingFix"></a>刷铁轨机修复 (railDupingFix)</h3>
+<blockquote>
+<p>禁用老式的移动点亮的充能或激活铁轨的刷铁轨机</p>
+</blockquote>
+<p>这种老式的刷铁轨机只对充能铁轨 &amp; 激活铁轨有效，效果如下</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/railDupingFix.gif" alt="railDupingFix"></p>
+<p>修复方式：在充能铁轨 &amp; 激活铁轨更新自身状态前先确保这格铁轨依然存在</p>
+<h3 id="可再生龙蛋-renewableDragonEgg"><a class="header-anchor" href="#可再生龙蛋-renewableDragonEgg"></a>可再生龙蛋 (renewableDragonEgg)</h3>
+<blockquote>
+<p>让龙蛋变得可再生：当龙蛋处于龙息效果云内时，龙蛋有一定概率吸收龙息并“召唤”出一个新的龙蛋</p>
+<p>可与选项 <a href="#%E5%8F%91%E5%B0%84%E5%99%A8%E5%8F%91%E5%B0%84%E9%BE%99%E6%81%AF-dispensersfiredragonbreath">dispenserFireDragonBreath</a> 联动</p>
+</blockquote>
+<p>沐浴在龙息中的龙蛋吸收了足够的能量后，召唤出了一个新的龙蛋</p>
+<p>实现的具体逻辑：</p>
+<ol>
+<li>在随机刻选中龙蛋方块后，龙蛋有 1 / 64 的几率尝试再生。这一否决率能保证龙蛋虽然可再生，但仍然是一种较为稀有的物资</li>
+<li>龙蛋会找到与其所在位置 1 立方米范围相交的龙息效果云。若没找到，终止再生流程；否则随机挑选一个效果云</li>
+<li>龙蛋会选择附近的一个随机位置，尝试生成龙蛋方块。选择位置的逻辑跟龙蛋被点击后随机传输的逻辑一致，不过仅有一次尝试机会。如果被选中的位置是空气的话，则龙蛋生成成功，龙息效果云的半径变为原 1 / 5</li>
+</ol>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/renewableDragonEgg.gif" alt="renewableDragonEgg"></p>
+<h3 id="可再生龙首-renewableDragonHead"><a class="header-anchor" href="#可再生龙首-renewableDragonHead"></a>可再生龙首 (renewableDragonHead)</h3>
+<blockquote>
+<p>被高压爬行者杀死的末影龙将会掉落一个龙首</p>
+</blockquote>
+<p>闪电苦力怕的斩首效果怎么能让末影龙逃过一劫？不过真要在生存中实现的话恐怕会有不小难度</p>
+<h3 id="可再生鞘翅-renewableElytra"><a class="header-anchor" href="#可再生鞘翅-renewableElytra"></a>可再生鞘翅 (renewableElytra)</h3>
+<blockquote>
+<p>当幻翼被潜影贝杀死时有给定概率掉落鞘翅。设置为 0 以禁用</p>
+</blockquote>
+<p>需要潜影贝：玩家无法跳 Minecraft 的科技树，必须前往末地城才能拿到鞘翅
+涉及幻翼：既然幻翼膜能拿来修鞘翅，那幻翼膜一定是鞘翅的原材料吧</p>
+<h3 id="刷沙机修复-sandDupingFix"><a class="header-anchor" href="#刷沙机修复-sandDupingFix"></a>刷沙机修复 (sandDupingFix)</h3>
+<blockquote>
+<p>禁用使用末地门的刷沙机以及刷重力方块机。这里的重力方块包括沙子、铁砧、龙蛋等。在开启后刷沙机的沙子将会仅被传送至另一个纬度</p>
+</blockquote>
+<p>末地门刷沙机的原理很简单：Mojang 在执行重力方块实体落地转换为方块的逻辑前，忘了判断这个重力方块是否仍然存在与这个世界里，
+结果就是只要重力方块在碰到末地门的同时落地，就能既前往另一纬度又可以转换为方块</p>
+<p>修复也很简单，把缺失的判断加上就行了</p>
+<h3 id="TNT复制修复-tntDupingFix"><a class="header-anchor" href="#TNT复制修复-tntDupingFix"></a>TNT复制修复 (tntDupingFix)</h3>
+<blockquote>
+<p>禁用TNT、地毯以及部分铁轨的复制机。基于依附性方块的复制机会无法复制，基于红石原件更新的复制机会无法保留被复制的方块</p>
+<p><s>Dupe bad dig good</s></p>
+</blockquote>
+<p>这一类的方块复制均发生于活塞将所推动的方块一次转换为 b36 的过程中，根据更新源的不同可以分为两种复制机：</p>
+<ul>
+<li>基于依附性方块掉落而发出更新的，如死珊瑚更新源。原理为 b36 方块的放置会发出状态更新，导致还未被置为 b36 的依附性方块发现自己附着于 b36 上，或者依附在空气上，从而掉落，并发出更新</li>
+<li>基于方块被移除时发出更新的，如亮起侦测器更新源。原理为一些红石原件（侦测器、中继器等）在亮起时被移除的时候，会发出方块更新，用于告知附近方块你的信号源没了</li>
+</ul>
+<p>为了修复这两种复制机，同时保证不破坏其他的逻辑时序而保证原版性，我们可以这样做：</p>
+<ul>
+<li>
+<p>使被活塞所推动的方块间接地转换为 b36：</p>
+<ol>
+<li>先不发出任何更新地，将活塞所推动方块的原位置替换为空气方块</li>
+<li>再让原版的逻辑将这些空气方块转换为 b36</li>
+</ol>
+<p>这保证了生成 b36 的时候不会有残留的方块作妖</p>
+</li>
+<li>
+<p>在将方块设置为空气之前才把世界里的方块状态储存进活塞推动列表中，这样就算基于方块被移除时发出更新的复制机刷出了 TNT，这 TNT 也是真的点着掉了下来，不再会被存入活塞推动列表里变成 b36</p>
+</li>
+</ul>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/tntDupingFix.gif" alt="tntDupingFix"></p>
+<h3 id="工具化TNT-tooledTNT"><a class="header-anchor" href="#工具化TNT-tooledTNT"></a>工具化TNT (tooledTNT)</h3>
+<blockquote>
+<p>由玩家引发的爆炸破坏并掉落物品时会应用玩家手上的工具，因此你可以点燃TNT以采集需要特定工具或者附魔的方块，只要你在爆炸时拿着正确的工具。比如，你可以拿着精准采集镐子来采集冰，或者拿着剪刀来采集草</p>
+<p>此规则同样适用于玩家以外的生物。技术上来讲，此规则将来源生物主手上的物品应用在了爆炸里战利品表的创建中</p>
+</blockquote>
+<p>精准采集 TNT，从梦想变为现实——既然都有 TNT 掠夺了，那么为啥不来一个TNT 精准呢</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/tooledTNT.gif" alt="tooledTNT"></p>
+<h2 id="游戏优化"><a class="header-anchor" href="#游戏优化"></a>游戏优化</h2>
+<h3 id="优化高速实体移动-optimizedFastEntityMovement"><a class="header-anchor" href="#优化高速实体移动-optimizedFastEntityMovement"></a>优化高速实体移动 (optimizedFastEntityMovement)</h3>
+<blockquote>
+<p>通过仅检测沿轴移动方向的方块碰撞来优化高速实体的移动</p>
+<p>受 <a target="_blank" rel="noopener" href="https://github.com/gnembon/carpetmod112">carpetmod112</a> 的规则 <code>fastMovingEntityOptimization</code> 启发</p>
+<p>同规则 <code>optimizedTNT</code> 一起使用可大幅度提升炮的性能表现</p>
+</blockquote>
+<p>在实体移动的过程中，原版游戏会获取实体速度矢量构成的长方体中所有能阻挡其移动的碰撞箱</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/optimizedFastEntityMovement.png" alt="optimizedFastEntityMovement"></p>
+<p>如上图所示，TNT 从右下移动至左上，游戏会获取图中白色染色玻璃范围的所有碰撞箱</p>
+<p>由于实体实际上是沿轴分步移动的，这个长方体中中并非所有数据都是我们需要的，只有实体沿轴移动路径上的碰撞箱有可能阻挡实体移动（上图红色玻璃），
+因此我们可以仅获得这条路径上的碰撞箱，而非获取整个长方体中的碰撞箱</p>
+<p>在与 TNT 炮相关的机器中，TNT 的速度往往会被加速到极大值，又因为长方体的体积随实体速度大小立方级地增长，TNT 速度提上去之后带来的卡顿会急剧升高。
+在使用本规则进行优化后，所需要扫描的碰撞箱范围体积变为与实体速度大小线性增长，能非常有效地缓解这部分的卡顿</p>
+<h3 id="优化硬碰撞箱实体碰撞-optimizedHardHitBoxEntityCollision"><a class="header-anchor" href="#优化硬碰撞箱实体碰撞-optimizedHardHitBoxEntityCollision"></a>优化硬碰撞箱实体碰撞 (optimizedHardHitBoxEntityCollision)</h3>
+<blockquote>
+<p>优化实体与硬碰撞箱实体的碰撞</p>
+<p>它使用了一个额外的独立的列表在区块中储存带有硬碰撞箱的实体，包括船和潜影贝。它能在实体移动并搜索路径上的带有硬碰撞箱的实体时减少大量无用的运算，因为世界里船和潜影贝的数量总是少数</p>
+<p>在加载区块前开启它以使其工作，在地狱门刷怪塔中有~20%的性能提升。与添加了新实体的 mod 可能不兼容</p>
+</blockquote>
+<p>实体移动时，需要搜寻其移动路径上所有能阻挡其移动的碰撞箱对象，这包括方块以及带有硬碰撞箱的实体（对非矿车的实体而言，为船和潜影贝），然后计算它们对实体移动的阻挡效果</p>
+<p>搜寻带有硬碰撞箱的实体的实现是，遍历一遍范围内所有区段中的所有实体，然后将其中具有硬碰撞箱的实体提取出来。如果范围内的实体数量非常多，这部分遍历将会非常耗时，
+即便这个范围内几乎没有硬碰撞箱的实体。这种情况常出现于双维度刷怪塔的怪物处理维度端，其中有着大量刷出的怪物，但却几乎没有船跟潜影贝</p>
+<p>该优化使用了一个独立的列表来储存含硬碰撞箱的实体，这样在需要于区段中搜索硬碰撞箱实体时就不用遍历整个包含所有实体的列表了，可以有效地减少这部分遍历的耗时</p>
+<p>Lithium 模组在 v0.5.5 后也加入了类似的优化，位于 <code>chunk.entity_class_groups</code> 中</p>
+<h3 id="TNT优化高优先级-optimizedTNTHighPriority"><a class="header-anchor" href="#TNT优化高优先级-optimizedTNTHighPriority"></a>TNT优化高优先级 (optimizedTNTHighPriority)</h3>
+<blockquote>
+<p>用带有更高优先级的 Mixin 注入来实现 carpet 规则 <code>optimizedTNT</code>，因此规则 <code>optimizedTNT</code> 可以覆盖 lithium 的爆炸优化</p>
+<p>当然，它需要规则 <code>optimizedTNT</code> 开启才能工作</p>
+</blockquote>
+<p>fabric carpet 的爆炸优化有着实体接触率射线计算结果缓存的功能，这是 lithium 的爆炸优化所不具有的，</p>
+<p>在默认情况下，lithium 的爆炸优化是会覆盖掉 fabric carpet 的爆炸优化的，两者无法共存。当你想使用 fabric carpet 的爆炸优化，而非 lithium 的爆炸优化的时候，即可启用本规则</p>
+<p>Lithium 模组在 v0.6.2 后修改了其爆炸优化的实现，据其称这些修改能提升 lithium 的爆炸优化与其他修改爆炸的模组的兼容性。本规则与 lithium v0.6.2+ 的组合效果仍有待测试</p>
+<h2 id="其他规则"><a class="header-anchor" href="#其他规则"></a>其他规则</h2>
+<h3 id="禁用反刷屏监测-antiSpamDisabled"><a class="header-anchor" href="#禁用反刷屏监测-antiSpamDisabled"></a>禁用反刷屏监测 (antiSpamDisabled)</h3>
+<blockquote>
+<p>禁用玩家身上的刷屏检测，包括：聊天信息发送冷却、创造模式扔物品冷却</p>
+</blockquote>
+<p>在原版游戏中，若非 OP 玩家发消息 / 指令发的过快，会被因刷屏而踢出游戏；创造模式中从创造模式物品栏扔物品是有速度上限的，超过上限了只能以一秒一个物品的速度扔出物品</p>
+<p>这些限制对于服务器成员遵纪守法的服务器而言显然只能提供烦人的作用，不如用这条规则将它扬了吧</p>
+<h3 id="存活时间追踪器-commandLifeTime"><a class="header-anchor" href="#存活时间追踪器-commandLifeTime"></a>存活时间追踪器 (commandLifeTime)</h3>
+<blockquote>
+<p>启用 <code>/lifetime</code> 命令用于追踪生物存活时间等信息。可助于调试刷怪塔等</p>
+</blockquote>
+<p><code>/lifetime</code> 存活时间追踪器指令的开关及其权限控制</p>
+<h3 id="世界控制命令开关-commandManipulate"><a class="header-anchor" href="#世界控制命令开关-commandManipulate"></a>世界控制命令开关 (commandManipulate)</h3>
+<blockquote>
+<p>启用 <code>/manipulate</code> 命令用于控制世界</p>
+</blockquote>
+<p><code>/manipulate</code> 指令的开关及其权限控制</p>
+<h3 id="袭击追踪器-commandRaid"><a class="header-anchor" href="#袭击追踪器-commandRaid"></a>袭击追踪器 (commandRaid)</h3>
+<blockquote>
+<p>启用 <code>/raid</code> 命令用于列出或追踪袭击信息</p>
+</blockquote>
+<p><code>/raid</code> 指令的开关及其权限控制</p>
+<h3 id="射线追踪命令开关-commandRaycast"><a class="header-anchor" href="#射线追踪命令开关-commandRaycast"></a>射线追踪命令开关 (commandRaycast)</h3>
+<blockquote>
+<p>启用 <code>/raycast</code> 命令用于分析射线追踪</p>
+</blockquote>
+<p><code>/raycast</code> 指令的开关及其权限控制</p>
+<h3 id="刷新命令开关-commandRefresh"><a class="header-anchor" href="#刷新命令开关-commandRefresh"></a>刷新命令开关 (commandRefresh)</h3>
+<blockquote>
+<p>启用 <code>/refresh</code> 命令让你的客户端与服务端保持同步</p>
+</blockquote>
+<p><code>/refresh</code> 指令的开关及其权限控制</p>
+<h3 id="移除实体命令开关-commandRemoveEntity"><a class="header-anchor" href="#移除实体命令开关-commandRemoveEntity"></a>移除实体命令开关 (commandRemoveEntity)</h3>
+<blockquote>
+<p>启用 <code>/removeentity</code> 命令用于直接在世界中抹除目标实体</p>
+</blockquote>
+<p><code>/removeentity</code> 指令的开关及其权限控制</p>
+<h3 id="睡眠命令开关-commandSleep"><a class="header-anchor" href="#睡眠命令开关-commandSleep"></a>睡眠命令开关 (commandSleep)</h3>
+<blockquote>
+<p>启用 <code>/sleep</code> 命令用于制造卡顿</p>
+</blockquote>
+<p><code>/sleep</code> 指令的开关及其权限控制</p>
+<h3 id="反混淆崩溃报告堆栈追踪-deobfuscateCrashReportStackTrace"><a class="header-anchor" href="#反混淆崩溃报告堆栈追踪-deobfuscateCrashReportStackTrace"></a>反混淆崩溃报告堆栈追踪 (deobfuscateCrashReportStackTrace)</h3>
+<blockquote>
+<p>反混淆崩溃报告中输出的堆栈追踪</p>
+</blockquote>
+<p>在分析生产环境下游戏崩溃的日志时，一份反混淆好的堆栈追踪所提供的阅读体验可比混淆版的堆栈追踪好多了</p>
+<h3 id="假人名称前缀-fakePlayerNamePrefix"><a class="header-anchor" href="#假人名称前缀-fakePlayerNamePrefix"></a>假人名称前缀 (fakePlayerNamePrefix)</h3>
+<blockquote>
+<p>为 <code>/player</code> 指令召唤出来的假人名称添加指定前缀</p>
+<p>将其设置为 <code>#none</code> 以阻止添加前缀</p>
+<p>这可阻止玩家召唤奇怪名字的假人，还能让玩家列表变得更整洁</p>
+</blockquote>
+<p>让所有的假人均统一带有 <code>bot_</code> 什么的前缀，是非常令人舒适且便于管理的</p>
+<p>如果输入的假人的名字已含给定前缀，召唤出来的假人名字则不会重复添加前缀</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/fakePlayerNamePrefix.jpg" alt="fakePlayerNamePrefix"></p>
+<h3 id="假人名称后缀-fakePlayerNameSuffix"><a class="header-anchor" href="#假人名称后缀-fakePlayerNameSuffix"></a>假人名称后缀 (fakePlayerNameSuffix)</h3>
+<blockquote>
+<p>为 <code>/player</code> 指令召唤出来的假人名称添加指定后缀</p>
+<p>将其设置为 <code>#none</code> 以阻止添加后缀</p>
+</blockquote>
+<p>类似 <a href="#%E5%81%87%E4%BA%BA%E5%90%8D%E7%A7%B0%E5%89%8D%E7%BC%80-fakeplayernameprefix">fakePlayerNamePrefix</a>，不过本条规则添加的是后缀</p>
+<h3 id="假人远程召唤-fakePlayerRemoteSpawning"><a class="header-anchor" href="#假人远程召唤-fakePlayerRemoteSpawning"></a>假人远程召唤 (fakePlayerRemoteSpawning)</h3>
+<blockquote>
+<p>使用 <code>/player</code> 指令远程召唤假人的权限需求。在这里，“远程”指的是被召唤的假人位于 16m 以外，或另一个维度</p>
+</blockquote>
+<p>禁止远程召唤 bot，这可一点都不像一个“小号”能做的事情</p>
+<p>默认值为 <code>true</code>，对应着 fabric carpet 的原始表现——你可以在任意地方召唤假人</p>
+<h3 id="HUD记录器更新间隔-HUDLoggerUpdateInterval"><a class="header-anchor" href="#HUD记录器更新间隔-HUDLoggerUpdateInterval"></a>HUD记录器更新间隔 (HUDLoggerUpdateInterval)</h3>
+<blockquote>
+<p>覆写 Carpet Mod HUD 记录器的更新间隔，单位为 gametick</p>
+</blockquote>
+<p>在 fabric carpet 的框架中，位于 tab 栏玩家列表下方的 HUD 记录器的更新间隔是一个定值，20gt 定值。如果我们想要更高频率地刷新 HUD 记录器的信息刷，就可以使用本规则来修改这个间隔</p>
+<h3 id="存活时间追踪器考虑怪物容量-lifeTimeTrackerConsidersMobcap"><a class="header-anchor" href="#存活时间追踪器考虑怪物容量-lifeTimeTrackerConsidersMobcap"></a>存活时间追踪器考虑怪物容量 (lifeTimeTrackerConsidersMobcap)</h3>
+<blockquote>
+<p>存活时间追踪器对不占怪物容量的生物的策略</p>
+<ul>
+<li><code>true</code>: 不追踪不占用怪物容量的生物，并与生物不影响怪物容量的时刻将其标记为已移除，如当它们捡起物品时。便于设计刷怪塔</li>
+<li><code>false</code>: 追踪所有可追踪的生物，在生物确实被删除时将其标记为已移除。便于设计袭击农场或非刷怪塔的机器</li>
+</ul>
+</blockquote>
+<p>存活时间追踪器所使用的的一个参数</p>
+<h3 id="光照队列记录器采样时长-lightQueueLoggerSamplingDuration"><a class="header-anchor" href="#光照队列记录器采样时长-lightQueueLoggerSamplingDuration"></a>光照队列记录器采样时长 (lightQueueLoggerSamplingDuration)</h3>
+<blockquote>
+<p>光照队列记录器的采样时长，单位为游戏刻。影响记录器中显示的，除队列大小外的所有数据</p>
+</blockquote>
+<p>光照队列记录器（<code>lightQueue</code>）所使用的的一个参数</p>
+<h3 id="移动记录器-loggerMovement"><a class="header-anchor" href="#移动记录器-loggerMovement"></a>移动记录器 (loggerMovement)</h3>
+<blockquote>
+<p>移动记录器的开关 / 权限等级需求</p>
+</blockquote>
+<p>移动记录器（<code>movement</code> logger）并不是一个适合在生存服中使用的记录器，毕竟它容易刷屏 + 会暴露其他玩家的位置信息，最好还是加个权限开关来控制下</p>
+<h3 id="怪物容量显示忽略杂项-mobcapsDisplayIgnoreMisc"><a class="header-anchor" href="#怪物容量显示忽略杂项-mobcapsDisplayIgnoreMisc"></a>怪物容量显示忽略杂项 (mobcapsDisplayIgnoreMisc)</h3>
+<blockquote>
+<p>在 carpet 怪物容量显示中忽略杂项 (misc) 这一生物类型</p>
+<p>因为它既占空间还没用：杂项生物类型不参与刷怪循环，在统计怪物容量时也被游戏忽略</p>
+<p>影响 mobcaps 记录器以及 <code>/spawn mobcaps</code> 指令</p>
+</blockquote>
+<p>占空间还没用的数据，当然是选择删掉啦</p>
+<h3 id="op玩家不准作弊-opPlayerNoCheat"><a class="header-anchor" href="#op玩家不准作弊-opPlayerNoCheat"></a>op玩家不准作弊 (opPlayerNoCheat)</h3>
+<blockquote>
+<p>禁用部分指令以避免op玩家意外地作弊</p>
+<p>影响的指令列表：<code>/gamemode</code>, <code>/tp</code>, <code>/teleport</code>, <code>/give</code>, <code>/setblock</code>, <code>/summon</code></p>
+</blockquote>
+<p>在拥有 OP 权限的情况下有时候会不小心误触到一些作弊的快捷键，包括：</p>
+<ul>
+<li>原版的 F3 + N、F3 +F4 切换游戏模式（<code>/gamemode</code>）</li>
+<li>小地图模组里的选点传送（<code>/tp</code>、<code>/teleport</code>）</li>
+<li>JEI 等物品列表显示模组中的物品给予（<code>/give</code>）</li>
+<li>投影模组粘贴原理图的方块放置与实体召唤（<code>/setblock</code>、<code>/summon</code>）</li>
+</ul>
+<p>虽说是无意触发的，但总会烦人，不如直接禁掉这些指令，不准这些指令给任何玩家执行。这也正是本条规则的功能</p>
+<p>当然如果你真的需要使用这些被禁用指令的话，把本条规则关闭即可</p>
+<h3 id="持久性记录器订阅-persistentLoggerSubscription"><a class="header-anchor" href="#持久性记录器订阅-persistentLoggerSubscription"></a>持久性记录器订阅 (persistentLoggerSubscription)</h3>
+<blockquote>
+<p>在服务器重启后依然记忆着玩家订阅的记录器及记录器选项</p>
+<p>仅在玩家首次登录时应用 carpet 的 <code>defaultLoggers</code> 规则</p>
+<p>记录器订阅储存于 <code>config/carpettisaddition/logger_subscriptions.json</code> 中</p>
+</blockquote>
+<p>虽说 fabric carpet 有着一个叫 <code>defaultLoggers</code> 的规则，让玩家上线后可以自动订阅一些记录器，但单一一条规则显然不能满足每名玩家的个性化自定义需求</p>
+<p>换个角度想想，只要我们记忆着玩家所订阅的记录器，以及记录器的选项，并在玩家下次登录时自动回复订阅，不仅能避免玩家每次上线时都得重新订阅的繁琐，还能满足每名玩家的个性化订阅需求</p>
+<h3 id="stop指令两步确认-stopCommandDoubleConfirmation"><a class="header-anchor" href="#stop指令两步确认-stopCommandDoubleConfirmation"></a>stop指令两步确认 (stopCommandDoubleConfirmation)</h3>
+<blockquote>
+<p>为 <code>/stop</code> 指令添加两步确认机制，以防止误触导致意外地关掉了服务器。你需要在1分钟内输入两次 <code>/stop</code> 指令来关闭服务器。该确认机制仅对玩家有效</p>
+</blockquote>
+<p>一波操作猛如虎，<code>/st</code> + tab 一顿敲，一按回车服务器无。这种输错指令把服务器关掉了的情况是小天才最喜欢干的事，比如在敲 <code>//stack</code> 时少打了个 <code>/</code></p>
+<p>对于这种手抖问题，加一个两步确认就能很好的避免了</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/stopCommandDoubleConfirmation.gif" alt="stopCommandDoubleConfirmation"></p>
+<h3 id="可视化投掷物记录器-visualizeProjectileLoggerEnabled"><a class="header-anchor" href="#可视化投掷物记录器-visualizeProjectileLoggerEnabled"></a>可视化投掷物记录器 (visualizeProjectileLoggerEnabled)</h3>
+<blockquote>
+<p>启用可视化投掷物记录器。试试 <code>/log projectiles visualize</code> 吧</p>
+</blockquote>
+<p>为投掷物每游戏刻所在位置，以及投掷物的撞击点，召唤一个固定的不与红石交互的雪球，指示投掷物的运动轨迹</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/visualizeProjectileLoggerEnabled.jpg" alt="visualizeProjectileLoggerEnabled"></p>
+<h3 id="阻止更新抑制崩溃-yeetUpdateSuppressionCrash"><a class="header-anchor" href="#阻止更新抑制崩溃-yeetUpdateSuppressionCrash"></a>阻止更新抑制崩溃 (yeetUpdateSuppressionCrash)</h3>
+<blockquote>
+<p>阻止服务端因栈溢出异常造成崩溃。具体功能实现类似 carpet 的 <code>updateSuppressionCrashFix</code> 规则，但包含更多信息</p>
+</blockquote>
+<p>并不是所有版本的 fabric carpet / carpet extra 都提供了更新抑制防崩服的规则。对于那些缺失 <code>updateSuppressionCrashFix</code> 的场景，就是本规则派上用场的时候了</p>
+<p>借助微时序记录器同款游戏阶段记录功能，该规则可在更新抑制崩服时提供更加丰富的信息</p>
+<p><img data-src="/zh-CN/2022/introduction-to-carpet-tis-addition_rules/yeetUpdateSuppressionCrash.png" alt="yeetUpdateSuppressionCrash"></p>
+<p>若 fabric carpet / carpet extra 存在规则 <code>updateSuppressionCrashFix</code>，本规则会自动禁用，以避免发生冲突</p>
+<ul>
+<li>移植自：
+<ul>
+<li>fabric carpet <a target="_blank" rel="noopener" href="https://github.com/gnembon/fabric-carpet/releases/tag/1.4.50">1.4.50</a> 的规则 <code>updateSuppressionCrashFix</code></li>
+<li>TISCarpet13 <a target="_blank" rel="noopener" href="https://github.com/TISUnion/TISCarpet113/releases/tag/build238">build238</a> 的规则 <code>yeetUpdateSuppressionCrash</code></li>
+</ul>
+</li>
+<li>冲突版本：
+<ul>
+<li>fabric carpet: <code>[1.4.49, 1.4.76]</code></li>
+<li>carpet extra: <code>[1.4.14, 1.4.43]</code></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/" title="Carpet TIS Addition 介绍：规则">https://blog.fallenbreath.me/zh-CN/2022/introduction-to-carpet-tis-addition_rules/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/Carpet-TIS-Addition/" rel="tag"># Carpet TIS Addition</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2022/introduction-to-carpet-tis-addition/" rel="prev" title="Carpet TIS Addition 介绍：索引">
+                  <i class="fa fa-angle-left"></i> Carpet TIS Addition 介绍：索引
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2022/wiske-abused-notes/" rel="next" title="Wiske Abused 笔记">
+                  Wiske Abused 笔记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2022/introduction-to-carpet-tis-addition_rules/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2022/introduction-to-carpet-tis-addition_rules/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"fc745d8442992f01c41cd38f83c08e38"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

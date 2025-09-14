@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="日常运维 OSTC，发现有服务端崩溃现象。瞅了眼 crash-report 文件夹，看到了如下的崩溃日志 12345678910111213141516171819202122232425---- Minecraft Crash Report ----&#x2F;&#x2F; Don&#x27;t do that.Time: 2025-08-12 21:07:57Description: Ticking entity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="日常运维 OSTC，发现有服务端崩溃现象。瞅了眼 crash-report 文件夹，看到了如下的崩溃日志 12345678910111213141516171819202122232425---- Minecraft Crash Report ----&#x2F;&#x2F; Don&#x27;t do that.Time: 2025-08-12 21:07:57Description: Ticking entity">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/summary.png">
+<meta property="article:published_time" content="2025-09-14T16:14:26.000Z">
+<meta property="article:modified_time" content="2025-09-14T16:14:26.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/summary.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/","path":"zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/","title":"对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-text">背景知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E6%AE%B5"><span class="nav-text">区段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E8%8C%83%E5%9B%B4%E5%AE%9E%E4%BD%93"><span class="nav-text">查询范围实体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BA%E6%AE%B5%E5%9D%90%E6%A0%87%E7%B4%A2%E5%BC%95"><span class="nav-text">区段坐标索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E5%BC%80%E5%A7%8B"><span class="nav-text">分析开始</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A6%E5%8F%91%E6%9D%A1%E4%BB%B6"><span class="nav-text">触发条件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%B1%E5%93%8D%E8%8C%83%E5%9B%B4"><span class="nav-text">影响范围</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D"><span class="nav-text">修复</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-09-15 00:14:26" itemprop="dateCreated datePublished" datetime="2025-09-15T00:14:26+08:00">2025-09-15</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>日常运维 OSTC，发现有服务端崩溃现象。瞅了眼 <code>crash-report</code> 文件夹，看到了如下的崩溃日志</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">---- Minecraft Crash Report ----</span><br><span class="line">// Don&#x27;t do that.</span><br><span class="line"></span><br><span class="line">Time: 2025-08-12 21:07:57</span><br><span class="line">Description: Ticking entity</span><br><span class="line"></span><br><span class="line">java.lang.IllegalArgumentException: Start element (9223367638808264704) is larger than end element (-9223372036854775808)</span><br><span class="line">	at it.unimi.dsi.fastutil.longs.LongAVLTreeSet$Subset.&lt;init&gt;(LongAVLTreeSet.java:1080)</span><br><span class="line">	at it.unimi.dsi.fastutil.longs.LongAVLTreeSet.subSet(LongAVLTreeSet.java:1047)</span><br><span class="line">	at net.minecraft.class_5573.method_31777(class_5573.java:57)</span><br><span class="line">	at net.minecraft.class_5573.method_31783(class_5573.java:122)</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">-- Entity being ticked --</span><br><span class="line">Details:</span><br><span class="line">	Entity Type: minecraft:arrow (net.minecraft.class_1667)</span><br><span class="line">	Entity ID: 15871</span><br><span class="line">	Entity Name: Arrow</span><br><span class="line">	Entity&#x27;s Exact location: 28.28, 90.00, 15.78</span><br><span class="line">	Entity&#x27;s Block location: World: (28,89,15), Section: (at 12,9,15 in 1,5,0; chunk contains blocks 16,0,0 to 31,255,15), Region: (0,0; contains chunks 0,0 to 31,31, blocks 0,0,0 to 511,255,511)</span><br><span class="line">	Entity&#x27;s Momentum: -98941291.49, -0.02, -50361527.12</span><br><span class="line">	Entity&#x27;s Passengers: []</span><br><span class="line">	Entity&#x27;s Vehicle: null</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>可发现，是一个超高速箭矢实体，在移动计算时，于 <code>LongAVLTreeSet$Subset</code> 里触发了 <code>IllegalArgumentException</code> 异常</p>
+<p>是之前没见过的崩服场景，得分析一波</p>
+<span id="more"></span>
+<p><strong>省流</strong></p>
+<p><img data-src="/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/summary.png" alt="summary"></p>
+<h2 id="背景知识"><a class="header-anchor" href="#背景知识"></a>背景知识</h2>
+<p>简单提一下分析所涉及的一些背景知识，以便后续分析使用（主要是得讲清楚“区段坐标索引”这个概念）</p>
+<p>下述分析均使用 yarn 1.21.1+build.1 作为反混淆表，并调整了下局部变量的命名</p>
+<p>相关代码自 1.17 开始至今（1.21.8）都长得几乎一样，基本可以直接参考</p>
+<h3 id="区段"><a class="header-anchor" href="#区段"></a>区段</h3>
+<p>区段，或者说子区块，是一个 16x16x16 的范围概念</p>
+<p>任意一个世界坐标 $(x, y, z)$
+归属的区段坐标 = $(\left\lfloor\frac{x}{16}\right\rfloor, \left\lfloor\frac{y}{16}\right\rfloor, \left\lfloor\frac{z}{16}\right\rfloor)$</p>
+<h3 id="查询范围实体"><a class="header-anchor" href="#查询范围实体"></a>查询范围实体</h3>
+<p>MC 里存在非常多的“查询一个长方体范围内的实体列表”的操作，如碰撞检测、活塞推实体、横扫攻击、矿车载客等</p>
+<p>最简单的实现“查询范围实体”的方式，就是直接遍历一遍当前世界里的全部实体，挨个检查实体碰撞箱是否与给定范围相交，但这显然效率太低了</p>
+<p>一种简单有效的实现，就是对 MC 这个三维世界进行分块处理，如将整个世界切成一个个 <a href="#%E5%8C%BA%E6%AE%B5">区段</a>。
+然后，给每个区段维护一份实体列表，储存着坐标位于此区段的实体。
+在查询范围实体时，只需要找到与给定范围相交的那些区段，再遍历这些区段里的实体就行了，这样就无需检查那些坐标离得老远的实体了。</p>
+<p>注：具体实现“找到与给定范围相交的那些区段”时，会扩大一些查询范围，以适配大碰撞箱的实体</p>
+<h3 id="区段坐标索引"><a class="header-anchor" href="#区段坐标索引"></a>区段坐标索引</h3>
+<p>为了高效地储存“给每个区段维护一份实体列表”的若干个区段级实体列表，需要搞一个“区段坐标” -&gt; “实体列表”的映射表。
+麻将考虑到区段坐标的取值并不会很大，于是把区段坐标映射成一个 64 位整数 long，然后把这个 long 作为映射表的索引</p>
+<p>将区段坐标映射成整数索引的实现如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// net.minecraft.util.math.ChunkSectionPos#asLong(int, int, int)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="type">long</span> <span class="title function_">asLong</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y, <span class="type">int</span> z)</span> &#123;</span><br><span class="line">    <span class="type">long</span> <span class="variable">index</span> <span class="operator">=</span> <span class="number">0L</span>;</span><br><span class="line">    index |= (x &amp; <span class="number">4194303L</span>) &lt;&lt; <span class="number">42</span>;  <span class="comment">// 取 x 的低 22 位，贴到 index 的最高 22 位上</span></span><br><span class="line">    index |= (y &amp; <span class="number">1048575L</span>) &lt;&lt; <span class="number">0</span>;   <span class="comment">// 取 y 的低 20 位，贴到 index 的最低 20 位上</span></span><br><span class="line">    index |= (z &amp; <span class="number">4194303L</span>) &lt;&lt; <span class="number">20</span>;  <span class="comment">// 取 z 的低 22 位，贴到 index 的中间 22 位上</span></span><br><span class="line">    <span class="keyword">return</span> index;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>返回值 index 的 64 个 bit 的结构如下所示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+---------------------+---------------------+--------------------+</span><br><span class="line">|     x (22 bits)     |     z (22 bits)     |     y (20 bits)    |</span><br><span class="line">+---------------------+---------------------+--------------------+</span><br><span class="line">63 (High)           42 41                 20 19            (Low) 0</span><br></pre></td></tr></table></figure>
+<h2 id="分析开始"><a class="header-anchor" href="#分析开始"></a>分析开始</h2>
+<p>先把堆栈跟踪搞映射到 yarn，好看些</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">java.lang.IllegalArgumentException: Start element (9223367638808264704) is larger than end element (-9223372036854775808)</span><br><span class="line">	at it.unimi.dsi.fastutil.longs.LongAVLTreeSet$Subset.&lt;init&gt;(LongAVLTreeSet.java:1080)</span><br><span class="line">	at it.unimi.dsi.fastutil.longs.LongAVLTreeSet.subSet(LongAVLTreeSet.java:1047)</span><br><span class="line">	at net.minecraft.world.entity.SectionedEntityCache.forEachInBox(SectionedEntityCache.java:57)</span><br><span class="line">	at net.minecraft.world.entity.SectionedEntityCache.forEachIntersects(SectionedEntityCache.java:122)</span><br><span class="line">	at net.minecraft.world.entity.SimpleEntityLookup.forEachIntersects(SimpleEntityLookup.java:43)</span><br><span class="line">	at net.minecraft.world.World.getOtherEntities(World.java:695)</span><br><span class="line">	at net.minecraft.entity.projectile.ProjectileEntity.shouldLeaveOwner(ProjectileEntity.java:125)</span><br><span class="line">	at net.minecraft.entity.projectile.ProjectileEntity.tick(ProjectileEntity.java:116)</span><br><span class="line">	at net.minecraft.entity.projectile.PersistentProjectileEntity.tick(PersistentProjectileEntity.java:173)</span><br><span class="line">	at net.minecraft.entity.projectile.ArrowEntity.tick(ArrowEntity.java:74)</span><br><span class="line">	at net.minecraft.server.world.ServerWorld.tickEntity(ServerWorld.java:770)</span><br></pre></td></tr></table></figure>
+<p>可发现，是查询世界指定范围内实体的 <code>World.getOtherEntities</code> 的调用发生了崩溃。这个调用栈看起来挺原版的，那可能大概率是原版的
+bug</p>
+<p>先重点观察 <code>SectionedEntityCache.forEachInBox</code> 这个调用 <code>LongAVLTreeSet.subSet</code> 的地方。代码和分析如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// net.minecraft.world.entity.SectionedEntityCache#forEachInBox</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">forEachInBox</span><span class="params">(Box box, LazyIterationConsumer&lt;EntityTrackingSection&lt;T&gt;&gt; consumer)</span> &#123;</span><br><span class="line">    <span class="comment">// 计算要查询的区段坐标的范围</span></span><br><span class="line">    <span class="comment">// 这里的 +-2.0 这种微调，是用来处理大体积碰撞箱实体。比如 2.0 就是因为目前水平最胖的实体恶魂的宽度是 4，4 / 2 = 2</span></span><br><span class="line">    <span class="comment">// ChunkSectionPos.getSectionCoord(x) 的结果等于 floor(x / 16)（向下取整）</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">sectionMinX</span> <span class="operator">=</span> ChunkSectionPos.getSectionCoord(box.minX - <span class="number">2.0</span>);  <span class="comment">// 查询的区段坐标范围的 X 下界</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">sectionMinY</span> <span class="operator">=</span> ChunkSectionPos.getSectionCoord(box.minY - <span class="number">4.0</span>);  <span class="comment">// 查询的区段坐标范围的 Y 下界</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">sectionMinZ</span> <span class="operator">=</span> ChunkSectionPos.getSectionCoord(box.minZ - <span class="number">2.0</span>);  <span class="comment">// 查询的区段坐标范围的 Z 下界</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">sectionMaxX</span> <span class="operator">=</span> ChunkSectionPos.getSectionCoord(box.maxX + <span class="number">2.0</span>);  <span class="comment">// 查询的区段坐标范围的 X 上界</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">sectionMaxY</span> <span class="operator">=</span> ChunkSectionPos.getSectionCoord(box.maxY + <span class="number">0.0</span>);  <span class="comment">// 查询的区段坐标范围的 Y 上界</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">sectionMaxZ</span> <span class="operator">=</span> ChunkSectionPos.getSectionCoord(box.maxZ + <span class="number">2.0</span>);  <span class="comment">// 查询的区段坐标范围的 Z 上界</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 下面要遍历 (sectionMinX, sectionMinY, sectionMinZ) -&gt; (sectionMaxX, sectionMaxY, sectionMaxZ) 这个区段坐标范围的所有区段</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">sectionX</span> <span class="operator">=</span> sectionMinX; sectionX &lt;= sectionMaxX; sectionX++) &#123;  <span class="comment">// 遍历区段坐标的 X</span></span><br><span class="line">        <span class="comment">// this.trackedPositions 是一个有序的 long 集合 LongAVLTreeSet，储存着所有含实体的区段坐标（通过 ChunkSectionPos.asLong 计算）</span></span><br><span class="line">        <span class="comment">// 下面这两行用于计算出满足 trackedPositions 里，所有区段 X 坐标等于 sectionX 的 index 的取值范围</span></span><br><span class="line">        <span class="comment">// 注意 ChunkSectionPos.asLong 返回值的结构，X 贡献的 bit 位于 index 的高位，Y,Z 的 bit 则位于低位，因此：</span></span><br><span class="line">        <span class="comment">//   把 Y,Z 的 bit 全部设置为 0，即可得到最小值 [x bits][42个0]</span></span><br><span class="line">        <span class="comment">//   将 Y,Z 的 bit 全部设置为 1，即可得到最大值 [x bits][42个1]</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">indexLower</span> <span class="operator">=</span> ChunkSectionPos.asLong(sectionX, <span class="number">0</span>, <span class="number">0</span>);    <span class="comment">// 获得 index 的最小值（闭区间）</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">indexUpper</span> <span class="operator">=</span> ChunkSectionPos.asLong(sectionX, -<span class="number">1</span>, -<span class="number">1</span>);  <span class="comment">// 获得 index 的最大值（闭区间）</span></span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 这一行代码在调用 subSet 时抛异常了</span></span><br><span class="line">        <span class="type">LongIterator</span> <span class="variable">iter</span> <span class="operator">=</span> <span class="built_in">this</span>.trackedPositions.subSet(indexLower, indexUpper + <span class="number">1</span>).iterator();  <span class="comment">// 这一行抛异常了</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 遍历 longIterator，对可能的区段坐标执行后续操作</span></span><br><span class="line">        <span class="keyword">while</span> (iter.hasNext()) &#123;</span><br><span class="line">            <span class="type">long</span> <span class="variable">index</span> <span class="operator">=</span> iter.nextLong();</span><br><span class="line">            <span class="type">int</span> <span class="variable">sectionY</span> <span class="operator">=</span> ChunkSectionPos.unpackY(index);</span><br><span class="line">            <span class="type">int</span> <span class="variable">sectionZ</span> <span class="operator">=</span> ChunkSectionPos.unpackZ(index);</span><br><span class="line">            <span class="comment">// ...</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于 <code>LongAVLTreeSet.subSet</code> 这个函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// it.unimi.dsi.fastutil.longs.LongSortedSet#subSet(long, long)</span></span><br><span class="line">LongSortedSet <span class="title function_">subSet</span><span class="params">(<span class="type">long</span> fromElement, <span class="type">long</span> toElement)</span>;</span><br></pre></td></tr></table></figure>
+<p>该函数是用来查询 <code>[fromElement, toElement)</code> 这个区间子集内的元素的。若 <code>fromElement</code> &gt; <code>toElement</code>，就会因区间非法而抛出
+<code>IllegalArgumentException</code></p>
+<p>这意味着，<code>this.trackedPositions.subSet(indexLower, indexUpper + 1)</code> 这个调用里，出现了 <code>indexLower &gt; indexUpper + 1</code>
+的非预期情况</p>
+<p>重点观察这里 <code>indexLower</code>、<code>indexUpper</code> 计算方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">long</span> <span class="variable">indexLower</span> <span class="operator">=</span> ChunkSectionPos.asLong(sectionX, <span class="number">0</span>, <span class="number">0</span>);    <span class="comment">// 获得 index 的最小值（闭区间）</span></span><br><span class="line"><span class="type">long</span> <span class="variable">indexUpper</span> <span class="operator">=</span> ChunkSectionPos.asLong(sectionX, -<span class="number">1</span>, -<span class="number">1</span>);  <span class="comment">// 获得 index 的最大值（闭区间）</span></span><br><span class="line"><span class="type">LongIterator</span> <span class="variable">iter</span> <span class="operator">=</span> <span class="built_in">this</span>.trackedPositions.subSet(indexLower, indexUpper + <span class="number">1</span>).iterator();</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+---------------------+---------------------+--------------------+</span><br><span class="line">|     x (22 bits)     |     z (22 bits)     |     y (20 bits)    |</span><br><span class="line">+---------------------+---------------------+--------------------+</span><br><span class="line">63 (High)           42 41                 20 19            (Low) 0</span><br></pre></td></tr></table></figure>
+<p>重点来了。若 <code>sectionX == 2097151</code> 时，<code>sectionX</code> 的二进制表达将会是 21 个 1。此时会有</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">indexLower     == <span class="number">0111111111111111111111000000000000000000000000000000000000000000</span>  <span class="comment">// [0][21 个 1][42 个 0]</span></span><br><span class="line">indexUpper     == <span class="number">0111111111111111111111111111111111111111111111111111111111111111</span>  <span class="comment">// [0][63 个 1]</span></span><br><span class="line">indexUpper + <span class="number">1</span> == <span class="number">1000000000000000000000000000000000000000000000000000000000000000</span>  <span class="comment">// [1][63 个 0]</span></span><br><span class="line"><span class="comment">//                 [      21 bits      ][                 63 bits                ]</span></span><br></pre></td></tr></table></figure>
+<p>这里有：</p>
+<ul>
+<li><code>indexUpper</code> 的取值为 long 类型的最大值 <code>Long.MAX_VALUE</code></li>
+<li><code>indexUpper + 1</code> 将发生有符号整数上溢，变成 long 类型的最小值 <code>Long.MIN_VALUE</code>，是一个负数</li>
+<li>此时将发生 <code>indexLower &gt; indexUpper + 1</code>，触发 <code>IllegalArgumentException</code> 异常</li>
+</ul>
+<h3 id="触发条件"><a class="header-anchor" href="#触发条件"></a>触发条件</h3>
+<p>不难发现，要触发这一异常，<code>sectionX</code> 的二进制的低 22 位必须等于 2097151，也即 <code>[0][21 个 1]</code>，才能触发这个 bug。
+这是因为只有这个时候，<code>ChunkSectionPos.asLong(sectionX, -1, -1)</code> 才能计算得到 <code>Long.MAX_VALUE</code>，最终 +1 上溢成负数。</p>
+<p>因此，该 bug 的触发条件为：</p>
+<p>$$sectionX\ \texttt{&amp;} \ (2^{22}-1) = 2^{21}-1$$</p>
+<p>这里 <code>sectionX</code> 表示区段坐标的 X 值， <code>&amp;</code> 表示位运算取与</p>
+<p>稍加变形，可得到：</p>
+<p>$$sectionX\ \ mod\ \ 2^{22} = 2^{21}$$</p>
+<p>或者</p>
+<p>$$\left\lfloor\frac{x}{16}\right\rfloor\ \ mod\ \ 2^{22} = 2^{21}$$</p>
+<p>若“查询范围实体”操作传入的范围涵盖了满足上述条件的区段时，则会触发此 bug</p>
+<p>一些常见的取值，同时也是 sectionX 的绝对值最小的两个取值：</p>
+<table>
+<thead>
+<tr>
+<th>sectionX</th>
+<th>X 坐标范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2097151</td>
+<td>[33554416, 33554432)</td>
+</tr>
+<tr>
+<td>-2097153</td>
+<td>[-33554448, -33554432)</td>
+</tr>
+</tbody>
+</table>
+<p>注意到这里 X 坐标范围已经是三千多万了，超过了三千万这个世界边境大小，是位于边境之外的</p>
+<p>应该也正因如此，麻将才会如此设计，给 x 和 z 保留了 22 个 bit。不过这也不是可恶的麻将偷懒不做范围检查的借口。
+有边界条件没问题，不处理边界条件就妥妥地是麻将的问题</p>
+<p>由于这个坐标范围已经到了边境之外了，并且也远超出了边境范围，因此这个 bug 日常难以触发，基本只有在玩超高速实体时才会遇到，如：</p>
+<ul>
+<li>蓄力边境珍珠炮 / 箭炮</li>
+<li>INF 速度的矿车 + 继承矿车速度的实体</li>
+</ul>
+<h2 id="影响范围"><a class="header-anchor" href="#影响范围"></a>影响范围</h2>
+<p>从 20w45a（1.17 快照）至今（1.21.8、25w37a）所有版本</p>
+<p>注意一些优化 mod（如 1.17.1 的 Lithium 0.7.5）对实体移动的一些修改优化可能导致该 bug 无法被触发</p>
+<h2 id="修复"><a class="header-anchor" href="#修复"></a>修复</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/TISUnion/Carpet-TIS-Addition">Carpet-TIS-Addition</a> 在 <a href>v1.69.0</a>
+加了个规则 <a target="_blank" rel="noopener" href="https://carpet.tis.world/zh-Hans/docs/rules#%E5%AE%9E%E4%BD%93%E8%8C%83%E5%9B%B4%E6%9F%A5%E8%AF%A2%E5%8C%BA%E6%AE%B5%E7%B4%A2%E5%BC%95x%E4%B8%8A%E6%BA%A2%E4%BF%AE%E5%A4%8D-entitychunksectionindexxoverflowfix"><code>entityChunkSectionIndexXOverflowFix</code></a>。把它设置成 true 就好了</p>
+<p>后续也许可能会考虑做个独立的 fix mod，更轻量一些</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/" title="对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析">https://blog.fallenbreath.me/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/minecraft-dev-intellij-run-config-error-fix/" rel="prev" title="Minecraft 开发环境 Intellij IDE 的 Run Configuration 损坏修复">
+                  <i class="fa fa-angle-left"></i> Minecraft 开发环境 Intellij IDE 的 Run Configuration 损坏修复
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2025/minecraft-server-crash-avltreeset-subset-iea/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2025/minecraft-server-crash-avltreeset-subset-iea/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"1bdf643d7f88655ab7f093d6dfd1e788"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

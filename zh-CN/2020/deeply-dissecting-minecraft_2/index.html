@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="2 方块更新 感谢 迟昫123 与 qwrrdshfsghv 的捉虫 2.1 方块更新性质 2.1.1 方块更新的种类 1.13 之后，方块更新分为了两种类型，分别是 NeighborChanged 与 PostPlacement，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用方块更新一词指代 NC 更新，用状态更新一词指代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深度剖析Minecraft #2 方块更新">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="2 方块更新 感谢 迟昫123 与 qwrrdshfsghv 的捉虫 2.1 方块更新性质 2.1.1 方块更新的种类 1.13 之后，方块更新分为了两种类型，分别是 NeighborChanged 与 PostPlacement，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用方块更新一词指代 NC 更新，用状态更新一词指代">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png">
+<meta property="article:published_time" content="2020-02-04T03:53:07.000Z">
+<meta property="article:modified_time" content="2020-09-23T03:33:00.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="深度剖析MC">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/","path":"zh-CN/2020/deeply-dissecting-minecraft_2/","title":"深度剖析Minecraft #2 方块更新"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>深度剖析Minecraft #2 方块更新 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">2 方块更新</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0%E6%80%A7%E8%B4%A8"><span class="nav-text">2.1 方块更新性质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="nav-text">2.1.1 方块更新的种类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-1-1-NeighborChanged"><span class="nav-text">2.1.1.1 NeighborChanged</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-1-2-PostPlacement"><span class="nav-text">2.1.1.2 PostPlacement</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">2.2 方块更新的实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-%E4%B8%80%E4%B8%AA%E6%96%B9%E5%9D%97%E5%8F%97%E5%88%B0%E4%BA%86%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">2.2.1 一个方块受到了方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-%E4%B8%80%E4%B8%AA%E6%96%B9%E5%9D%97%E5%8F%91%E5%87%BA%E4%BA%86%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">2.2.2 一个方块发出了方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-3-%E4%B8%80%E4%B8%AA%E6%96%B9%E5%9D%97%E5%8F%91%E5%87%BA%E4%BA%86%E9%99%A4-%E6%96%B9%E5%90%91-%E5%A4%96%E7%9A%84%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">2.2.3 一个方块发出了除 &lt;方向&gt; 外的方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-4-%E4%B8%80%E4%B8%AA%E6%96%B9%E5%9D%97%E5%8F%97%E5%88%B0%E4%BA%86%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-text">2.2.4 一个方块受到了状态更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-5-%E4%B8%80%E4%B8%AA%E6%96%B9%E5%9D%97%E5%8F%91%E5%87%BA%E4%BA%86%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0"><span class="nav-text">2.2.5 一个方块发出了状态更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-%E7%9E%8E%E6%89%AF"><span class="nav-text">2.3 瞎扯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-%E6%96%B9%E5%9D%97%E5%8F%98%E5%8C%96%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-text">2.4 方块变化的实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0%E6%A3%80%E6%B5%8B%E5%99%A8-%E5%8F%91%E7%94%9F%E5%99%A8"><span class="nav-text">2.5 方块更新检测器 &#x2F; 发生器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-6-%E5%8D%B3%E6%97%B6%E6%9B%B4%E6%96%B0%E5%85%83%E4%BB%B6"><span class="nav-text">2.6 即时更新元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-1-%E5%85%85%E8%83%BD-%E6%BF%80%E6%B4%BB%E9%93%81%E8%BD%A8"><span class="nav-text">2.6.1 充能 &#x2F; 激活铁轨</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-2-%E7%BA%A2%E7%9F%B3%E7%B2%89"><span class="nav-text">2.6.2 红石粉</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-3-%E6%B4%BB%E6%9D%BF-%E6%A0%85%E6%A0%8F-%E6%9C%A8%E9%97%A8%E3%80%81%E6%BC%8F%E6%96%97"><span class="nav-text">2.6.3 活板&#x2F;栅栏&#x2F;木门、漏斗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-4-%E9%9F%B3%E7%AC%A6%E7%9B%92"><span class="nav-text">2.6.4 音符盒</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-5-%E4%BE%9D%E9%99%84%E6%80%A7%E6%96%B9%E5%9D%97"><span class="nav-text">2.6.5 依附性方块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-6-%E5%8D%8A%E5%8D%B3%E6%97%B6%E6%9B%B4%E6%96%B0%E5%85%83%E4%BB%B6"><span class="nav-text">2.6.6 半即时更新元件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-7-%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6"><span class="nav-text">2.7 更新抑制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-1-%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0%E4%B8%8E%E6%B7%B1%E5%BA%A6%E4%BC%98%E5%85%88%E6%90%9C%E7%B4%A2"><span class="nav-text">2.7.1 方块更新与深度优先搜索</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="深度剖析Minecraft #2 方块更新 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深度剖析Minecraft #2 方块更新
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-02-04 11:53:07" itemprop="dateCreated datePublished" datetime="2020-02-04T11:53:07+08:00">2020-02-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2020-09-23 11:33:00" itemprop="dateModified" datetime="2020-09-23T11:33:00+08:00">2020-09-23</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.2k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="2-方块更新"><a class="header-anchor" href="#2-方块更新"></a>2 方块更新</h1>
+<p>感谢 <a target="_blank" rel="noopener" href="https://space.bilibili.com/112998430">迟昫123</a> 与 <a target="_blank" rel="noopener" href="https://space.bilibili.com/397105271">qwrrdshfsghv</a> 的捉虫</p>
+<h2 id="2-1-方块更新性质"><a class="header-anchor" href="#2-1-方块更新性质"></a>2.1 方块更新性质</h2>
+<h3 id="2-1-1-方块更新的种类"><a class="header-anchor" href="#2-1-1-方块更新的种类"></a>2.1.1 方块更新的种类</h3>
+<p>1.13 之后，方块更新分为了两种类型，分别是 <code>NeighborChanged</code> 与 <code>PostPlacement</code>，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用<strong>方块更新</strong>一词指代 NC 更新，用<strong>状态更新</strong>一词指代 PP 更新</p>
+<p>这两种方块更新的类型在官方的反混淆表（来自 1.14.4）中的名称分别为 neighborChanged 与 updateShape，其命名也能有助于理解上述对两类方块更新具体含义</p>
+<span id="more"></span>
+<h4 id="2-1-1-1-NeighborChanged"><a class="header-anchor" href="#2-1-1-1-NeighborChanged"></a>2.1.1.1 NeighborChanged</h4>
+<p>NeighborChanged 更新，也即方块更新，指的是最基础的，最符合“方块更新”一次含义的更新。红石元件的状态变化、方块的放置与破坏、方块开始移动以及方块到位都可以产生方块更新。除此之外，各种杂七杂八地方块变化<strong>大多</strong>也都能产生方块更新</p>
+<p>游戏里能产生方块更新的事件太多了，不便于一一列举。不过能响应方块更新的却不算多。<strong>所有</strong>能响应方块更新的事件有：</p>
+<ul>
+<li>活板门、栅栏门、木门、铁门更新开关状态</li>
+<li>霜冰检测融化</li>
+<li>活塞检测移动</li>
+<li>活塞头给予活塞底座方块更新</li>
+<li>红石粉、中继器、比较器、红石火把、各类铁轨、命令方块、投掷器、发射器、音符盒、红石灯、TNT更新状态</li>
+<li>水、岩浆检测状态</li>
+<li>灵魂沙、岩浆块添加生成气泡柱的 TT 事件</li>
+<li>海绵尝试吸水</li>
+</ul>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="NC更新方块"></p>
+<p>对，就这些。不过，根据日常经验来看，有不少需要方块更新的事件却不在这。不要着急，他们在 PostPlacement 更新中</p>
+<p>有此可见，各类红石元件处于 bud 态时，如无信号源的伸出活塞，不点燃的 TNT 等，需要的是方块更新，才能让它们意识到状态改变而恢复到正常的状态</p>
+<h4 id="2-1-1-2-PostPlacement"><a class="header-anchor" href="#2-1-1-2-PostPlacement"></a>2.1.1.2 PostPlacement</h4>
+<p>PostPlacement，也即状态更新，指的是方块发生变化后导致的临近方块与之交互情况发生变化的更新。</p>
+<p><strong>所有</strong>能响应状态更新的事件有：</p>
+<ul>
+<li>各类依附性方块（火把、雪片地毯蛋糕、各类花草作物、拉杆按钮、木门铁门、火焰等）判断依附的方块是否合法并决定是否掉落</li>
+<li>连接型方块（栅栏石墙玻璃板、楼梯、箱子、红石粉绊线、地狱门、高草紫颂植物等）更新当前与相邻方块连接状态</li>
+<li>中继器更新被锁状态</li>
+<li>音符盒更新乐器类型</li>
+<li>树叶更新离木距离</li>
+<li>混凝土粉末判定是否凝固</li>
+<li>水源与可含水的方块添加更新流体状态的 TT 事件</li>
+<li><strong>侦测器添加发出信号的 TT 事件</strong></li>
+<li>重力方块添加检测掉落的 TT 事件</li>
+<li>草径、耕地添加检测是否被压的 TT 事件</li>
+<li><strong>仙人掌添加状态是否合法的 TT 事件</strong></li>
+<li>活珊瑚添加检测是否离水的 TT 事件</li>
+</ul>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="PP更新方块"></p>
+<p>有一点值得注意，调用状态更新时是带有一个方向参数的，也就是状态更新是有着方向区别的，方向不对的状态更新在某些代码中存在特判情况下并不能影响方块的状态。比如，对于一个依附于西面方块上的浮空火把，从东南北上下放置破坏方块触发状态更新是无法让它掉落的。这一点也是 1.13+ 与 1.12- 的一个重要的区别。</p>
+<h2 id="2-2-方块更新的实现"><a class="header-anchor" href="#2-2-方块更新的实现"></a>2.2 方块更新的实现</h2>
+<p>先把会出现的名词列一遍：</p>
+<ul>
+<li>一个位置的方块（以下简称方块）受到了方块更新</li>
+<li>一个方块发出了方块更新</li>
+<li>一个方块发出了除 <code>&lt;方向&gt;</code> 外的方块更新</li>
+<li>一个方块受到了状态更新</li>
+<li>一个方块发出了状态更新</li>
+</ul>
+<p>注1：<code>&lt;方向&gt;</code> 为 <code>东</code> <code>南</code> <code>西</code> <code>北</code> <code>上</code> <code>下</code> 中的任意一者</p>
+<p>注2：一个方块发出方块更新，也就是一个方块于其所在位置发出方块更新，或者说是一个位置发出了方块更新，由于指的都是一种事件并无歧义，都是可行的表述，可视上下文语境挑选合适者</p>
+<h3 id="2-2-1-一个方块受到了方块更新"><a class="header-anchor" href="#2-2-1-一个方块受到了方块更新"></a>2.2.1 一个方块受到了方块更新</h3>
+<p>一个方块受到了方块更新，将会调用位于这个方块的 <code>neighborChanged</code> 方法，并处理受到更新后的改变（见2.1.1.1 NeighborChanged）</p>
+<p>具体代码见下 World 类中的 <code>neighborChanged</code> 方法</p>
+<h3 id="2-2-2-一个方块发出了方块更新"><a class="header-anchor" href="#2-2-2-一个方块发出了方块更新"></a>2.2.2 一个方块发出了方块更新</h3>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<p>当一个方块发出方块更新时，这个方块将会使其毗邻的六个方块依次受到方块更新。这里的“依次受到”的顺序为：</p>
+<ol>
+<li>西 -x</li>
+<li>东 +x</li>
+<li>下 -y</li>
+<li>上 +y</li>
+<li>北 -z</li>
+<li>南 +z</li>
+</ol>
+<p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateChange</code></p>
+<h3 id="2-2-3-一个方块发出了除-方向-外的方块更新"><a class="header-anchor" href="#2-2-3-一个方块发出了除-方向-外的方块更新"></a>2.2.3 一个方块发出了除 &lt;方向&gt; 外的方块更新</h3>
+<p>注：<code>&lt;方向&gt;</code> 为 <code>东</code> <code>南</code> <code>西</code> <code>北</code> <code>上</code> <code>下</code> 中的任意一者</p>
+<p>一个方块发出了除 <code>&lt;方向&gt;</code> 外的方块更新的表现，与上 2.2.2 并无太大区别区别仅为这次发出的方块更新将会跳过指定的一个方向，也就是只更新 5 个毗邻的方块</p>
+<p>这种特殊的方块更新<strong>仅</strong>于中继器/比较器/侦测器在其指向方块发出更新时使用</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
+<p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
+<h3 id="2-2-4-一个方块受到了状态更新"><a class="header-anchor" href="#2-2-4-一个方块受到了状态更新"></a>2.2.4 一个方块受到了状态更新</h3>
+<p>一个方块受到了状态更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变</p>
+<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#2-1-1-2-PostPlacement">PostPlacement</a> 小节）</p>
+<h3 id="2-2-5-一个方块发出了状态更新"><a class="header-anchor" href="#2-2-5-一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<p>当一个方块发出状态更新时，这个方块将会使其毗邻的六个方块依次受到状态更新。这里的“依次受到”的顺序为：</p>
+<ol>
+<li>西 -x</li>
+<li>东 +x</li>
+<li>北 -z</li>
+<li>南 +z</li>
+<li>下 -y</li>
+<li>上 +y</li>
+</ol>
+<p>可以发现，PP 更新的更新顺序是 xzy 而非方块更新的 xyz。这一点是值得注意的</p>
+<p>具体代码见下 Block 类中的 <code>updateNeighbors</code> 方法</p>
+<h2 id="2-3-瞎扯"><a class="header-anchor" href="#2-3-瞎扯"></a>2.3 瞎扯</h2>
+<p>方块与状态更新这两种更新概念非常类似容易混淆，我个人觉得可以这样理解：</p>
+<ul>
+<li>方块致一个方块状态改变的更新</li>
+<li>PP 是因与周围方块交互，导致一个方块状态改变的更新</li>
+</ul>
+<p>因为方块更新的大部分是属于红石元件的相应，而状态更新更偏向于相邻方块状态变化造成的响应。不过得具体情况具体分析不能一概而论。</p>
+<p>可以发现上述部分我描述方块更新的具体例子时都是列举响应方块更新的实例，没有列举产生方块更新的事件。这是因为 MC 里能产生方块更新的地方实在是太多了。</p>
+<p>1.13 把方块更新拆成两类的做法有些魔幻，不知道麻将是想优化游戏还是只是想乱改改赌一赌能不能修掉 TNT 复制。不过至少对于绝大部分电路中利用到方块更新的部分是没有影响的</p>
+<p>麻将代码中还有些很迷惑的地方，比如同样是气泡柱产生源，除了放下方块时均会添加尝试生成气泡的 TT 事件外，灵魂沙只在受到方块更新时添加 TT 事件，而岩浆块只在受到上方的来自水的状态更新时添加 TT 事件</p>
+<h2 id="2-4-方块变化的实现"><a class="header-anchor" href="#2-4-方块变化的实现"></a>2.4 方块变化的实现</h2>
+<p>MC 里绝大部分对世界中方块的修改是通过 <code>World</code> 类的 <code>setBlockState</code> <sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup> 来实现的。以将位置 Pos 的方块从 A 修改至 B 的流程如下：</p>
+<ol>
+<li>运算方块变化导致区段信息的改变</li>
+<li>更新 Heightmap</li>
+<li>调用 A 的 <code>onReplaced</code> 方法</li>
+<li>更新天空光
+5. 调用 B 的 <code>onBlockAdded</code> 方法</li>
+<li>更新可能的新的方块实体</li>
+<li>更新方块光</li>
+<li>位于 Pos 的方块发出一次方块更新</li>
+<li>若 B 能被比较器响应则更新附近的比较器</li>
+<li>位于 Pos 的方块发出一次状态更新</li>
+</ol>
+<p>其中 8.、9.、10. 在不同类型中的方块变化里是可选跳过的，具体实现是游戏在调用 <code>setBlockState</code> 的时候会传递一个 <code>flags</code> 参数，通过设置 <code>flags</code> 不同二进制位中的 0/1 来实现对修改完方块后触发各种方式各种类型方块更新的控制，也就是说 <code>setBlockState</code> 会产生的方块更新的种类与方式有着非常多种可能，因此一一列举是不太现实的。不过，经验告诉我们：</p>
+<ul>
+<li>方块的人工放置与破坏、音符盒与活塞的动作会先后产生方块更新与状态更新</li>
+<li>各种方块状态的改变如门的开关、栅栏的连接、中继器的激活会在其所在位置产生状态更新</li>
+<li>可强充能的红石信号源元件能产生大范围的方块更新</li>
+<li>等等</li>
+</ul>
+<h2 id="2-5-方块更新检测器-发生器"><a class="header-anchor" href="#2-5-方块更新检测器-发生器"></a>2.5 方块更新检测器 / 发生器</h2>
+<p>一个被 QC 激活的 bud 态活塞，即为一个方块更新检测器，这也是最常用的方块更新检测器。当活塞底座受到方块更新时，活塞将在下一个 BE 阶段开始伸缩一次</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png" alt="bud活塞"></p>
+<p>能响应状态更新并能多次使用的方块寥寥无几，做常用的就是侦测器了。当侦测器脸朝着的方块发出一个状态更新时，侦测器将会立即添加一个 TT 事件并在对应的 TT 阶段输出脉冲，因此侦测器是一个很棒的状态更新检测器。图里则是侦测器检测栅栏门开关的一个例子</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png" alt="侦测器"></p>
+<p>上面就是两种十分常用的方块更新检测器，当然能检测方块更新或状态更新的方式还有很多，这里就不一一叙述了。</p>
+<p>至于方块更新发生器，能同时发出方块更新+状态更新的事件有很多，如方块的放置、音符盒的点击。他们都能同时使方块更新检测器与状态更新检测器响应</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png" alt="放置方块"></p>
+<p>如果要只发出方块更新，可以使用红石元件，如中继器。中继器在调节档位时会在其指向的方块的位置发出一个方块更新</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png" alt="中继器更新"></p>
+<p>还有一种可行的方法是打开箱子。对于一个箱子，当玩家打开它时它会发出一个方块更新</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png" alt="打开箱子"></p>
+<p>如果仅需发出状态更新，常用的方法则是开关栅栏门/活板门。当栅栏门/活板门开关时，它们仅会发出一个状态更新而无方块更新</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png" alt="打开栅栏门"></p>
+<h2 id="2-6-即时更新元件"><a class="header-anchor" href="#2-6-即时更新元件"></a>2.6 即时更新元件</h2>
+<p>即时更新元件，指的是那些收到方块更新后立即在当前阶段改变其状态，并发出指定类型的更新（可能没有）的元件。它们被广泛地用于信号传递以及方块更新的传导</p>
+<h3 id="2-6-1-充能-激活铁轨"><a class="header-anchor" href="#2-6-1-充能-激活铁轨"></a>2.6.1 充能 / 激活铁轨</h3>
+<p>当充能 / 激活铁轨（以下以充能铁轨为例）受到方块更新时，它会先检测当前位置是否合法。若不合法，则掉落，否则执行铁轨的更新</p>
+<p>在铁轨的更新中，首先铁轨会通过计算临近铁轨状态来判断当前的状态是否需要改变，具体怎么判断的这里就不多解释了。如果需要更新，铁轨会依次执行位于 BlockRailPowered 类的 <code>updateState</code> 方法中的以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">worldIn.setBlockState(pos, state.with(POWERED, Boolean.valueOf(flag1)), 3);</span><br><span class="line">worldIn.notifyNeighborsOfStateChange(pos.down(), this);</span><br><span class="line"></span><br><span class="line">if (state.get(SHAPE).isAscending())</span><br><span class="line">&#123;</span><br><span class="line">    worldIn.notifyNeighborsOfStateChange(pos.up(), this);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是：</p>
+<ol>
+<li>改变方块状态，在铁轨处依次发出方块与状态更新</li>
+<li>方块更新发出方块更新</li>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出方块更新</li>
+</ol>
+<p>不过，注意到，充能铁轨的 <code>onReplaced</code> 方法本身也有进行方块更新。对于充能铁轨而言，<code>onReplaced</code> 方法将依次执行：</p>
+<ol>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出方块更新</li>
+<li>在铁轨自身位置发出方块更新</li>
+<li>在铁轨下方一格发出方块更新</li>
+</ol>
+<p>因此，合并起来，在充能铁轨状态改变时，将会依次执行这些方块更新：</p>
+<ol>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出方块更新</li>
+<li>在铁轨自身位置发出方块更新</li>
+<li>在铁轨下方一格发出方块更新</li>
+<li>在铁轨自身位置发出方块更新</li>
+<li>在铁轨自身位置发出状态更新</li>
+<li>在铁轨下方一格发出方块更新</li>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出方块更新</li>
+</ol>
+<p>别问我为什么要这么繁琐地更新，要问就问麻将</p>
+<h3 id="2-6-2-红石粉"><a class="header-anchor" href="#2-6-2-红石粉"></a>2.6.2 红石粉</h3>
+<p>红石粉方块几乎仅对方块更新进行响应，即使是判断自身位置是否合法也是通过方块更新进行的。对于状态更新，红石粉接受上方和四周的状态更新用来更新与相邻红石粉的被实体方块压线/连接状态</p>
+<p>当红石粉受到方块更新时，它会计算不考虑自己时它能达到的信号强度，如果不同，则进行更新。红石粉将会在其位置发出方块更新，并在于其毗邻的 6 个方块的位置上发出方块更新，总共有 7 个位置将会发出方块更新。这七个位置的更新顺序并不是固定的，游戏会将这 7 个位置存入一个哈希表并导出成列表，随后逐个读取列表里的位置进行发出方块更新。至于为什么要用哈希表打乱，问麻将去¯_(ツ)_/¯</p>
+<h3 id="2-6-3-活板-栅栏-木门、漏斗"><a class="header-anchor" href="#2-6-3-活板-栅栏-木门、漏斗"></a>2.6.3 活板/栅栏/木门、漏斗</h3>
+<p>各类活板门、栅栏门、木门铁门，以及漏斗的机制，算是比较简单的。它们在由于玩家操作或者红石信号导致开关状态的改变时，会在所在位置<strong>立即</strong>触发一个状态更新，仅此而已。因此，它们并不能用来更新 bud 态的元件</p>
+<h3 id="2-6-4-音符盒"><a class="header-anchor" href="#2-6-4-音符盒"></a>2.6.4 音符盒</h3>
+<p>音符盒与各类门很相似，但却有不少不同。</p>
+<ul>
+<li>音符盒在被玩家右键调音时，或者在被红石信号激活/取消激活时，会<strong>立即</strong>在所在的位置先后触发方块更新与状态更新。这也是音符盒可以用于更新 bud 态的元件的原因</li>
+<li>音符盒在被玩家左键发音时，不会触发方块更新</li>
+</ul>
+<p>音符盒进行上述三类操作（调音 / 发音 / 激活）后，会在可以发音时，即上方是空气方块时，计划一个 BlockEvent ，并在 BE 阶段发出对应的声音并生成音符粒子</p>
+<h3 id="2-6-5-依附性方块"><a class="header-anchor" href="#2-6-5-依附性方块"></a>2.6.5 依附性方块</h3>
+<p>绝大部分依附性方块，如火把、花草、红石粉、耕地上的作物，在受到来自其附着方块位置的 PP 或方块更新时，都会立即破坏并依据情况掉落。因此它们也可称为即时更新的元件</p>
+<p>之所以说是绝大部分，是因为存在某些如紫颂花、仙人掌等的依附性方块是在 TileTick 阶段进行掉落的，这也给强制催熟的可能性打下了基础</p>
+<h3 id="2-6-6-半即时更新元件"><a class="header-anchor" href="#2-6-6-半即时更新元件"></a>2.6.6 半即时更新元件</h3>
+<p>这类元件仅在激活/触发时为即时更新，但在取消激活时是在 TileTick 阶段进行运算的。它们有：</p>
+<ul>
+<li>按钮</li>
+<li>压力板</li>
+<li>绊线</li>
+<li>绊线钩</li>
+<li>红石灯</li>
+</ul>
+<h2 id="2-7-更新抑制"><a class="header-anchor" href="#2-7-更新抑制"></a>2.7 更新抑制</h2>
+<p>一个方块发出方块的更新可以导致了另一个方块的更新，如果此时另一个方块也发出了方块更新，那么说不定可以再更新一个新的方块。如果有无限的方块排一排等着更新，如果给一它们一个方块更新，它们能一口气全部更新完吗？虽然实际上应该是可以的，但是基于 MC 的实现机制，答案是：不行</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png" alt="大面积的bud铁轨"></p>
+<p>在处理方块更新时，游戏内是简单地通过递归处理的，而最大的递归次数，是由 java 虚拟机的栈空间所决定的。栈空间不像堆空间，在默认条件下容量不大，这导致了当出现递归更新过量方块时栈空间将会耗尽，导致 java 抛出了栈溢出的异常（实际上栈溢出后可能抛出的是其他类型的异常，这里为了方便表述称其为栈溢出异常）</p>
+<p>异常可是个很危险的东西。出现异常时，程序将会一直忽略之后的操作，一直往外跳出，直到异常被捕获。在大部分 MC 流程中，异常将会在最底层的 MinecraftServer 类的 <code>run</code> 方法中被捕获，随后游戏将生成崩溃报告并强行关闭服务器，也就是崩服，服务器崩溃了</p>
+<p>不过，如果一个异常是在玩家操作阶段被玩家的动作触发，则这个异常将会在 Util 类的 <code>runTask</code> 方法中被捕获并作为一个 Fatal 输出，而非被 MinecraftServer 捕获，也就是说玩家动作引发的异常是不会引起服务端崩溃的。作为异常之一的栈溢出，如果是由玩家操作引起的，比如玩家打掉了一个接连插了几千个旗子的方块，或者玩家在大面积的 bud 态充能铁轨旁边放置了方块，虽会导致栈溢出，但都<strong>不会</strong>导致游戏崩溃</p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png" alt="手放方块"></p>
+<p>由于栈溢出可以跳过在异常捕获前的所有运算，因此可以用此来跳过一些运算以实现普通游戏里不可能的操作，如跳过对特定方块的更新，从而制造各种悬空木门、贴在告示牌背面的告示牌、切片的地狱门；也可以跳过对玩家物品栏物品的操作，在不消耗工具耐久或者不消耗手中物品的情况下破坏/放置方块。这一类操作，我们统称为为<strong>更新抑制</strong></p>
+<p><img data-src="/zh-CN/2020/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png" alt="更新抑制"></p>
+<p>关于更新抑制与可协助产生更新抑制的更新抑制器，Xcom6000 制作过一个非常详细的讲解视频，红石科技搬运组已在 bilibili 将其翻译成熟肉。推荐大家去观看学习。<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av83979198">传送门</a></p>
+<h3 id="2-7-1-方块更新与深度优先搜索"><a class="header-anchor" href="#2-7-1-方块更新与深度优先搜索"></a>2.7.1 方块更新与深度优先搜索</h3>
+<p>方块受到更新，方块改变状态，方块发出更新，依次更新毗邻方块，新方块受到更新……这一层层递归的过程，本质上正是一个深度优先搜索，也就是 DFS（Depth First Search）。每当一个 bud 充能铁轨受到更新了，将会按照其发出方块更新的顺序，以及方块更新的更新顺序，往新的 bud 铁轨方块递归下去</p>
+<p>关于深度优先搜索，或者 DFS，网络上相关的资料一搜一大把，这里就不再重复阐述了</p>
+<p>使用更新抑制来阻断方块更新的一个难点，即是如何控制更新顺序，使<strong>方块更新在传递至需阻止更新的方块前就进入更新抑制器</strong>触发栈溢出。现在，方块更新传递的机制我们已探明（DFS），方块更新顺序我们也已清楚（方块/状态更新的更新顺序），只要了解清楚 DFS 的机制确定好更新顺序方向，就可以轻松的计算出来了</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>net/minecraft/world/World.java:226 <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">https://blog.fallenbreath.me/zh-CN/2020/deeply-dissecting-minecraft_2/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90MC/" rel="tag"># 深度剖析MC</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2019/deeply-dissecting-minecraft_1/" rel="prev" title="深度剖析Minecraft #1 游戏流程">
+                  <i class="fa fa-angle-left"></i> 深度剖析Minecraft #1 游戏流程
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2020/deeply-dissecting-minecraft_3/" rel="next" title="深度剖析Minecraft #3 计划刻">
+                  深度剖析Minecraft #3 计划刻 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2020/deeply-dissecting-minecraft_2/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2020/deeply-dissecting-minecraft_2/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">83k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:30</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"d9d7a4f2b62934483cbff6c4abfe5b18"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
