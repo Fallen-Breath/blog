@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="在 fabric-mod-template 里增删子项目或修改子项目的 Minecraft 版本后， 有时哪怕只跑一次 gradlew，等命令跑完退出，整机的内存读取带宽依然会稳定在 29 GB&#x2F;s 左右，写入带宽也有约 26 GB&#x2F;s。 手动把 Gradle daemon 停掉后，带宽便立刻回落。手头多台 Windows 开发机上都遇到过这个怪现象  tl;dr，旧版 Xray 的 Vision">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gradle daemon 在构建结束后持续占用内存带宽的问题分析">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="在 fabric-mod-template 里增删子项目或修改子项目的 Minecraft 版本后， 有时哪怕只跑一次 gradlew，等命令跑完退出，整机的内存读取带宽依然会稳定在 29 GB&#x2F;s 左右，写入带宽也有约 26 GB&#x2F;s。 手动把 Gradle daemon 停掉后，带宽便立刻回落。手头多台 Windows 开发机上都遇到过这个怪现象  tl;dr，旧版 Xray 的 Vision">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/dram-bandwidth.png">
+<meta property="article:published_time" content="2026-11-01T18:13:15.000Z">
+<meta property="article:modified_time" content="2026-11-01T18:13:15.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="Fabric">
+<meta property="article:tag" content="Gradle">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/dram-bandwidth.png">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/","path":"zh-CN/2026/gradle-daemon-high-memory-bandwidth/","title":"Gradle daemon 在构建结束后持续占用内存带宽的问题分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Gradle daemon 在构建结束后持续占用内存带宽的问题分析 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83"><span class="nav-text">环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%85%8D%E7%83%AD%E7%82%B9"><span class="nav-text">分配热点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E6%9D%A5%E6%BA%90"><span class="nav-text">请求来源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%9C%E4%B8%8D%E4%B8%8B%E6%9D%A5%E7%9A%84%E8%AF%BB%E5%8F%96%E5%BE%AA%E7%8E%AF"><span class="nav-text">停不下来的读取循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%87%BA%E6%9D%A5%E7%9A%84-24-%E5%AD%97%E8%8A%82"><span class="nav-text">多出来的 24 字节</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B9%E5%9B%A0"><span class="nav-text">根因</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Xray-Vision-%E6%B3%84%E6%BC%8F%E7%9A%84%E5%A4%96%E5%B1%82%E5%85%B3%E9%97%AD%E9%80%9A%E7%9F%A5"><span class="nav-text">Xray Vision 泄漏的外层关闭通知</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDK-HttpClient-%E7%9A%84%E4%B8%8A%E6%B8%B8%E4%BF%AE%E5%A4%8D"><span class="nav-text">JDK HttpClient 的上游修复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%85%E9%9A%9C%E9%93%BE%E8%B7%AF"><span class="nav-text">故障链路</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%B1%E5%93%8D%E8%8C%83%E5%9B%B4"><span class="nav-text">影响范围</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E6%9F%A5%E4%B8%8E%E5%A4%84%E7%90%86"><span class="nav-text">自查与处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%EF%BC%9A%E5%A4%8D%E7%8E%B0%E7%A8%8B%E5%BA%8F"><span class="nav-text">附：复现程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Gradle daemon 在构建结束后持续占用内存带宽的问题分析 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Gradle daemon 在构建结束后持续占用内存带宽的问题分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2026-11-02 02:13:15" itemprop="dateCreated datePublished" datetime="2026-11-02T02:13:15+08:00">2026-11-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>14 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在 <a target="_blank" rel="noopener" href="https://github.com/Fallen-Breath/fabric-mod-template">fabric-mod-template</a> 里增删子项目或修改子项目的 Minecraft 版本后，
+有时哪怕只跑一次 <code>gradlew</code>，等命令跑完退出，整机的内存读取带宽依然会稳定在 29 GB/s 左右，写入带宽也有约 26 GB/s。
+手动把 Gradle daemon 停掉后，带宽便立刻回落。手头多台 Windows 开发机上都遇到过这个怪现象</p>
+<p><img data-src="/zh-CN/2026/gradle-daemon-high-memory-bandwidth/dram-bandwidth.png" alt="Gradle 命令返回后持续偏高的 DRAM 读写带宽"></p>
+<p>tl;dr，旧版 Xray 的 Vision 在连接关闭时会多送一条 TLS 记录，
+导致 Fabric Loom 所用的 JDK HttpClient 卡进一个不断分配缓冲区的死循环里。升级 JDK 或升级 Xray 服务端均可解决</p>
+<span id="more"></span>
+<h2 id="环境"><a class="header-anchor" href="#环境"></a>环境</h2>
+<p>先列一下基本环境：</p>
+<ul>
+<li>Windows，多台开发机均可复现</li>
+<li>Gradle 9.8.2，daemon 运行在 Oracle JDK 25.0.2 上</li>
+<li>Fabric Loom 1.19.3</li>
+<li>经本机 Xray 客户端提供的 HTTP 代理上网，节点使用 VLESS + <code>xtls-rprx-vision</code>。Xray 客户端版本为 26.10.21，服务端版本为 26.3.27</li>
+</ul>
+<h2 id="分析"><a class="header-anchor" href="#分析"></a>分析</h2>
+<h3 id="分配热点"><a class="header-anchor" href="#分配热点"></a>分配热点</h3>
+<p>先用 <code>jcmd</code> 找到出问题的 Gradle daemon 进程，隔几十秒抓两次带扩展信息的线程栈，顺带录一段 20 秒的 Java Flight Recorder（JFR）。
+JFR 是 JDK 自带的低开销采样工具，可以记录对象分配、GC 等事件，刚好适合拿来查是谁在狂吃内存带宽：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">jcmd <span class="literal">-l</span></span><br><span class="line">jcmd <span class="number">18472</span> Thread.print <span class="literal">-e</span></span><br><span class="line">jcmd <span class="number">18472</span> JFR.start settings=profile duration=<span class="number">20</span>s filename=gradle.jfr</span><br></pre></td></tr></table></figure>
+<p>两次线程栈相隔约 36 秒，对比下来可以看到其中一个工作线程 <code>ForkJoinPool-1-worker-2</code> 的 CPU 时间涨了约 35 秒，基本吃满了一个核心。
+Java 的虚拟线程并不独占系统线程，而是挂载在 <code>ForkJoinPool</code> 的工作线程上运行。
+两次采样时，这个工作线程上跑的都是同一个虚拟线程，正在执行 JDK HttpClient 的 TLS 读取代码</p>
+<p>JFR 的结果更加直观：这个线程在 20 秒内分配了 458 GiB 的对象，折合下来约 23 GiB/s。
+在全部 5,913 个对象分配样本里，有 5,909 个都是这个虚拟线程顺着同一条调用路径分配出来的 <code>byte[]</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SSLFlowDelegate.Reader.processData</span><br><span class="line">  → SSLFlowDelegate.Reader.unwrapBuffer</span><br><span class="line">    → SSLFlowDelegate.getAppBuffer</span><br><span class="line">      → ByteBuffer.allocate</span><br><span class="line">        → HeapByteBuffer.&lt;init&gt;</span><br></pre></td></tr></table></figure>
+<p><code>SSLFlowDelegate</code> 是 JDK HttpClient 内部负责处理 TLS 收发的组件，
+里面的 <code>Reader</code> 会把从 socket 读到的密文交给 TLS 引擎 <code>SSLEngine</code> 解密，这一步叫 unwrap，
+而 <code>getAppBuffer()</code> 则负责为每次 unwrap 申请一块存放解密后明文的输出缓冲区</p>
+<p>这些缓冲区刚一分配出来就立刻被丢弃，短短 20 秒内 G1 就做了 194 次年轻代 GC 来回收它们。
+所以虽然进程的内存占用看着只有几 GiB，但背后持续不断的内存分配和清零已经把整机的内存带宽吃满了</p>
+<h3 id="请求来源"><a class="header-anchor" href="#请求来源"></a>请求来源</h3>
+<p>线程栈里只能看到 JDK 内部的异步任务，看不出是谁发起了这个 HTTPS 请求。
+于是用 <code>jcmd 18472 GC.heap_dump -all heap.hprof</code> 搞了一份堆快照下来，
+从出问题的 <code>Reader</code> 顺着对象引用往回摸，找到它所属的 <code>HttpClientImpl</code>，再找持有这个客户端的对象，
+最终定位到了 Fabric Loom 1.19.3 下载器里的静态字段 <code>net.fabricmc.loom.util.download.Download.HTTP_CLIENT</code></p>
+<p>翻看堆里的数据，这条连接请求的目标是 <code>piston-data.mojang.com</code>，也就是 Loom 用来下载 Minecraft 资源的服务器，下文简称资源服务器。
+连接通过本机的 HTTP 代理以 CONNECT 方式建立：代理只负责在两端之间原样转发字节，TLS 加密仍在 Java 与资源服务器之间端到端进行，
+协商出来的协议为 HTTP/2 和 TLS 1.3</p>
+<p>到这里也就解释了为什么只跑一次 <code>gradlew</code> 就能触发。Gradle 在配置项目时会执行各个子项目的构建脚本，
+Loom 在这一阶段就会按脚本里声明的 MC 版本去准备依赖。版本改动后，本地缺失的资源就会在这时下载。
+等到命令结束后，Gradle daemon 依然留在后台继续存活，这次下载留下的 HttpClient 后台任务也就跟着一直留在 daemon 里了</p>
+<h3 id="停不下来的读取循环"><a class="header-anchor" href="#停不下来的读取循环"></a>停不下来的读取循环</h3>
+<p>堆快照里还保留着这条连接的关闭状态。先简单说明一下其中涉及的两个关闭信号：</p>
+<ul>
+<li><code>GOAWAY</code> 是 HTTP/2 的帧，表示对端不再接受新请求，准备关闭连接</li>
+<li><code>close_notify</code> 是 TLS 层的关闭通知，以一条 alert 告警记录的形式发送。
+TLS 引擎收到它之后就会关闭输入方向，后续再调用 unwrap 都只会一律返回 <code>CLOSED</code>，不再消费任何输入</li>
+</ul>
+<p>除此之外，<code>Reader</code> 还维护着一个自己的完成标记 <code>completing</code>。只有当上游，也就是 socket 一侧通知数据流结束后，它才会变成 <code>true</code>。
+这里的数据流结束指的就是 socket 读到了 EOF，即对端关闭了 TCP 连接</p>
+<p>从堆快照里捞出来的现场值如下：</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>字段</th>
+<th>现场值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP/2 连接</td>
+<td>是否收到 <code>GOAWAY</code>、活动请求数</td>
+<td>已收到，0</td>
+</tr>
+<tr>
+<td>TLS 引擎</td>
+<td>是否收到 <code>close_notify</code>、最近一次 unwrap 的结果</td>
+<td>已收到，<code>CLOSED</code></td>
+</tr>
+<tr>
+<td><code>Reader</code></td>
+<td>输入缓冲区 <code>readBuf</code> 的 <code>position</code> / <code>limit</code></td>
+<td>0 / 24</td>
+</tr>
+<tr>
+<td><code>Reader</code></td>
+<td><code>minBytesRequired</code></td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>Reader</code></td>
+<td><code>completing</code></td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>SSLFlowDelegate</code></td>
+<td>每次申请的输出缓冲区大小</td>
+<td>16384</td>
+</tr>
+</tbody>
+</table>
+<p>可以看到，从 HTTP/2 和 TLS 两层来看，这条连接其实都已经结束了，偏偏 <code>Reader</code> 的输入缓冲区里还剩着 24 字节没处理，
+底层 socket 也还没读到 EOF。JDK 25.0.2 中 <code>Reader.processData()</code> 的主循环简化后如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简化自 JDK 25.0.2 的 SSLFlowDelegate.Reader.processData()</span></span><br><span class="line"><span class="keyword">while</span> (readBuf.remaining() &gt; minBytesRequired) &#123;        <span class="comment">// 24 &gt; 0，进入循环</span></span><br><span class="line">    <span class="type">boolean</span> <span class="variable">complete</span> <span class="operator">=</span> <span class="built_in">this</span>.completing;                 <span class="comment">// false</span></span><br><span class="line">    <span class="type">EngineResult</span> <span class="variable">result</span> <span class="operator">=</span> unwrapBuffer(readBuf);        <span class="comment">// 先申请 16 KiB 输出缓冲区，再调用 unwrap</span></span><br><span class="line">                                                        <span class="comment">// 返回 CLOSED，消费 0 字节</span></span><br><span class="line">    <span class="keyword">if</span> (complete &amp;&amp; result.status() == Status.CLOSED) &#123;</span><br><span class="line">        <span class="keyword">return</span>;                                         <span class="comment">// complete 为 false，进不来</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完整实现可参考 <a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk25u/blob/jdk-25.0.2-ga/src/java.net.http/share/classes/jdk/internal/net/http/common/SSLFlowDelegate.java#L440">这里的源码</a></p>
+<p>现场的这组状态刚好把这段逻辑给卡死了：TLS 引擎已经关闭，每次 unwrap 都不消费那 24 字节，导致循环条件 <code>24 &gt; 0</code> 永远成立；
+而唯一的退出分支又要求 <code>completing</code> 为 <code>true</code>，偏偏它始终是 <code>false</code>。
+结果每一轮循环都白白申请一块 16 KiB 的缓冲区然后丢掉，这正是前面 JFR 里抓到的那条分配路径</p>
+<p>为了确认光凭这个状态就足以单独造成空转，我在独立的 JVM 里直接构造了一遍这个现场：把 <code>SSLEngine</code> 关掉，再往还没完成的 <code>Reader</code> 里塞进 24 字节，
+全程不联网，也不涉及 Gradle 和 Loom。在 JDK 17.0.18、21.0.10、25.0.2 上跑下来，全都在 500 毫秒内分配了 6 GiB 以上的内存，调用栈与现场完全一致</p>
+<p>接下来就得弄清这 24 字节是怎么来的了：既然 TLS 都已经收到了 <code>close_notify</code>，对端理应不会再发来任何数据才对</p>
+<h3 id="多出来的-24-字节"><a class="header-anchor" href="#多出来的-24-字节"></a>多出来的 24 字节</h3>
+<p>排查到这里注意到一个线索：所有能复现问题的开发机都是经 Xray 的 HTTP 代理上网的。于是照着 Loom 的配置，
+用 JDK HttpClient 配合虚拟线程执行器写了个单文件测试程序，从资源服务器下载一个约 4.5 MiB 的资源文件，
+下载完成后不退出、继续持有客户端，看看连接关闭时到底发生了什么。测试程序的完整代码附在文末</p>
+<p>要想复现，首先得让连接由资源服务器主动关闭。JDK HttpClient 默认会在 HTTP/2 连接空闲 30 秒后自己把连接关掉，那样就看不到对端的关闭过程了。
+因此实验里把 <code>jdk.httpclient.keepalive.timeout</code> 调到了 120 秒，在下载结束约 90 秒后，就能稳定等到资源服务器发来的 <code>GOAWAY</code> 和 <code>close_notify</code></p>
+<p>至于 Gradle 现场走的则是另一条时序：从堆中 HTTP/2 帧解码器的状态来看，资源服务器的 <code>GOAWAY</code> 在最后一个响应传完之前就已经到了，
+所以连接随着最后一个请求结束直接进入了关闭流程，没有经过 30 秒的空闲计时。不过不管走哪条时序，最终都会落到同一个 TLS 关闭过程上</p>
+<p>拿同一个测试程序分别跑三条网络路径。除了直连和 Xray 之外，我还手搓了一个普通的 HTTP CONNECT 转发器，它只负责在两端之间原样复制字节，
+用来区分问题到底是出在“经过 HTTP 代理”上，还是出在“经过 Xray”上：</p>
+<table>
+<thead>
+<tr>
+<th>网络路径</th>
+<th>收到 <code>close_notify</code> 之后</th>
+<th style="text-align:right">下载结束后第 90–95 秒的 JVM 分配量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>直连</td>
+<td>读到 EOF，连接关闭</td>
+<td style="text-align:right">约 0.003 MiB</td>
+</tr>
+<tr>
+<td>普通 CONNECT 转发器</td>
+<td>读到 EOF，连接关闭</td>
+<td style="text-align:right">约 0.003 MiB</td>
+</tr>
+<tr>
+<td>Xray</td>
+<td>又收到 24 字节，开始空转</td>
+<td style="text-align:right">约 38 GiB</td>
+</tr>
+</tbody>
+</table>
+<p>三条路径都完整下完了文件，也都收到了 <code>close_notify</code>，差别只出现在收到 <code>close_notify</code> 之后：直连和普通转发器紧接着就读到了 EOF，唯独走 Xray 的路径又多收到了 24 字节，随后开始空转</p>
+<p>为了看清这 24 字节到达的具体时机，我用 <code>--patch-module</code> 给测试 JVM 里的 <code>SSLFlowDelegate</code> 加了两处日志：
+用 <code>TLS_CLOSE_TRACE</code> 记录 unwrap 返回 <code>CLOSED</code> 时输入缓冲区的变化，其中的 <code>before</code> 和 <code>after</code> 分别是 unwrap 前后缓冲区的 <code>position/limit</code>；再用 <code>TLS_POST_CLOSE_INPUT</code> 记录关闭之后上游又送来的新数据。
+走 Xray 时，打出来的日志如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">TLS_CLOSE_TRACE       before=39/63  after=63/63  consumed=24  produced=0</span><br><span class="line">TLS_POST_CLOSE_INPUT  len=24        complete=false</span><br><span class="line">TLS_CLOSE_TRACE       before=0/24   after=0/24   consumed=0   produced=0</span><br></pre></td></tr></table></figure>
+<p>第一行对应资源服务器发来的 <code>close_notify</code>，这 24 字节被完整消费，缓冲区读到了末尾 <code>63/63</code>。
+紧接着第二行，上游又单独送来了一段 24 字节的新数据，且此时还没有读到 EOF。从第三行开始，已经关闭的 TLS 引擎面对这段数据只会返回 <code>CLOSED</code>、消费 0 字节，并从此不断重复。
+这正是前面在 Gradle 现场堆里看到的状态</p>
+<p>把这 24 字节捞出来看一眼。TLS 是以记录为单位传输数据的，每条记录都以 5 字节的记录头开头，依次是内容类型、协议版本和长度。
+这 24 字节的记录头是 <code>17 03 03 00 13</code>，代表着一条后跟 19 字节密文的加密记录，
+长度跟前一条 <code>close_notify</code> 一模一样，也与 TLS 1.3 下一条加密告警的大小相符。
+换句话说，在收到资源服务器的 <code>close_notify</code> 之后，代理路径上又凭空冒出了一条 TLS 告警</p>
+<h2 id="根因"><a class="header-anchor" href="#根因"></a>根因</h2>
+<h3 id="Xray-Vision-泄漏的外层关闭通知"><a class="header-anchor" href="#Xray-Vision-泄漏的外层关闭通知"></a>Xray Vision 泄漏的外层关闭通知</h3>
+<p>VLESS 协议在 Xray 客户端和 Xray 服务端之间有一层自己的 TLS，这里不妨称之为外层 TLS；
+而 Java 与资源服务器之间的 HTTPS 则是被它承载的内层 TLS。
+Vision 流控在识别出内层是 TLS 1.3 后就会切换到 direct copy 模式：两端直接绕过外层 TLS，在底层 TCP 连接上原样转发内层的字节，
+以此省去一次加解密开销</p>
+<p>问题就出在旧版实现切换到 direct copy 之后，外层 TLS 对象依然留着。
+等到连接收尾时，Xray 服务端照常去关闭这个外层 TLS 对象，它便往同一条底层 TCP 连接里写出了一条外层的加密 <code>close_notify</code>。
+此时的 Xray 客户端正按 direct copy 模式原样转发字节，根本分不清这条记录其实不属于内层，于是直接把它转交给了 Java。这就是那多出来的 24 字节的来历</p>
+<p>翻了下 Xray 的仓库，<a target="_blank" rel="noopener" href="https://github.com/XTLS/Xray-core/issues/6794">issue #6794</a> 详细分析过这个问题，
+那边复现时抓到的同样是 <code>17 03 03 00 13</code> 外加 19 字节。
+随后的修复 <a target="_blank" rel="noopener" href="https://github.com/XTLS/Xray-core/pull/6834">PR #6834</a> 在切换到 direct copy 后抑制了外层的关闭通知，
+于 2026 年 9 月合并，首个包含该修复的版本是 26.9.30</p>
+<p>回头看本次现场的环境，本机的 Xray 客户端 26.10.21 已经包含了修复，但远端的服务端 26.3.27 还没有。
+由于这条记录是由服务端写出、沿着下行方向发往客户端的，所以必须升级服务端才能解决。
+把服务端升级到 26.10.31 后，再用同一个测试程序经 Xray 下载，收到 <code>close_notify</code> 后便直接读到了 EOF，第 90–95 秒的分配量也回到了正常的约 0.094 MiB</p>
+<h3 id="JDK-HttpClient-的上游修复"><a class="header-anchor" href="#JDK-HttpClient-的上游修复"></a>JDK HttpClient 的上游修复</h3>
+<p>按 TLS 1.3 规范 <a target="_blank" rel="noopener" href="https://www.rfc-editor.org/rfc/rfc8446#section-6.1">RFC 8446 §6.1</a> 的要求，收到关闭告警之后到达的数据应当一律忽略。
+大多数 TLS 实现都是照此处理的，所以平时就算多出这么一条记录也通常无人察觉，偏偏 JDK HttpClient 还会继续处理缓冲区里剩下的数据，进而一头卡进了前面那个死循环里</p>
+<p>JDK 上游其实也已经修掉了这个问题，对应 issue 为 JDK-8374557 “Enhance TLS connection handling”。
+补丁在 <code>unwrapBuffer()</code> 处理 <code>CLOSED</code> 的分支里加上了两行代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> CLOSED:</span><br><span class="line">    <span class="keyword">assert</span> dst.position() == <span class="number">0</span>;</span><br><span class="line">    src.position(src.limit());  <span class="comment">// 丢弃剩余输入</span></span><br><span class="line">    completing = <span class="literal">true</span>;          <span class="comment">// 标记读取完成</span></span><br><span class="line">    <span class="keyword">return</span> doClosure(<span class="keyword">new</span> <span class="title class_">EngineResult</span>(sslResult));</span><br></pre></td></tr></table></figure>
+<p>一旦 TLS 输入方向关闭，剩余的输入就会被直接丢弃，同时 <code>Reader</code> 进入完成状态，外层的循环条件也就不再成立了。此外补丁也一并调整了收到 <code>close_notify</code> 后的关闭流程。
+该修复目前已合入 JDK 主线，并回移到了 11.0.31、17.0.19、21.0.11、25.0.3 和 26.0.1，各分支的提交见文末参考。
+本次现场所用的 25.0.2 刚好不含这个修复。修复版 JDK 我没有在本机复测</p>
+<h3 id="故障链路"><a class="header-anchor" href="#故障链路"></a>故障链路</h3>
+<p>把整个过程串起来，完整的故障链路如下：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Loom 在 Gradle 配置阶段经 Xray 代理下载 Minecraft 资源</span><br><span class="line">  → 资源服务器关闭连接，发出 close_notify</span><br><span class="line">  → 旧版 Xray 服务端又写出一条外层 close_notify，被当作内层数据转发给 Java</span><br><span class="line">  → JDK HttpClient 的 TLS 读取循环无法消费它，也无法退出，每轮分配 16 KiB</span><br><span class="line">  → Gradle daemon 常驻，异常线程在构建结束后继续占用 CPU 和内存带宽</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Xray 服务端是问题的触发方：代理往内层字节流里混入了不属于它的数据，属于实现缺陷，已在 Xray 26.9.30 中修复</li>
+<li>JDK HttpClient 是问题的放大方：在输入没有进展时既不退出也不报错，把一条多余的记录放大成了持续的内存分配，同样属于实现缺陷，
+已在 JDK 11.0.31、17.0.19、21.0.11、25.0.3、26.0.1 中修复</li>
+<li>Fabric Loom 和 Gradle daemon 则是躺枪的载体：Loom 只是在配置阶段正常发起下载，而常驻的 daemon 让异常线程在构建结束后继续存在。
+作为使用方，他俩都没有 bug</li>
+</ul>
+<p>修好 Xray 或 JDK 中的任何一方，这条故障链路都会断开，也就不会再遇到本文描述的问题了</p>
+<h2 id="影响范围"><a class="header-anchor" href="#影响范围"></a>影响范围</h2>
+<p>要遇到这个问题，需同时满足下面三个条件。下表中的起始版本是翻阅上游源码推算得出的，早期版本未经实测：</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>起始版本</th>
+<th>修复版本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Xray 服务端</td>
+<td>1.6.2（2022 年 10 月）</td>
+<td>26.9.30</td>
+</tr>
+<tr>
+<td>JDK</td>
+<td>11（<code>java.net.http</code> 正式发布）</td>
+<td>11.0.31、17.0.19、21.0.11、25.0.3、26.0.1</td>
+</tr>
+<tr>
+<td>Fabric Loom</td>
+<td>0.13.1（2022 年 7 月）</td>
+<td>不涉及</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Xray 在 1.6.2 首次引入了 Vision，从初版起就已经在切换到 direct copy 后保留了外层 TLS 对象，外层无论使用 TLS 还是 REALITY 均受影响</li>
+<li>JDK 的这个读取循环早在 JDK 10 的孵化版 HTTP Client 中就已经存在，到了 JDK 11 随正式的 <code>java.net.http</code> 模块一并转正</li>
+<li>Loom 则从 0.13.1 起改用 JDK HttpClient 来下载资源</li>
+</ul>
+<p>算下来，这三个条件同时具备最早是在 2022 年 10 月 Xray 1.6.2 发布的时候。
+即便不使用 Loom，其他经过 Vision 代理调用 JDK HttpClient 的 Java 程序也同样会遇到这个问题，文末参考里的几份社区反馈都属于这种情况</p>
+<h2 id="自查与处理"><a class="header-anchor" href="#自查与处理"></a>自查与处理</h2>
+<p>如果怀疑自己也遇到了这个问题，可以在 daemon 上跑一下 <code>jcmd &lt;pid&gt; Thread.print -e</code>。要是看到某个线程的 <code>allocated=</code> 已经达到了数百 GB 乃至 TB 级别，
+并且调用栈停在 <code>SSLFlowDelegate$Reader.unwrapBuffer</code>，那基本就是它没跑了</p>
+<p>处理方式二选一即可：</p>
+<ul>
+<li>把 Gradle daemon 所用的 JDK 升级到 11.0.31、17.0.19、21.0.11、25.0.3、26.0.1 或更新版本。
+daemon 实际使用的 JDK 由 <code>gradle.properties</code> 中的 <code>org.gradle.java.home</code>、IDE 的 Gradle JVM 设置或 daemon JVM toolchain 决定，
+都没指定时则默认沿用启动 <code>gradlew</code> 的 JDK，即 <code>JAVA_HOME</code>。可以用 <code>jcmd &lt;pid&gt; VM.version</code> 来确认 daemon 实际跑在哪个版本上</li>
+<li>如果代理节点用了 Xray Vision，把 Xray 服务端升级到 26.9.30 或更新版本</li>
+</ul>
+<p>至于已经卡进死循环里的 daemon 是不会自行恢复的，跑一下 <code>gradlew --stop</code> 或直接结束进程即可</p>
+<h2 id="附：复现程序"><a class="header-anchor" href="#附：复现程序"></a>附：复现程序</h2>
+<p>下面这个程序会用 JDK 25 去下载上文提到的资源文件，下载完后每 5 秒输出一次 JVM 的内存分配增量，共观察 105 秒。
+参数传 <code>proxy</code> 时经本地 <code>127.0.0.1:1080</code> 的 HTTP 代理访问，传 <code>direct</code> 时直连。加上 HttpClient 和 TLS 的调试日志后，
+可以很清楚地把分配量突增的时刻与 <code>GOAWAY</code>、<code>close_notify</code> 等关闭事件对应起来：</p>
+<figure class="highlight powershell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$vmArgs</span> = <span class="selector-tag">@</span>(</span><br><span class="line">    <span class="string">&#x27;-Xmx256m&#x27;</span></span><br><span class="line">    <span class="string">&#x27;-Djdk.httpclient.keepalive.timeout=120&#x27;</span></span><br><span class="line">    <span class="string">&#x27;-Djdk.httpclient.HttpClient.log=frames:control,channel&#x27;</span></span><br><span class="line">    <span class="string">&#x27;-Djavax.net.debug=ssl,record&#x27;</span></span><br><span class="line">)</span><br><span class="line">java @vmArgs Probe.java proxy</span><br><span class="line">java @vmArgs Probe.java direct</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Probe.java</span></span><br><span class="line"><span class="keyword">import</span> com.sun.management.ThreadMXBean;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> java.lang.ref.Reference;</span><br><span class="line"><span class="keyword">import</span> java.net.*;</span><br><span class="line"><span class="keyword">import</span> java.net.http.*;</span><br><span class="line"><span class="keyword">import</span> java.time.Duration;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Probe</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">var</span> <span class="variable">proxy</span> <span class="operator">=</span> args[<span class="number">0</span>].equals(<span class="string">&quot;proxy&quot;</span>)</span><br><span class="line">                ? ProxySelector.of(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="string">&quot;127.0.0.1&quot;</span>, <span class="number">1080</span>))</span><br><span class="line">                : HttpClient.Builder.NO_PROXY;</span><br><span class="line">        <span class="type">var</span> <span class="variable">client</span> <span class="operator">=</span> HttpClient.newBuilder()</span><br><span class="line">                .proxy(proxy)</span><br><span class="line">                .executor(Executors.newVirtualThreadPerTaskExecutor())</span><br><span class="line">                .build();</span><br><span class="line">        <span class="type">var</span> <span class="variable">uri</span> <span class="operator">=</span> URI.create(<span class="string">&quot;https://piston-data.mojang.com/v1/objects/&quot;</span></span><br><span class="line">                + <span class="string">&quot;6073e4ba6949217eb708c4512be2ccc1850a603f/client.txt&quot;</span>);</span><br><span class="line">        <span class="type">var</span> <span class="variable">request</span> <span class="operator">=</span> HttpRequest.newBuilder(uri)</span><br><span class="line">                .timeout(Duration.ofSeconds(<span class="number">30</span>))</span><br><span class="line">                .build();</span><br><span class="line">        <span class="type">var</span> <span class="variable">response</span> <span class="operator">=</span> client.send(request, HttpResponse.BodyHandlers.ofByteArray());</span><br><span class="line">        System.out.printf(<span class="string">&quot;%s %d, %d bytes%n&quot;</span>, response.version(),</span><br><span class="line">                response.statusCode(), response.body().length);</span><br><span class="line"></span><br><span class="line">        <span class="type">var</span> <span class="variable">threads</span> <span class="operator">=</span> ManagementFactory.getPlatformMXBean(ThreadMXBean.class);</span><br><span class="line">        threads.setThreadAllocatedMemoryEnabled(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">long</span> <span class="variable">previous</span> <span class="operator">=</span> threads.getTotalThreadAllocatedBytes();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">seconds</span> <span class="operator">=</span> <span class="number">5</span>; seconds &lt;= <span class="number">105</span>; seconds += <span class="number">5</span>) &#123;</span><br><span class="line">            Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">            <span class="type">long</span> <span class="variable">current</span> <span class="operator">=</span> threads.getTotalThreadAllocatedBytes();</span><br><span class="line">            <span class="type">double</span> <span class="variable">allocatedMiB</span> <span class="operator">=</span> (current - previous) / <span class="number">1048576.0</span>;</span><br><span class="line">            System.out.printf(<span class="string">&quot;%3d s  %,.2f MiB%n&quot;</span>, seconds, allocatedMiB);</span><br><span class="line">            previous = current;</span><br><span class="line">        &#125;</span><br><span class="line">        Reference.reachabilityFence(client);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="参考"><a class="header-anchor" href="#参考"></a>参考</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/XTLS/Xray-core/issues/6794">Xray issue #6794</a>：Vision direct copy 后外层 TLS 的 close_notify 泄入内层字节流</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/XTLS/Xray-core/pull/6834">Xray PR #6834</a>：修复上述问题</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/XTLS/Xray-core/commit/5e695327b173c6917ce8840c7e7d38f75a3b7099">Xray Vision 的首次提交</a>，随 v1.6.2 发布</li>
+<li>JDK-8374557 的提交：
+<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk/commit/d0d4b1afc48994e7e0ce416c16079ae88014e198">主线</a>、
+<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk11u-dev/commit/acd581e8cbd48a51470e6363f9d6715c49c68646">11u</a>、
+<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk17u/commit/5b42bce259cac40639328cd608f83bf7f7894632">17u</a>、
+<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk21u/commit/7713f5d059616ac459c49042e17e79077f29d881">21u</a>、
+<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk25u/commit/ccf8a461821cfe0700403418d0e789b7fd7ed049">25u</a>、
+<a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk26u/commit/0f65fbe42a51e4a907af940c88305d9860c90cc4">26u</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/openjdk/jdk/blob/37811b7460012b503e9f6c52867942077674661f/src/jdk.incubator.httpclient/share/classes/jdk/incubator/http/internal/common/SSLFlowDelegate.java#L304">JDK 10 孵化版 HTTP Client 中最初的 <code>SSLFlowDelegate</code></a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/FabricMC/fabric-loom/commit/c4c6de23e3b6a3da61b8e8ba662853cbd1b17d94">Fabric Loom #681</a>：下载器改用 JDK HttpClient，随 0.13.1 发布</li>
+<li>其他项目中的同类反馈，均为代理或 VPN 环境下 HttpClient 空闲时卡在 <code>SSLFlowDelegate</code>：
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/jixxed/ed-odyssey-materials-helper/issues/991">ED Odyssey Materials Helper #991</a>：堆状态与本文一致</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/SkyblockerMod/Skyblocker/pull/2533">Skyblocker #2533</a>：Minecraft mod，VLESS 代理环境</li>
+<li><a target="_blank" rel="noopener" href="https://access.redhat.com/solutions/7141723">Red Hat 知识库 7141723</a>：JDK 17 下远端关闭连接后 CPU 占满</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/" title="Gradle daemon 在构建结束后持续占用内存带宽的问题分析">https://blog.fallenbreath.me/zh-CN/2026/gradle-daemon-high-memory-bandwidth/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/Fabric/" rel="tag"># Fabric</a>
+              <a href="/tags/Gradle/" rel="tag"># Gradle</a>
+              <a href="/tags/Java/" rel="tag"># Java</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/minecraft-server-crash-avltreeset-subset-iea/" rel="prev" title="对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析">
+                  <i class="fa fa-angle-left"></i> 对实体查询在 LongAVLTreeSet.Subset 引发 IllegalArgumentException 的分析
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2026/minecraft-server-connection-speedup/" rel="next" title="Minecraft 连接服务器速度优化">
+                  Minecraft 连接服务器速度优化 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2026/gradle-daemon-high-memory-bandwidth/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2026/gradle-daemon-high-memory-bandwidth/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">107k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:14</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"c87160f9d293f683dddfc7c3f8ea68a3"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

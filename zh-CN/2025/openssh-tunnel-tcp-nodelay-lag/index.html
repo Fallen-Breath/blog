@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.2.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.loli.net/css?family=Courgette:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha256-XOqroi11tY4EFQMR9ZYwZWKj5ZXiftSx36RRuC3anlA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.css" integrity="sha256-gkQVf8UKZgQ0HyuxL/VnacadJ+D2Kox2TCEBuNQg5+w=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.fallenbreath.me","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.20.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":{"enable":false,"onlypost":true},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="tl;dr，OpenSSH 的 sshd 只在某个 session 通道跑过 shell、exec 或 subsystem 请求时，才会调用 set_nodelay() 给 ssh 所在的那条 TCP 连接关掉 Nagle。端口转发时若不开 session 通道，服务端就一直不会给这条连接设 TCP_NODELAY JumpServer 用转发网关做 ssh 中转，和 ssh -N -L 一样都仅">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSH 端口转发的延迟问题分析">
+<meta property="og:url" content="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/index.html">
+<meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="tl;dr，OpenSSH 的 sshd 只在某个 session 通道跑过 shell、exec 或 subsystem 请求时，才会调用 set_nodelay() 给 ssh 所在的那条 TCP 连接关掉 Nagle。端口转发时若不开 session 通道，服务端就一直不会给这条连接设 TCP_NODELAY JumpServer 用转发网关做 ssh 中转，和 ssh -N -L 一样都仅">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/lag.gif">
+<meta property="og:image" content="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/nolag.gif">
+<meta property="article:published_time" content="2025-06-08T18:02:56.000Z">
+<meta property="article:modified_time" content="2026-09-19T14:32:25.000Z">
+<meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="SSH">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="Go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/lag.gif">
+
+
+<link rel="canonical" href="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/","path":"zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/","title":"SSH 端口转发的延迟问题分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>SSH 端口转发的延迟问题分析 | fallen's attic</title>
+  
+
+
+
+
+
+
+  <script async defer data-website-id="35f37ce2-b390-4892-baf1-abf29a3bf02d" src="https://umami.fallenbreath.me/script.js"></script>
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">fallen's attic</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%86%E6%9E%90"><span class="nav-text">分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%8D%E7%8E%B0"><span class="nav-text">复现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%93%E5%8C%85"><span class="nav-text">抓包</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%B9%E5%9B%A0"><span class="nav-text">根因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95"><span class="nav-text">解决方法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E4%BF%A1%E6%81%AF"><span class="nav-text">环境信息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-text">参考</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Fallen_Breath"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Fallen_Breath</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://fallenbreath.me/" title="HomePage → https:&#x2F;&#x2F;fallenbreath.me&#x2F;" rel="noopener me" target="_blank"><i class="fa fa-house fa-fw"></i>HomePage</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://github.com/Fallen-Breath" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Fallen-Breath" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://space.bilibili.com/4690315" title="Bilibili → https:&#x2F;&#x2F;space.bilibili.com&#x2F;4690315" rel="noopener me" target="_blank"><i class="fab fa-bilibili fa-fw"></i>Bilibili</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="http://www.youtube.com/c/FallenBreath" title="YouTube → http:&#x2F;&#x2F;www.youtube.com&#x2F;c&#x2F;FallenBreath" rel="noopener me" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://xiaoyuan-xyz.github.io/" title="https:&#x2F;&#x2F;xiaoyuan-xyz.github.io&#x2F;" rel="noopener" target="_blank">小渊的博客</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="https://lucunji.github.io/" title="https:&#x2F;&#x2F;lucunji.github.io&#x2F;" rel="noopener" target="_blank">LucunJi</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div><script src="/js/canvas-nest.js"></script>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="SSH 端口转发的延迟问题分析 | fallen's attic">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SSH 端口转发的延迟问题分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-06-09 02:02:56" itemprop="dateCreated datePublished" datetime="2025-06-09T02:02:56+08:00">2025-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2026-09-19 22:32:25" itemprop="dateModified" datetime="2026-09-19T22:32:25+08:00">2026-09-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/SSH/" itemprop="url" rel="index"><span itemprop="name">SSH</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>tl;dr，OpenSSH 的 sshd 只在某个 <code>session</code> 通道跑过 <code>shell</code>、<code>exec</code> 或 <code>subsystem</code> 请求时，才会调用 <code>set_nodelay()</code>
+给 ssh 所在的那条 TCP 连接关掉 Nagle。端口转发时若不开 <code>session</code> 通道，服务端就一直不会给这条连接设 <code>TCP_NODELAY</code></p>
+<p>JumpServer 用转发网关做 ssh 中转，和 <code>ssh -N -L</code> 一样都仅启用了 ssh 的端口转发，使得服务端不设置 <code>TCP_NODELAY</code>。
+在 RTT 较高的链路上就会出现回包攒批，导致回显一卡一卡的</p>
+<span id="more"></span>
+<h1 id="背景"><a class="header-anchor" href="#背景"></a>背景</h1>
+<p>家里云上部署了个 <a target="_blank" rel="noopener" href="https://github.com/jumpserver/jumpserver">JumpServer</a> 作为访问各种小鸡的枢纽。JumpServer 有个叫网域的功能，
+可以配置一台转发网关做 SSH 中转，用于访问内网服务，也可用于改善到目标服务器的访问质量</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">客户端 --&gt; JumpServer -&gt; 转发网关 --&gt; 目标服务器</span><br></pre></td></tr></table></figure>
+<p>前两天给 JumpServer 配了台美西的 CN2-GIA 线路机，作为美国非优化线路小鸡的 SSH 中转。线路本身丢包率很低，
+RTT 升高后延迟变大也在预期内，但实际用起来却遇到了一个奇怪的问题：打字时回显一顿一顿的，敲下去的字符会攒几个一起冒出来</p>
+<p><img data-src="/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/lag.gif" alt="回显一顿一顿"></p>
+<p>先看看是不是 JumpServer 在干坏事。JumpServer 的转发网关是借助 SSH 的 Local Port Forwarding 实现的，
+它的 SSH 组件叫 <a target="_blank" rel="noopener" href="https://github.com/jumpserver/koko">koko</a>，里面用的 SSH 库是
+<a target="_blank" rel="noopener" href="https://pkg.go.dev/golang.org/x/crypto/ssh">x/crypto/ssh</a>，中转逻辑分三步：</p>
+<ol>
+<li>调用 <code>ssh.Dial</code> 连上转发网关，拿到一个 <code>ssh.Client</code></li>
+<li>调用 <code>ssh.Client.Dial</code> 连接目标节点的 SSH 端口，拿到一条转发后的 TCP 流</li>
+<li>调用 <code>ssh.NewClientConn</code>，在这条流上创建指向目标节点的 SSH 连接</li>
+</ol>
+<p>具体实现参考 <a target="_blank" rel="noopener" href="https://github.com/jumpserver/koko/blob/422470635b588d954a26bb62478929ef1489742c/pkg/srvconn/ssh.go#L164-L204">这里</a></p>
+<p>翻了下这段代码，写得中规中矩，没看出有啥毛病</p>
+<h1 id="分析"><a class="header-anchor" href="#分析"></a>分析</h1>
+<p>为方便下文表述，不妨设相关机器的 IP 如下：</p>
+<table>
+<thead>
+<tr>
+<th>地址</th>
+<th>角色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.10.10.10</td>
+<td>客户端</td>
+</tr>
+<tr>
+<td>1.2.3.4</td>
+<td>转发网关，做 SSH 中转</td>
+</tr>
+<tr>
+<td>55.66.77.88</td>
+<td>目标服务器</td>
+</tr>
+</tbody>
+</table>
+<h2 id="复现"><a class="header-anchor" href="#复现"></a>复现</h2>
+<p>先排除一下 koko 自身的嫌疑，单独验证 golang 的 ssh 转发逻辑</p>
+<p>我照着 koko 的中转逻辑写了个最小的 Go 工具：连上转发网关，让网关开一条到目标节点的 <code>direct-tcpip</code> 通道，
+再在这条通道上跑一个 SSH 会话，相当于用 Go 重新实现了一遍 <code>ssh -L</code></p>
+<p>工具在本地监听一个端口，验证方式和正常用 JumpServer 一样：另开一个终端从本地端口连进去，进到目标机后长按一个键看回显。
+结果在这个小工具上也能稳定复现卡顿，说明问题出在这套转发方式本身，koko 的嫌疑就此排除</p>
+<p>为了定位这是 golang ssh 库的问题，还是 OpenSSH 的问题，我尝试直接用纯 ssh 客户端来复现</p>
+<p>先试试最常用的 <code>ssh -L</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -L 2222:55.66.77.88:22 root@1.2.3.4</span><br></pre></td></tr></table></figure>
+<p>这条命令把本地的 2222 端口转发到目标机的 SSH 端口，同时登录转发网关并留在它的 shell 里。
+另开一个终端，从本地的 2222 端口连进目标机：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -p 2222 user@127.0.0.1</span><br></pre></td></tr></table></figure>
+<p>同样长按一个键，这次回显非常丝滑</p>
+<p><img data-src="/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/nolag.gif" alt="带 shell 时的回显"></p>
+<p>翻了下转发网关上 sshd 的日志，发现两者在转发上的差别只有一处：<code>ssh -L</code> 在外层连接上开了一个 <code>session</code> 通道，
+用来跑登录转发网关的那个 shell，而小工具从头到尾只有 <code>direct-tcpip</code></p>
+<p>为了验证这个猜想，加上 <code>-N</code> 参数把 <code>ssh -L</code> 的 shell 去掉，只保留端口转发：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh -N -L 2222:55.66.77.88:22 root@1.2.3.4</span><br></pre></td></tr></table></figure>
+<p>再从本地的 2222 端口进目标机，回显果然又变回了一顿一顿。到这里基本能确定，卡不卡顿只取决于外层连接上有没有 <code>session</code> 通道</p>
+<p>把两条命令各加上 <code>-vvv</code> 跑了一遍，客户端日志如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// ssh -L</span><br><span class="line">debug1: channel 2: new session [client-session]</span><br><span class="line">debug2: channel 2: send open</span><br><span class="line">debug2: channel 2: request pty-req confirm 1</span><br><span class="line">debug2: channel 2: request shell confirm 1</span><br><span class="line">debug2: shell request accepted on channel 2</span><br><span class="line">debug1: channel 3: new direct-tcpip [direct-tcpip]</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// ssh -N -L</span><br><span class="line">debug1: Local connections to LOCALHOST:2222 forwarded to remote address 55.66.77.88:22</span><br><span class="line">debug1: channel 0: new port-listener [port listener]</span><br><span class="line">debug2: fd 3 setting TCP_NODELAY</span><br><span class="line">debug1: Entering interactive session.</span><br><span class="line">debug1: Connection to port 2222 forwarding to 55.66.77.88 port 22 requested.</span><br><span class="line">debug2: fd 6 setting TCP_NODELAY</span><br><span class="line">debug1: channel 2: new direct-tcpip [direct-tcpip]</span><br></pre></td></tr></table></figure>
+<p>可以看到两份日志里都有 <code>fd 3 setting TCP_NODELAY</code> 和 <code>fd 6 setting TCP_NODELAY</code>，其中 <code>fd 3</code> 对应 ssh 所在的那条 TCP 连接，
+<code>fd 6</code> 则是 <code>-L</code> 在本地监听 accept 出来的连接。也就是说客户端这侧在两种情况下都设好了 <code>TCP_NODELAY</code>，
+日志里的差异同样只剩 <code>session</code> 通道这一处</p>
+<h2 id="抓包"><a class="header-anchor" href="#抓包"></a>抓包</h2>
+<p>为什么少一个 <code>session</code> 通道就会导致卡顿呢？先从网络包上找找线索</p>
+<p>卡顿表现为“客户端 -&gt; 转发网关”这一跳的回包不连续，而且这一跳的 RTT 也是整条链路上最大的，先在转发网关上抓个包，
+把转发网关发往客户端这一个方向的包捞出来：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcpdump -nn -i eth0 host 10.10.10.10 and port 22 | grep <span class="string">&#x27;1.2.3.4.22 &gt; 10.10.10.10.48720&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>抓包对象是带 <code>-N</code> 的那条连接。从 2222 端口进去的会话停在 bash 提示符，按住 a 键观察回显，抓到的片段如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">21:56:51.319876 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [P.], seq 1:85, ack 84, length 84</span><br><span class="line">21:56:51.358738 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [.], ack 252, length 0</span><br><span class="line">21:56:51.398767 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [.], ack 420, length 0</span><br><span class="line">21:56:51.437591 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [.], ack 588, length 0</span><br><span class="line">21:56:51.468702 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [P.], seq 85:673, ack 672, length 588</span><br><span class="line">21:56:51.497663 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [.], ack 840, length 0</span><br><span class="line">21:56:51.539631 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [.], ack 1008, length 0</span><br><span class="line">21:56:51.579487 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [.], ack 1176, length 0</span><br><span class="line">21:56:51.619685 IP 1.2.3.4.22 &gt; 10.10.10.10.48720: Flags [P.], seq 673:1261, ack 1344, length 588</span><br></pre></td></tr></table></figure>
+<p>统计整段 3.17 秒的抓包数据，转发网关发出的数据包大小稳定在 588 到 672 字节，间隔 159 毫秒，中间夹着的纯 ACK 包每 40 毫秒一个。
+按 ack 号推算，客户端上行一共发了 13356 字节，平均每 40 毫秒 168 字节，两个方向的总量都在 13.3 KB 左右</p>
+<p>按住一个键产生的输入是连续的，回显理应跟着输入连续返回，但抓包里的回显却被攒成了每 159 毫秒一批。同时 ping 转发网关得到的 RTT 是 160 毫秒，
+恰好和回包间隔对得上，相当于每个 RTT 才发出一包数据</p>
+<p>看到这种等一个 RTT 才攒批发一包的表现，直接怀疑是转发网关这侧的 <code>TCP_NODELAY</code> 没启用，触发了 Nagle 算法。
+不过目前还只是猜测，得去翻翻 OpenSSH 的源码确认一下</p>
+<h1 id="根因"><a class="header-anchor" href="#根因"></a>根因</h1>
+<p>转发网关的 OpenSSH 版本是 8.7p1，搞一份它的 <a target="_blank" rel="noopener" href="https://github.com/openssh/openssh-portable/tree/V_8_7">源码</a>，
+在里面搜一波 <code>set_nodelay</code> 的调用点。可以发现，作用在 ssh 所在的那条 TCP 连接上的只有一处，位于 <code>packet.c</code> 的 <code>ssh_packet_set_interactive()</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span></span><br><span class="line"><span class="title function_">ssh_packet_set_interactive</span><span class="params">(<span class="keyword">struct</span> ssh *ssh, <span class="type">int</span> interactive, <span class="type">int</span> qos_interactive, <span class="type">int</span> qos_bulk)</span></span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">session_state</span> *<span class="title">state</span> =</span> ssh-&gt;state;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (state-&gt;set_interactive_called)</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	state-&gt;set_interactive_called = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	state-&gt;interactive_mode = interactive;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (!ssh_packet_connection_is_on_socket(ssh))</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	set_nodelay(state-&gt;connection_in);</span><br><span class="line">	ssh_packet_set_tos(ssh, interactive ? qos_interactive : qos_bulk);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到 <code>set_nodelay</code> 是无条件执行的，跟 <code>interactive</code> 参数无关，并且 <code>set_interactive_called</code> 保证了这个函数只生效一次。
+由于 <code>TCP_NODELAY</code> 是 socket 级别的标志，只要在 ssh 所在的那条 TCP 连接上调用过一次，后续在这条连接上复用的所有通道都会生效</p>
+<p>接下来看看 sshd 什么时候会调用这个函数。顺着调用链往上找，服务端只有两处调用，都在 <code>session.c</code> 里，
+分别是 <code>do_exec_no_pty</code> 和 <code>do_exec_pty</code>。这两个函数的入口都是 <code>do_exec</code>，而 <code>do_exec</code> 只会由 <code>session</code> 通道上的
+<code>shell</code>、<code>exec</code>、<code>subsystem</code> 三种请求触发</p>
+<table>
+<thead>
+<tr>
+<th>服务端收到的请求</th>
+<th>服务端的动作</th>
+<th>ssh 所在的那条 TCP 连接上的 <code>TCP_NODELAY</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>session</code> 通道 + <code>shell</code> / <code>exec</code> / <code>subsystem</code></td>
+<td>进入 <code>do_exec</code></td>
+<td>设置</td>
+</tr>
+<tr>
+<td><code>session</code> 通道 + <code>pty-req</code></td>
+<td>分配 pty</td>
+<td>维持默认</td>
+</tr>
+<tr>
+<td><code>direct-tcpip</code></td>
+<td>在 <code>connect_next</code> 里给出站 socket 设置</td>
+<td>维持默认</td>
+</tr>
+</tbody>
+</table>
+<p>到这里，现象和代码就完全对上了。开过 <code>session</code> 通道并且跑过命令的 ssh 连接会设置 <code>TCP_NODELAY</code>，而只做端口转发的 ssh 连接
+则一直开着 Nagle，导致服务端回包被攒成了一个 RTT 一批</p>
+<p>其实端口转发逻辑里也有设置 <code>TCP_NODELAY</code> 的地方，只是设到了别的 socket 上：转发网关连向目标机的出站 socket 在 <code>channels.c</code> 的
+<code>connect_next</code> 里设置了，客户端 <code>-L</code> 在本地监听 accept 出来的连接也单独设置了，偏偏漏掉了客户端与转发网关之间那条承载 ssh 的 TCP 连接本身</p>
+<p>至于为什么只有转发网关发往客户端的下行方向被卡住，而客户端发往转发网关的上行方向一直正常，是因为 koko 那侧用的是 Go 的 <code>net.TCPConn</code>，
+在创建连接时 <code>newTCPConn</code> 默认就调用了 <code>setNoDelay(true)</code></p>
+<h1 id="解决方法"><a class="header-anchor" href="#解决方法"></a>解决方法</h1>
+<p>原因清楚了，解决思路也就很直接：只要让 ssh 所在的那条 TCP 连接上出现一次 <code>session</code> 通道的 <code>shell</code>、<code>exec</code> 或
+<code>subsystem</code> 请求，转发网关的 sshd 就会把 <code>TCP_NODELAY</code> 设上。因此在 SSH 连接建立之后，可以先开一个 <code>session</code>
+通道并请求一个 <code>shell</code>，再去建立后面的端口转发通道</p>
+<p>具体到 koko 里，可以用下面这段代码来让转发网关的 sshd 开启 <code>TCP_NODELAY</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fixProxySshClientDialConnectionLag</span><span class="params">(proxyClient *SSHClient)</span></span> (<span class="function"><span class="keyword">func</span><span class="params">()</span></span>, <span class="type">error</span>) &#123;</span><br><span class="line">	ses, err := proxyClient.NewSession()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	err = ses.Shell()  <span class="comment">// 创建一个 shell session</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		_ = ses.Close()</span><br><span class="line">	&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 <code>session</code> 的唯一作用就是触发一次转发网关 sshd 的 <code>set_nodelay()</code>。一旦 <code>TCP_NODELAY</code> 设置到这条 TCP 连接上，
+且 sshd 侧的 <code>set_interactive_called</code> 标记完成，这个 <code>session</code> 就可以直接关掉了，后续复用这条 TCP 连接的所有转发通道都会继续保持无延迟状态</p>
+<p>如果平时手动用 OpenSSH 客户端做端口转发，去掉 <code>-N</code> 参数也是同样的效果：外层连接建立时会顺带开一个 shell，
+触发转发网关的 sshd 给这条 TCP 连接设上 <code>TCP_NODELAY</code></p>
+<h1 id="环境信息"><a class="header-anchor" href="#环境信息"></a>环境信息</h1>
+<ul>
+<li>转发网关：RHEL 9.5 自带的 OpenSSH_8.7p1</li>
+<li>koko 版本：v4.10.1-ce</li>
+<li>GoLang 版本：1.24.1</li>
+</ul>
+<h1 id="参考"><a class="header-anchor" href="#参考"></a>参考</h1>
+<p>搜这个问题的时候也翻到了几处古早的社区记录，时间跨度挺大，看来这个行为在 OpenSSH 里已经存在二十多年了：</p>
+<ul>
+<li>
+<p>2002 年的 <a target="_blank" rel="noopener" href="https://marc.info/?l=openssh-unix-dev&amp;m=101223681723922&amp;w=1">openssh 邮件列表</a> 里讨论过给 Nagle 加一个开关，也有人提出转发的 TCP 端口和 X11 应该关掉 Nagle，不过这个改动最后没有合进代码</p>
+</li>
+<li>
+<p>2003 年的 <a target="_blank" rel="noopener" href="http://lists.mindrot.org/pipermail/openssh-unix-dev/2003-May/017895.html">openssh bug 556</a> 提到的就是端口转发时 <code>TCP_NODELAY</code> 只设到了转发端口上，导致服务端发往客户端的数据被缓存并形成 bursting effect，这个 issue 的状态至今仍是 NEW</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/" title="SSH 端口转发的延迟问题分析">https://blog.fallenbreath.me/zh-CN/2025/openssh-tunnel-tcp-nodelay-lag/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/SSH/" rel="tag"># SSH</a>
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/Go/" rel="tag"># Go</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/buyvm-ipv6-pool-init/" rel="prev" title="BuyVM VPS /48 IPv6 子网配置">
+                  <i class="fa fa-angle-left"></i> BuyVM VPS /48 IPv6 子网配置
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/zh-CN/2025/minecraft-dev-intellij-run-config-error-fix/" rel="next" title="Minecraft 开发环境 Intellij IDE 的 Run Configuration 损坏修复">
+                  Minecraft 开发环境 Intellij IDE 的 Run Configuration 损坏修复 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+  <div class="languages">
+    <label class="lang-select-label">
+      <i class="fa fa-language"></i>
+      <span>简体中文</span>
+      <i class="fa fa-angle-up" aria-hidden="true"></i>
+    </label>
+    <select class="lang-select" data-canonical="" aria-label="选择语言">
+      
+        <option value="zh-CN" data-href="/2025/openssh-tunnel-tcp-nodelay-lag/" selected="">
+          简体中文
+        </option>
+      
+        <option value="en" data-href="/en/2025/openssh-tunnel-tcp-nodelay-lag/" selected="">
+          English
+        </option>
+      
+    </select>
+  </div>
+
+  <div class="copyright">
+    &copy; 2019 – 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Fallen_Breath</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">107k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">3:14</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/Fallen-Breath" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.31/fancybox/fancybox.umd.js" integrity="sha256-a+H7FYzJv6oU2hfsfDGM2Ohw/cR9v+hPfxHCLdmCrE8=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"Fallen-Breath","repo":"blog-comments","client_id":"cf0173681bce1acd6dec","client_secret":"12c622fd7d1517f2a7973df89f8189c42dd9bf06","admin_user":"Fallen-Breath","distraction_free_mode":false,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":null,"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"618a4e9bfbb3c24e7f158e936ea3e443"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
